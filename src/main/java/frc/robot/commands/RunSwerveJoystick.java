@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Drivetrain.DriveMode;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 
@@ -18,7 +19,7 @@ public class RunSwerveJoystick extends CommandBase {
     private final Supplier<Double> speedChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
     
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser) {
+    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<DriveMode> driveModeChooser) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
         this.speedChooser = speedChooser;
@@ -32,6 +33,17 @@ public class RunSwerveJoystick extends CommandBase {
 
     @Override
     public void execute() {
+        switch(drivetrain.getDriveMode()) {
+            case FIELD_ORIENTED_SWERVE:
+                runSwerve(true);
+            case SWERVE:
+                runSwerve(false);
+            default:
+                break;
+        }
+    }
+
+    private void runSwerve(boolean isFieldOriented) {
         //Background on the speed values:
         // - Left Y is positive when pulled BACKWARDS, and negative when pushed FORWARDS (not intuitive)
         // - Left X is positive when pushed to the right, and negative when pushed to the left (normal)
@@ -63,7 +75,7 @@ public class RunSwerveJoystick extends CommandBase {
 
         // 4. Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
-        if(drivetrain.isFieldOriented()) {
+        if(isFieldOriented) {
             // Relative to field
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, Rotation2d.fromDegrees(drivetrain.getHeading()));
         } else {

@@ -106,7 +106,7 @@ public class SwerveModule {
     }
 
     /**
-     * @return The turning velocity of the module
+     * @return The turning velocity of the module in degrees per second
      * prob never gonna use this piece of shit but I like it for continuity
      */
     public double getTurningVelocity() {

@@ -3,11 +3,18 @@ package frc.robot;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.RunChooseDriveMode;
+import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Drivetrain.DriveMode;
 
 public class RobotContainer {
+    public final Drivetrain drivetrain = new Drivetrain();
+
     public final SendableChooser<Double> speedChooser;
 
     //Joysticks
@@ -51,17 +58,34 @@ public class RobotContainer {
     private final POVButton secondaryJoystickPOVSouth = new POVButton(secondaryJoystick, 180); //South
     private final POVButton secondaryJoystickPOVWest  = new POVButton(secondaryJoystick, 270); //West
     
-    public RobotContainer(SendableChooser<Double> speedChooser) {
-        this.speedChooser = speedChooser;
-
+    public RobotContainer(Robot robot) {
+        this.speedChooser = robot.speedChooser;
         configureButtonBindings();
     }
 
     private void configureButtonBindings() {
-        //TODO
+        drivetrain.setDefaultCommand(new RunSwerveJoystick(
+            drivetrain, 
+            primaryJoystick, 
+            speedChooser::getSelected, 
+            drivetrain::getDriveMode
+        ));
+
+        secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
+        secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
+
+        //TODO: add more commands
     }
 
-    public void updateSmartDashboard() {
-        //TODO
+    public void updateSmartDashboard() {  
+        SmartDashboard.putNumber("Gyro", drivetrain.getHeading());
+        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
+
+        SmartDashboard.putString("Swerve[]:", "Angle: ");
+        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
+        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
+        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
+        
+        //TODO: add more info
     }
 }

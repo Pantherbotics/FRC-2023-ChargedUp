@@ -13,34 +13,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModule frontLeft = new SwerveModule(
-        DriveConstants.kFrontLeftModuleID,
+    private final SwerveModule frontLeft = new SwerveModule( //1
+        DriveConstants.kFrontLeftModuleID, 
         DriveConstants.kFrontLeftDriveMotorPort,
         DriveConstants.kFrontLeftTurningMotorPort,
         DriveConstants.kFrontLeftTurningEncoderPort,
         DriveConstants.kFrontLeftTurningEncoderOffsetDeg 
     );
-    private final SwerveModule frontRight = new SwerveModule(
+    private final SwerveModule frontRight = new SwerveModule( //2
         DriveConstants.kFrontRightModuleID,
         DriveConstants.kFrontRightDriveMotorPort,
         DriveConstants.kFrontRightTurningMotorPort, 
         DriveConstants.kFrontRightTurningEncoderPort,
         DriveConstants.kFrontRightTurningEncoderOffsetDeg
     );
-    private final SwerveModule backRight = new SwerveModule(
+    private final SwerveModule backRight = new SwerveModule( //3
         DriveConstants.kBackRightModuleID,
         DriveConstants.kBackRightDriveMotorPort,
         DriveConstants.kBackRightTurningMotorPort, 
         DriveConstants.kBackRightTurningEncoderPort,
         DriveConstants.kBackRightTurningEncoderOffsetDeg
     );
-    private final SwerveModule backLeft = new SwerveModule(
+    private final SwerveModule backLeft = new SwerveModule( //4
         DriveConstants.kBackLeftModuleID,
         DriveConstants.kBackLeftDriveMotorPort,
         DriveConstants.kBackLeftTurningMotorPort, 
         DriveConstants.kBackLeftTurningEncoderPort,
         DriveConstants.kBackLeftTurningEncoderOffsetDeg
-    );
+    );                                                            //     1          2           3          4
+    private final SwerveModule[] swerveModules = new SwerveModule[] {frontLeft, frontRight, backRight, backLeft};
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(
@@ -48,9 +49,8 @@ public class Drivetrain extends SubsystemBase {
         new Rotation2d(0), //At this point the gyro has not been reset but all good we can just pass in 0 degrees by making a new Rotation2d(0)
         getModulePositions()
     );
-    
 
-    private boolean isFieldOriented = false; //By default it drives relative to the robot, not the field
+    private DriveMode driveMode = DriveMode.SWERVE; //By default it drives relative to the robot, not the field
 
     public Drivetrain() {
         //Zero the gyro after 1 second while it calibrates
@@ -80,7 +80,8 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * @return the current pose of the robot
+     * @return The current pose of the robot
+     * A Pose2d is essentially a container for a Translation2d (an x and a y) and a Rotation2d
      */
     public Pose2d getPose() {
         return odometer.getPoseMeters();
@@ -105,63 +106,84 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
+     * A convenient way of representing the ways the robot can be controlled
+     * As of 1/16/23 there are only two modes but more can be added if desired (West coast, tank, etc.)
+     */
+    public static enum DriveMode {
+        FIELD_ORIENTED_SWERVE,
+        SWERVE;
+        
+        public String toString() {
+            //switch statements are goated
+            switch(this) {
+                case FIELD_ORIENTED_SWERVE:
+                    return "Field Oriented Swerve";
+                case SWERVE:
+                    return "Swerve";
+                default:
+                    return "";
+            }
+        }
+    }
+
+    /**
      * Sets the drive mode
-     * @param fieldOriented Whether the mode is field oriented or not
-     * If it already in field oriented, does nothing and vice versa
+     * @param driveMode The desired mode to put the drivetrain in
      */
-    public void toFieldOriented(boolean fieldOriented) {
-        if(fieldOriented == isFieldOriented) return;
-        isFieldOriented = fieldOriented;
+    public void setDriveMode(DriveMode driveMode) {
+        this.driveMode = driveMode;
     }
 
     /**
-     * @return The true if the swerve is in field oriented mode, false if it is not
+     * @return The current drive mode of the drivetrain
      */
-    public boolean isFieldOriented() {
-        return isFieldOriented;
+    public DriveMode getDriveMode() {
+        return driveMode;
     }
 
     /**
-     * Invoke stop() on all modules so the robot stops
+     * @return The actual swerve modules objects, in the order specified in kinematics
+     */
+    public SwerveModule[] getSwerveModules() {
+        return swerveModules;
+    }
+
+    /**
+     * Invokes stop() on all modules so the robot stops
      */
     public void stopModules() {
-        frontLeft.stop();
-        frontRight.stop();
-        backRight.stop();
-        backLeft.stop();
+        for(int i = 0; i < 4; i++)
+            swerveModules[i].stop();
     }
 
     /**
      * @return An array of the current positions of the modules, in the order specified in kinematics
+     * A SwerveModulePosition is like a SwerveModuleState except that it contains
+     * the wheel's measured distance rather than its velocity whatever the fuck that means
      */
     public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            backRight.getPosition(),
-            backLeft.getPosition()
-        };
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+        for(int i = 0; i < 4; i++)
+            modulePositions[i] = swerveModules[i].getPosition();
+        return modulePositions;
     }
 
     /**
      * @return An array of the current states of the modules, in the order specified in kinematics
      */
     public SwerveModuleState[] getModuleStates() {
-        return new SwerveModuleState[] {
-            frontLeft.getState(),
-            frontRight.getState(),
-            backRight.getState(),
-            backLeft.getState()
-        };
+        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+        for(int i = 0; i < 4; i++)
+            moduleStates[i] = swerveModules[i].getState();
+        return moduleStates;
     }
     /**
      * @param desiredStates The states to set the modules to, in the order specified in kinematics
+     * This method does not optimize the states beforehand, should be done before passing in the states
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        frontLeft.setDesiredState(desiredStates[0]);
-        frontRight.setDesiredState(desiredStates[1]);
-        backRight.setDesiredState(desiredStates[2]);
-        backLeft.setDesiredState(desiredStates[3]);
+        for(int i = 0; i < 4; i++)
+            swerveModules[i].setDesiredState(desiredStates[i]);
     }
 }
