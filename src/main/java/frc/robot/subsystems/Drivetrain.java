@@ -44,7 +44,7 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule[] swerveModules = new SwerveModule[] {frontLeft, frontRight, backRight, backLeft};
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(
+    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry( //WPILib's odometry class is fine, I'm not making a new one
         DriveConstants.kDriveKinematics, 
         new Rotation2d(0), //At this point the gyro has not been reset but all good we can just pass in 0 degrees by making a new Rotation2d(0)
         getModulePositions()

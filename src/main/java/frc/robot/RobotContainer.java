@@ -81,10 +81,10 @@ public class RobotContainer {
         SmartDashboard.putNumber("Gyro", drivetrain.getHeading());
         SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
 
-        SmartDashboard.putString("Swerve[]:", "Angle: ");
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
+        SmartDashboard.putString("Swerve[]:", "Angle: , Speed:");
+        SmartDashboard.putString("Swerve[]:", "Angle: , Speed:");
+        SmartDashboard.putString("Swerve[]:", "Angle: , Speed:");
+        SmartDashboard.putString("Swerve[]:", "Angle: , Speed:");
         
         //TODO: add more info
     }

@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -53,6 +54,7 @@ public class SwerveModule {
         //Create the SparkMax for the drive motor, and configure the units for its encoder
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless); 
         driveMotor.restoreFactoryDefaults();
+
         driveEncoder = driveMotor.getEncoder();
         driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
         driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
@@ -73,6 +75,8 @@ public class SwerveModule {
         turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
         turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         turningEncoder.setPositionToAbsolute();
+
+        //Set the CANCoder to be the sensor for the Talon's feedback loop
         turningMotor.configRemoteFeedbackFilter(turningEncoder, 0);
         turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
         turningMotor.config_kP(0, ModuleConstants.kPTurning);
@@ -80,6 +84,8 @@ public class SwerveModule {
         turningMotor.config_kD(0, ModuleConstants.kDTurning);
         turningMotor.config_kF(0, ModuleConstants.kFTurning);
         turningMotor.setSelectedSensorPosition(turningEncoder.getAbsolutePosition());
+
+
 
         //Reset the encoders
         resetEncoders();
@@ -144,6 +150,7 @@ public class SwerveModule {
 
     public void resetEncoders() {
         driveEncoder.setPosition(0);
+        turningEncoder.setPosition(getAbsoluteEncoderRad());
     }
 
     public void setDesiredState(SwerveModuleState state) {
@@ -156,22 +163,19 @@ public class SwerveModule {
         //optimize the state, makes it so the wheel never has to travel more than 90 degrees
         state = SwerveModuleState.optimize(state, state.angle);
         double target = state.angle.getDegrees();
-        //Log some info about the target state
-        SmartDashboard.putString("Swerve[" + id + "] Set", "Angle: " + target + " Speed: " + state.speedMetersPerSecond);
-
         //Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
         //Error has to be negated since Positive is CCW and Negative is CW for our swerve modules       
         double position = turningMotor.getSelectedSensorPosition() + (-1) * (target - getAngle()) * (4096.0 / 360);
         turningMotor.set(TalonSRXControlMode.Position, position);
 
         //Drive Speed with spark and PID (or by percent output using the 2nd line)
-        drivePID.setReference(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, CANSparkMax.ControlType.kVelocity);
-        //driveMotor.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+        //drivePID.setReference(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, CANSparkMax.ControlType.kVelocity);
+        driveMotor.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
     }
 
     public void stop() {
-        //driveMotor.set(0);
-        drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
+        driveMotor.set(0);
+        //drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
         turningMotor.set(ControlMode.PercentOutput, 0);
     }
 }
