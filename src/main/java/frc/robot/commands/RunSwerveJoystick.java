@@ -31,6 +31,7 @@ public class RunSwerveJoystick extends CommandBase {
         addRequirements(drivetrain);
     }
 
+
     @Override
     public void execute() {
         switch(drivetrain.getDriveMode()) {
@@ -86,6 +87,7 @@ public class RunSwerveJoystick extends CommandBase {
         // 5. Output each module states to wheels
         SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         drivetrain.setModuleStates(moduleStates);
+
     }
 
     @Override

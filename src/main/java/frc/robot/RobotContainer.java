@@ -60,17 +60,16 @@ public class RobotContainer {
     
     public RobotContainer(Robot robot) {
         this.speedChooser = robot.speedChooser;
-        configureButtonBindings();
-    }
-
-    private void configureButtonBindings() {
         drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain, 
             primaryJoystick, 
             speedChooser::getSelected, 
             drivetrain::getDriveMode
         ));
+        configureButtonBindings();
+    }
 
+    private void configureButtonBindings() {
         secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
         secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
 
