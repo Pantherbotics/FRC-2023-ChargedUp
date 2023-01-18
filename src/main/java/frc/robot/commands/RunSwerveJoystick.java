@@ -29,10 +29,12 @@ public class RunSwerveJoystick extends CommandBase {
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
         addRequirements(drivetrain);
+        System.out.println("SETTING SWERVE in " + drivetrain.getDriveMode());
     }
 
     @Override
     public void execute() {
+        System.out.println("RUNNING SWERVE in " + drivetrain.getDriveMode());
         switch(drivetrain.getDriveMode()) {
             case FIELD_ORIENTED_SWERVE:
                 runSwerve(true);
@@ -86,6 +88,7 @@ public class RunSwerveJoystick extends CommandBase {
         // 5. Output each module states to wheels
         SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
         drivetrain.setModuleStates(moduleStates);
+
     }
 
     @Override

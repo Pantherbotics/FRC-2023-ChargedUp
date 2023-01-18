@@ -31,7 +31,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData(speedChooser);
 
     robotContainer = new RobotContainer(this);
-
     //TODO: configure robot autonomous command
   }
 
