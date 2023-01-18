@@ -16,12 +16,7 @@ public class RunChooseDriveMode extends CommandBase {
     @Override
     public void initialize() {
         drivetrain.setDriveMode(driveMode);
-        System.out.println("Switching the drive mode");
-    }
-
-    @Override
-    public void execute() {
-        System.out.println("Switching the drive mode");
+        System.out.println("Switching the drive mode to " + driveMode);
     }
 
     @Override

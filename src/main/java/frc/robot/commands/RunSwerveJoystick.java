@@ -29,18 +29,11 @@ public class RunSwerveJoystick extends CommandBase {
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
         addRequirements(drivetrain);
-        System.out.println("Swerve command set up");
     }
 
-    @Override
-    public void initialize() {
-        
-        System.out.println("Swerve command initalized");
-    }
 
     @Override
     public void execute() {
-        System.out.println("RUNNING SWERVE in " + drivetrain.getDriveMode());
         switch(drivetrain.getDriveMode()) {
             case FIELD_ORIENTED_SWERVE:
                 runSwerve(true);
