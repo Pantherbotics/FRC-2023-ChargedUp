@@ -70,6 +70,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        System.out.println("Buttons configured");
         secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
         secondaryJoystickPOVEast.toggleOnFalse(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
 
