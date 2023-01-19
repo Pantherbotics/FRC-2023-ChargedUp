@@ -1,189 +1,225 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.util.*;
 
+import static frc.robot.util.MathUtils.getHeadingX;
+import static frc.robot.util.MathUtils.getHeadingY;
+
+@SuppressWarnings("unused")
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModule frontLeft = new SwerveModule( //1
-        DriveConstants.kFrontLeftModuleID, 
-        DriveConstants.kFrontLeftDriveMotorPort,
-        DriveConstants.kFrontLeftTurningMotorPort,
-        DriveConstants.kFrontLeftTurningEncoderPort,
-        DriveConstants.kFrontLeftTurningEncoderOffsetDeg 
-    );
-    private final SwerveModule frontRight = new SwerveModule( //2
-        DriveConstants.kFrontRightModuleID,
-        DriveConstants.kFrontRightDriveMotorPort,
-        DriveConstants.kFrontRightTurningMotorPort, 
-        DriveConstants.kFrontRightTurningEncoderPort,
-        DriveConstants.kFrontRightTurningEncoderOffsetDeg
-    );
-    private final SwerveModule backRight = new SwerveModule( //3
-        DriveConstants.kBackRightModuleID,
-        DriveConstants.kBackRightDriveMotorPort,
-        DriveConstants.kBackRightTurningMotorPort, 
-        DriveConstants.kBackRightTurningEncoderPort,
-        DriveConstants.kBackRightTurningEncoderOffsetDeg
-    );
-    private final SwerveModule backLeft = new SwerveModule( //4
-        DriveConstants.kBackLeftModuleID,
-        DriveConstants.kBackLeftDriveMotorPort,
-        DriveConstants.kBackLeftTurningMotorPort, 
-        DriveConstants.kBackLeftTurningEncoderPort,
-        DriveConstants.kBackLeftTurningEncoderOffsetDeg
-    );                                                            //     1          2           3          4
-    private final SwerveModule[] swerveModules = new SwerveModule[] {frontLeft, frontRight, backRight, backLeft};
+    private final SwerveModuleProto leftFront, rightFront, rightBack, leftBack;
+    private final SwerveModuleProto[] modules;
+    private DriveMode mode = DriveMode.FO_SWERVE;
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(
-        DriveConstants.kDriveKinematics, 
-        new Rotation2d(0), //At this point the gyro has not been reset but all good we can just pass in 0 degrees by making a new Rotation2d(0)
-        getModulePositions()
-    );
+    private final Odometer odometer = new Odometer(); // Custom odometer that works for Holonomic Swerve
 
-    private DriveMode driveMode = DriveMode.SWERVE; //By default it drives relative to the robot, not the field
+    private double limelightYaw = 0.0;
+
+    public void setLimelightYaw(double y) {
+        limelightYaw = y;
+    }
+
+    public double getLimelightYaw() {
+        return limelightYaw;
+    }
+
+    private boolean lockDriveWhileTargeting = false;
 
     public Drivetrain() {
-        //Zero the gyro after 1 second while it calibrates
+        // Positive is CCW, Negative is CW
+        leftFront = new SwerveModuleProto(1, 130); // 165
+        rightFront = new SwerveModuleProto(2, 225); // 290
+        rightBack = new SwerveModuleProto(3, 350); // 90
+        leftBack = new SwerveModuleProto(4, 163); // -20
+        modules = new SwerveModuleProto[] { leftFront, rightFront, rightBack, leftBack };
+
+        // Zero the gyro after 1 second while it calibrates
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch (Exception e) {}
+            } catch (Exception ignored) {
+            }
         }).start();
     }
 
-    //Zero the heading of the gyro (Sets to 0)
+    // Zero the heading of the gyro (Sets to 0)
     public void zeroHeading() {
         gyro.reset();
     }
 
+    public double autoGyroInit = 0;
+
     /**
      * Get the rotation of the robot (positive CCW, negative CW)
+     * 
      * @return the current heading of the robot in degrees [-180, 180]
      */
     public double getHeading() {
-        return -gyro.getYaw();
-    }
-
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+        return MathUtils.boundHalfDegrees(-gyro.getYaw() + autoGyroInit);
+        // return -gyro.getYaw();
     }
 
     /**
-     * @return The current pose of the robot
-     * A Pose2d is essentially a container for a Translation2d (an x and a y) and a Rotation2d
+     * @return the current pose of the robot
      */
     public Pose2d getPose() {
-        return odometer.getPoseMeters();
+        return new Pose2d(odometer.getPoseMeters(), Rotation2d.fromDegrees(getHeading()));
     }
 
     /**
      * Reset the odometer to the specified pose
+     * 
      * @param pose The new pose
      */
-    public void resetOdometry(Pose2d pose) {
-        //When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
+    public void resetOdometry(Rotation2d rotation, Pose2d pose) {
+        // When the auto starts it will reset the odometry. If the robot's rotation
+        // isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
-        odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
+        autoGyroInit = rotation.getDegrees();
+        odometer.resetPosition(pose);
+    }
+
+    // Update the odometry by calculating the current wheel vectors, the overall
+    // odometry vector, then the amount of movement
+    private double prevTimeSeconds = -1;
+
+    public void updateOdometry() {
+        // Speeds of the wheels in meters per second
+        double s1 = leftFront.getDriveVelocity();
+        double s2 = rightFront.getDriveVelocity();
+        double s3 = rightBack.getDriveVelocity();
+        double s4 = leftBack.getDriveVelocity();
+        // Angles of the wheels [0, 360)
+        double heading = getHeading();
+        double a1 = leftFront.getAngle() + heading;
+        double a2 = rightFront.getAngle() + heading;
+        double a3 = rightBack.getAngle() + heading;
+        double a4 = leftBack.getAngle() + heading;
+        // The vector components of the wheels, based on their current values
+        double X1 = getHeadingX(a1) * s1;
+        double Y1 = getHeadingY(a1) * s1;
+        double X2 = getHeadingX(a2) * s2;
+        double Y2 = getHeadingY(a2) * s2;
+        double X3 = getHeadingX(a3) * s3;
+        double Y3 = getHeadingY(a3) * s3;
+        double X4 = getHeadingX(a4) * s4;
+        double Y4 = getHeadingY(a4) * s4;
+
+        // Calculate the odometry vector components [-maxDriveVel, maxDriveVel]
+        double oX = (X1 + X2 + X3 + X4) / 4D;
+        double oY = (Y1 + Y2 + Y3 + Y4) / 4D;
+        // SmartDashboard.putString("Odo Data", "oX: " + roundStr(oX, 3) + " oY: " +
+        // roundStr(oY, 3));
+
+        // Calculate the period in seconds since last update
+        double currTimeSec = WPIUtilJNI.now() * 1.0e-6;
+        double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0.0;
+        prevTimeSeconds = currTimeSec;
+
+        // oX is the distance traveled in meters in a second, then multiplied by the
+        // period
+        double changeY = oX * period;
+        double changeX = oY * period;
+        odometer.update(changeX, changeY);
     }
 
     @Override
     public void periodic() {
-        //Update the odometry
-        odometer.update(getRotation2d(), getModulePositions());
-        SmartDashboard.putNumber("Heading", getHeading());
-        SmartDashboard.putString("Location", getPose().getTranslation().toString());
-    }
+        // Update the odometry, using our own vector-based odometry for Holonomic Swerve
+        updateOdometry();
+        // TalonSRX srx = ((SwerveModuleProto) leftFront).getSteer();
+        // SmartDashboard.putNumber("LF Steer Pos", srx.getSelectedSensorPosition());
+        // double output = srx.getStatorCurrent();
+        // SmartDashboard.putNumber("LF Steer Curr", output);
 
-    /**
-     * A convenient way of representing the ways the robot can be controlled
-     * As of 1/16/23 there are only two modes but more can be added if desired (West coast, tank, etc.)
-     */
-    public static enum DriveMode {
-        FIELD_ORIENTED_SWERVE,
-        SWERVE;
-        
-        public String toString() {
-            //switch statements are goated
-            switch(this) {
-                case FIELD_ORIENTED_SWERVE:
-                    return "Field Oriented Swerve";
-                case SWERVE:
-                    return "Swerve";
-                default:
-                    return "";
-            }
+        CANSparkMax spark = ((SwerveModuleProto) leftFront).getDrive();
+        SmartDashboard.putNumber("LF Drive Pos", spark.getEncoder().getPosition());
+        double output = spark.getOutputCurrent();
+        SmartDashboard.putNumber("LF Drive Curr", output);
+        if (output >= 30D) {
+            spark.getEncoder().setPosition(0);
         }
     }
 
     /**
-     * Sets the drive mode
-     * @param driveMode The desired mode to put the drivetrain in
+     * Set the drive mode
+     * 
+     * @param mode The new mode
      */
-    public void setDriveMode(DriveMode driveMode) {
-        this.driveMode = driveMode;
+    public void setMode(DriveMode mode) {
+        this.mode = mode;
     }
 
     /**
-     * @return The current drive mode of the drivetrain
+     * @return The drive mode the swerve is operating in
      */
-    public DriveMode getDriveMode() {
-        return driveMode;
+    public DriveMode getMode() {
+        return mode;
     }
 
     /**
-     * @return The actual swerve modules objects, in the order specified in kinematics
-     */
-    public SwerveModule[] getSwerveModules() {
-        return swerveModules;
-    }
-
-    /**
-     * Invokes stop() on all modules so the robot stops
+     * Invoke stop() on all modules so the robot stops
      */
     public void stopModules() {
-        for(int i = 0; i < 4; i++)
-            swerveModules[i].stop();
+        leftFront.stop();
+        rightFront.stop();
+        leftBack.stop();
+        rightBack.stop();
     }
 
     /**
-     * @return An array of the current positions of the modules, in the order specified in kinematics
-     * A SwerveModulePosition is like a SwerveModuleState except that it contains
-     * the wheel's measured distance rather than its velocity whatever the fuck that means
-     */
-    public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-        for(int i = 0; i < 4; i++)
-            modulePositions[i] = swerveModules[i].getPosition();
-        return modulePositions;
-    }
-
-    /**
-     * @return An array of the current states of the modules, in the order specified in kinematics
-     */
-    public SwerveModuleState[] getModuleStates() {
-        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
-        for(int i = 0; i < 4; i++)
-            moduleStates[i] = swerveModules[i].getState();
-        return moduleStates;
-    }
-    /**
-     * @param desiredStates The states to set the modules to, in the order specified in kinematics
-     * This method does not optimize the states beforehand, should be done before passing in the states
+     * @param desiredStates The states to set the modules to, in the order specified
+     *                      in kinematics
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        for(int i = 0; i < 4; i++)
-            swerveModules[i].setDesiredState(desiredStates[i]);
+        for (int i = 0; i < 4; i++) {
+            // Optimize States (Both Teleop and Auto gives unoptimized)
+            modules[i].setDesiredState(
+                    SwerveModuleState.optimize(desiredStates[i], Rotation2d.fromDegrees(modules[i].getAngle())));
+        }
+    }
+
+    public boolean isLockDriveWhileTargeting() {
+        return lockDriveWhileTargeting;
+    }
+
+    public AHRS getGyro() {
+        return gyro;
+    }
+
+    public SwerveModuleProto getLeftFront() {
+        return leftFront;
+    }
+
+    public SwerveModuleProto getRightFront() {
+        return rightFront;
+    }
+
+    public SwerveModuleProto getRightBack() {
+        return rightBack;
+    }
+
+    public SwerveModuleProto getLeftBack() {
+        return leftBack;
+    }
+
+    public void setLockDriveWhileTargeting(boolean b) {
+        lockDriveWhileTargeting = b;
     }
 }

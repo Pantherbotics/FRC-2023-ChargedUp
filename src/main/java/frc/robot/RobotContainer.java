@@ -1,90 +1,111 @@
 package frc.robot;
 
-import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
-import frc.robot.Constants.OIConstants;
-import frc.robot.commands.RunChooseDriveMode;
+import frc.robot.commands.RunDriveMode;
 import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.commands.RunVisionTargeting;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Drivetrain.DriveMode;
+import frc.robot.subsystems.Limelight;
+import frc.robot.util.DriveMode;
+import frc.robot.util.SwerveModuleProto;
 
+import static frc.robot.util.MathUtils.round;
+
+@SuppressWarnings("unused")
 public class RobotContainer {
-    public final Drivetrain drivetrain = new Drivetrain();
+    //Subsystems
+    private final Drivetrain drivetrain = new Drivetrain();
+    public Drivetrain getDrivetrain() {
+        return drivetrain;
+    }
+    private final Limelight limelight = new Limelight();
 
-    public final SendableChooser<Double> speedChooser;
+    //Joysticks and Buttons/Inputs
+    private final Joystick pJoy = new Joystick(Constants.OIConstants.kDriverJoyID);
+    private final JoystickButton joyBA = new JoystickButton(pJoy, 1); //Button A
+    private final JoystickButton joyBB = new JoystickButton(pJoy, 2); //Button B
+    private final JoystickButton joyBX = new JoystickButton(pJoy, 3); //Button X
+    private final JoystickButton joyBY = new JoystickButton(pJoy, 4); //Button Y
 
-    //Joysticks
-    private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
-    private final Joystick secondaryJoystick = new Joystick(OIConstants.kSecondaryJoystickID);
+    private final JoystickButton joyRB = new JoystickButton(pJoy, 6); //Right Bumper
 
-    //Primary controller buttons
-    private final JoystickButton primaryJoystickSquareButton        = new JoystickButton(primaryJoystick, 1);  //Square Button
-    private final JoystickButton primaryJoystickXButton             = new JoystickButton(primaryJoystick, 2);  //X Button
-    private final JoystickButton primaryJoystickCircleButton        = new JoystickButton(primaryJoystick, 3);  //Circle Button
-    private final JoystickButton primaryJoystickTriangleButton      = new JoystickButton(primaryJoystick, 4);  //Triangle Button
-    private final JoystickButton primaryJoystickRightBumperButton   = new JoystickButton(primaryJoystick, 6);  //Right Bumper Button
-    private final JoystickButton primaryJoystickRightTriggerButton  = new JoystickButton(primaryJoystick, 8);  //Right Trigger Button
-    private final JoystickButton primaryJoystickLeftBumperButton    = new JoystickButton(primaryJoystick, 5);  //Left Bumper Button
-    private final JoystickButton primaryJoystickLefTriggerButton    = new JoystickButton(primaryJoystick, 7);  //Left Trigger Button
-    private final JoystickButton primaryJoystickShareButton         = new JoystickButton(primaryJoystick, 9);  //Share Button
-    private final JoystickButton primaryJoystickOptionsButton       = new JoystickButton(primaryJoystick, 10); //Options Button
-    private final JoystickButton primaryJoystickLeftJoystickButton  = new JoystickButton(primaryJoystick, 11); //Left Joystick Button
-    private final JoystickButton primaryJoystickRightJoystickButton = new JoystickButton(primaryJoystick, 12); //Right Joystick Button
-    private final JoystickButton primaryJoystickPlayStationButton   = new JoystickButton(primaryJoystick, 13); //PlayStation Button
-    private final JoystickButton primaryJoystickBigButton           = new JoystickButton(primaryJoystick, 14); //Big (Center) Button
-    private final POVButton primaryJoystickPOVNorth = new POVButton(primaryJoystick, 0);   //North
-    private final POVButton primaryJoystickPOVEast  = new POVButton(primaryJoystick, 90);  //East
-    private final POVButton primaryJoystickPOVSouth = new POVButton(primaryJoystick, 180); //South
-    private final POVButton primaryJoystickPOVWest  = new POVButton(primaryJoystick, 270); //West
+    private final POVButton sJoyPOVN = new POVButton(pJoy, 0);   //POV North
+    private final POVButton sJoyPOVNE = new POVButton(pJoy, 45); //POV North East
+    private final POVButton sJoyPOVS = new POVButton(pJoy, 180); //POV South
+    private final POVButton sJoyPOVSE = new POVButton(pJoy, 135); //POV North East
+    private final POVButton sJoyPOVW = new POVButton(pJoy, 270); //POV West
+    private final POVButton sJoyPOVE = new POVButton(pJoy, 90);  //POV East
 
-    //Secondary controller buttons
-    private final JoystickButton secondaryJoystickAButton           = new JoystickButton(secondaryJoystick, 1); //A Button
-    private final JoystickButton secondaryJoystickBButton           = new JoystickButton(secondaryJoystick, 2); //B Button
-    private final JoystickButton secondaryJoystickXButton           = new JoystickButton(secondaryJoystick, 3); //X Button
-    private final JoystickButton secondaryJoystickYButton           = new JoystickButton(secondaryJoystick, 4); //Y Button
-    private final JoystickButton secondaryJoystickLeftBumperButton  = new JoystickButton(secondaryJoystick, 5); //Left Bumper Button
-    private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); //Right Bumper Button
-    private final JoystickButton secondaryJoystickBackButton        = new JoystickButton(secondaryJoystick, 7); //Back Button
-    private final JoystickButton secondaryJoystickStartButton       = new JoystickButton(secondaryJoystick, 8); //Start Button
-    private final JoystickButton secondaryJoystickLeftStickButton   = new JoystickButton(secondaryJoystick, 9); //Left Stick Button
-    private final JoystickButton secondaryJoystickRightStickButton  = new JoystickButton(secondaryJoystick, 10); //Right Stick Button
-
-    private final POVButton secondaryJoystickPOVNorth = new POVButton(secondaryJoystick, 0);   //North
-    private final POVButton secondaryJoystickPOVEast  = new POVButton(secondaryJoystick, 90);  //East
-    private final POVButton secondaryJoystickPOVSouth = new POVButton(secondaryJoystick, 180); //South
-    private final POVButton secondaryJoystickPOVWest  = new POVButton(secondaryJoystick, 270); //West
-    
     public RobotContainer(Robot robot) {
-        this.speedChooser = robot.speedChooser;
+        SendableChooser<Double> speedChooser = robot.speedChooser;
+
         drivetrain.setDefaultCommand(new RunSwerveJoystick(
-            drivetrain, 
-            primaryJoystick, 
-            speedChooser::getSelected, 
-            drivetrain::getDriveMode
+                drivetrain, pJoy,
+                speedChooser::getSelected,
+                drivetrain::getMode
         ));
+
+        //For easy calibration, use this code instead to have all wheels drive forward
+        //drivetrain.setDefaultCommand(new RunSwerveJoystick(drivetrain, () -> 0.1, () -> 0.0, () -> 0.0));
+
         configureButtonBindings();
     }
 
+    /**
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by instantiating a {@link GenericHID} or one of its subclasses
+     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
+     * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
     private void configureButtonBindings() {
-        secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
-        secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
+        joyBB.whenPressed(drivetrain::zeroHeading);
+        joyBX.whileHeld(new RunVisionTargeting(drivetrain, limelight));
 
-        //TODO: add more commands
+        joyBY.whenPressed(new InstantCommand(() -> drivetrain.setLockDriveWhileTargeting(true)));
+        joyBA.whenReleased(new InstantCommand(() -> drivetrain.setLockDriveWhileTargeting(false)));
+
+        //Configure multiple swerve modes
+        sJoyPOVN.whenPressed(new RunDriveMode(drivetrain, DriveMode.CAR));
+        sJoyPOVS.whenPressed(new RunDriveMode(drivetrain, DriveMode.BOAT));
+        sJoyPOVE.whenPressed(new RunDriveMode(drivetrain, DriveMode.FO_SWERVE));
+        sJoyPOVW.whenPressed(new RunDriveMode(drivetrain, DriveMode.SWERVE));
+
+        sJoyPOVNE.whenPressed(new RunDriveMode(drivetrain, DriveMode.WESTCOAST));
+        sJoyPOVSE.whileHeld(new RunDriveMode(drivetrain, DriveMode.TANK));
+
+
+        joyRB.whenPressed(new InstantCommand(() -> ((SwerveModuleProto)drivetrain.getLeftFront()).getDrive().set(0.1)));
+        joyRB.whenReleased(new InstantCommand(() -> ((SwerveModuleProto)drivetrain.getLeftFront()).getDrive().set(0)));
     }
 
-    public void updateSmartDashboard() {  
-        SmartDashboard.putNumber("Gyro", drivetrain.getHeading());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
 
-        SmartDashboard.putString("Swerve[]:", "Angle: ");
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
-        
-        //TODO: add more info
+    public void updateSmartDashboard() {
+        SmartDashboard.putNumber("Gyro", drivetrain.getHeading());
+        SmartDashboard.putString("Mode", drivetrain.getMode().getName());
+
+        SmartDashboard.putString("Swerve[1] Data", "A: " + round(drivetrain.getLeftFront().getAngle(),2) + " S: " + round(drivetrain.getLeftFront().getDriveVelocity(), 2));
+        SmartDashboard.putString("Swerve[2] Data", "A: " + round(drivetrain.getRightFront().getAngle(),2) + " S: " + round(drivetrain.getRightFront().getDriveVelocity(), 2));
+        SmartDashboard.putString("Swerve[3] Data", "A: " + round(drivetrain.getRightBack().getAngle(),2) + " S: " + round(drivetrain.getRightBack().getDriveVelocity(), 2));
+        SmartDashboard.putString("Swerve[4] Data", "A: " + round(drivetrain.getLeftBack().getAngle(),2) + " S: " + round(drivetrain.getLeftBack().getDriveVelocity(), 2));
+
+        SmartDashboard.putNumber("Robot Heading", drivetrain.getHeading());
+        SmartDashboard.putNumber("Robot GyroInit", drivetrain.autoGyroInit);
+
+
+        double x = round(drivetrain.getPose().getTranslation().getX(),3);
+        double y = round(drivetrain.getPose().getTranslation().getY(),3);
+        SmartDashboard.putString("Robot Location", "X: " + x + " Y: " + y);
+
+        //These methods have a warning that they are noisy and may not be useful
+        double vx = drivetrain.getGyro().getVelocityX();
+        double vy = drivetrain.getGyro().getVelocityY();
+        SmartDashboard.putNumber("Robot Vel", Math.sqrt(vx*vx + vy*vy));
     }
 }
