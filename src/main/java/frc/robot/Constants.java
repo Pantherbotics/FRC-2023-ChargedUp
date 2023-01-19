@@ -29,6 +29,10 @@ public class Constants {
         //public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         //public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
 
+        public static final int kPIDSlotID = 0; //0 for primary closed-loop, 1 for auxiliary closed-loop
+        public static final int kPIDRemoteOrdinal = 0; //0 for RemoteSensor0, 1 for RemoteSensor1
+        public static final int kPIDTimeoutMs = 20; //20 ms
+
         public static final double kPDrive = 0.0001;
         public static final double kIDrive = 0.0;
         public static final double kDDrive = 0.0001;
@@ -89,6 +93,7 @@ public class Constants {
 
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond; //we have about 11.68 ft/s, we don't need to reduce it
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond; //360 degrees per second doesn't need to be reduced
+
         //These values could be tuned:
         public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 1.5;
         public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 1.5;
@@ -115,14 +120,14 @@ public class Constants {
     //Checked and verified as of May 1st, 2022
     public static final class OIConstants {
         public static final int kPrimaryJoystickID = 0;
-        public static final int kPrimaryJoystickLeftXID = 0;
-        public static final int kPrimaryJoystickLeftYID = 1;
-        public static final int kPrimaryJoystickRightXID = 4;
-        public static final int kPrimaryJoystickRightYID = 5;
+        public static final int kPrimaryJoystickLeftXAxisID = 0;
+        public static final int kPrimaryJoystickLeftYAxisID = 1;
+        public static final int kPrimaryJoystickRightXAxisID = 4;
+        public static final int kPrimaryJoystickRightYAxisID = 5;
 
         public static final int kSecondaryJoystickID = 1;
 
-        public static final double driverEXP = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
+        public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
         public static final double kDeadband = 0.04; //Higher than average on the controller I'm using
     }

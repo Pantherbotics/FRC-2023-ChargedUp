@@ -34,10 +34,10 @@ public class RunSwerveJoystick extends CommandBase {
     @Override
     public void execute() {
         switch(drivetrain.getDriveMode()) {
-            case FIELD_ORIENTED_SWERVE:
-                runSwerve(true);
             case SWERVE:
                 runSwerve(false);
+            case FIELD_ORIENTED_SWERVE:
+                runSwerve(true);
             default:
                 break;
         }
@@ -54,14 +54,13 @@ public class RunSwerveJoystick extends CommandBase {
         // - In order for Right X to follow the positive CCW of the gyro, it needs to be negated
 
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
-        double xSpeed, ySpeed, turningSpeed;
-        
-        double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXID);
-        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYID);
+        double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
+        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
 
-        xSpeed = (yLeftValue >= 0 ? -Math.pow(yLeftValue, OIConstants.driverEXP) : Math.pow(-yLeftValue, OIConstants.driverEXP)) * speedChooser.get();
-        ySpeed = (xLeftValue >= 0 ? -Math.pow(xLeftValue, OIConstants.driverEXP) : Math.pow(-xLeftValue, OIConstants.driverEXP)) * speedChooser.get();
-        turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXID) * (speedChooser.get() / 2.0);
+        //The quirky exponent stuff is just so the value maintains its sign even after being raised by a power
+        double xSpeed = (yLeftValue >= 0.0 ? -Math.pow(yLeftValue, OIConstants.kDriverExp) : Math.pow(-yLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
+        double ySpeed = (xLeftValue >= 0.0 ? -Math.pow(xLeftValue, OIConstants.kDriverExp) : Math.pow(-xLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
+        double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
@@ -75,13 +74,10 @@ public class RunSwerveJoystick extends CommandBase {
 
         // 4. Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds;
-        if(isFieldOriented) {
-            // Relative to field
+        if(isFieldOriented) /// Relative to field
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, Rotation2d.fromDegrees(drivetrain.getHeading()));
-        } else {
-            // Relative to robot
+        else // Relative to robot
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        }
 
         // 5. Output each module states to wheels
         SwerveModuleState[] moduleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);

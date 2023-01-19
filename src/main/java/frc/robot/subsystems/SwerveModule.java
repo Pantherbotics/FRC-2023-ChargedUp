@@ -69,7 +69,7 @@ public class SwerveModule {
         drivePID.setOutputRange(-1, 1);
 
         //Create the Steer TalonSRX
-        turningMotor = new TalonSRX(turningMotorID); //set in id ())create talon object
+        turningMotor = new TalonSRX(turningMotorID); //set in id create talon object
 
         //Create the CANCoder and configure it to work as the RemoteSensor0 for the steer motor
         turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
@@ -77,15 +77,13 @@ public class SwerveModule {
         turningEncoder.setPositionToAbsolute();
 
         //Set the CANCoder to be the sensor for the Talon's feedback loop
-        turningMotor.configRemoteFeedbackFilter(turningEncoder, 0);
-        turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
-        turningMotor.config_kP(0, ModuleConstants.kPTurning);
-        turningMotor.config_kI(0, ModuleConstants.kITurning);
-        turningMotor.config_kD(0, ModuleConstants.kDTurning);
-        turningMotor.config_kF(0, ModuleConstants.kFTurning);
+        turningMotor.configRemoteFeedbackFilter(turningEncoder, ModuleConstants.kPIDRemoteOrdinal);
+        turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, ModuleConstants.kPIDSlotID, ModuleConstants.kPIDTimeoutMs);
+        turningMotor.config_kP(ModuleConstants.kPIDSlotID, ModuleConstants.kPTurning);
+        turningMotor.config_kI(ModuleConstants.kPIDSlotID, ModuleConstants.kITurning);
+        turningMotor.config_kD(ModuleConstants.kPIDSlotID, ModuleConstants.kDTurning);
+        turningMotor.config_kF(ModuleConstants.kPIDSlotID, ModuleConstants.kFTurning);
         turningMotor.setSelectedSensorPosition(turningEncoder.getAbsolutePosition());
-
-
 
         //Reset the encoders
         resetEncoders();
@@ -105,7 +103,7 @@ public class SwerveModule {
     }
 
     /**
-     * @return The position of the turning motor (absolute not relative)
+     * @return The position of the turning motor in degrees (absolute)
      */
     public double getTurningPosition() {
         return turningEncoder.getPosition();
@@ -132,6 +130,7 @@ public class SwerveModule {
      * the wheel's measured distance in meters and its angle in the form of a Rotation2d (in degrees)
      *                ^  
      * what does this mean? No fucking clue 
+     * This function is mostly just for the odometry
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
