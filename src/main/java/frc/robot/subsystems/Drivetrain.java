@@ -21,8 +21,8 @@ import static frc.robot.util.MathUtils.getHeadingY;
 
 @SuppressWarnings("unused")
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModuleProto leftFront, rightFront, rightBack, leftBack;
-    private final SwerveModuleProto[] modules;
+    private final SwerveModule leftFront, rightFront, rightBack, leftBack;
+    private final SwerveModule[] modules;
     private DriveMode mode = DriveMode.FO_SWERVE;
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
@@ -42,11 +42,11 @@ public class Drivetrain extends SubsystemBase {
 
     public Drivetrain() {
         // Positive is CCW, Negative is CW
-        leftFront = new SwerveModuleProto(1, Constants.DriveConstants.swerveModule1Offset); 
-        rightFront = new SwerveModuleProto(2, Constants.DriveConstants.swerveModule1Offset); 
-        rightBack = new SwerveModuleProto(3, Constants.DriveConstants.swerveModule1Offset);
-        leftBack = new SwerveModuleProto(4, Constants.DriveConstants.swerveModule1Offset); 
-        modules = new SwerveModuleProto[] { leftFront, rightFront, rightBack, leftBack };
+        leftFront = new SwerveModule(1, Constants.DriveConstants.swerveModule1Offset); 
+        rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule1Offset); 
+        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule1Offset);
+        leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule1Offset); 
+        modules = new SwerveModule[] { leftFront, rightFront, rightBack, leftBack };
 
         // Zero the gyro after 1 second while it calibrates
         new Thread(() -> {
@@ -148,7 +148,7 @@ public class Drivetrain extends SubsystemBase {
         // double output = srx.getStatorCurrent();
         // SmartDashboard.putNumber("LF Steer Curr", output);
 
-        CANSparkMax spark = ((SwerveModuleProto) leftFront).getDrive();
+        CANSparkMax spark = ((SwerveModule) leftFront).getDrive();
         SmartDashboard.putNumber("LF Drive Pos", spark.getEncoder().getPosition());
         double output = spark.getOutputCurrent();
         SmartDashboard.putNumber("LF Drive Curr", output);
@@ -204,19 +204,19 @@ public class Drivetrain extends SubsystemBase {
         return gyro;
     }
 
-    public SwerveModuleProto getLeftFront() {
+    public SwerveModule getLeftFront() {
         return leftFront;
     }
 
-    public SwerveModuleProto getRightFront() {
+    public SwerveModule getRightFront() {
         return rightFront;
     }
 
-    public SwerveModuleProto getRightBack() {
+    public SwerveModule getRightBack() {
         return rightBack;
     }
 
-    public SwerveModuleProto getLeftBack() {
+    public SwerveModule getLeftBack() {
         return leftBack;
     }
 

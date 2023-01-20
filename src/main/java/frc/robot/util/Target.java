@@ -1,7 +1,4 @@
 package frc.robot.util;
-
-
-@SuppressWarnings("unused")
 public class Target {
     private double pitch = 0;
 

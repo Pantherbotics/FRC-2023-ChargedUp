@@ -14,7 +14,7 @@ import frc.robot.commands.RunVisionTargeting;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.util.DriveMode;
-import frc.robot.util.SwerveModuleProto;
+import frc.robot.util.SwerveModule;
 
 import static frc.robot.util.MathUtils.round;
 
@@ -81,8 +81,8 @@ public class RobotContainer {
         sJoyPOVSE.whileHeld(new RunDriveMode(drivetrain, DriveMode.TANK));
 
 
-        joyRB.whenPressed(new InstantCommand(() -> ((SwerveModuleProto)drivetrain.getLeftFront()).getDrive().set(0.1)));
-        joyRB.whenReleased(new InstantCommand(() -> ((SwerveModuleProto)drivetrain.getLeftFront()).getDrive().set(0)));
+        joyRB.whenPressed(new InstantCommand(() -> ((SwerveModule)drivetrain.getLeftFront()).getDrive().set(0.1)));
+        joyRB.whenReleased(new InstantCommand(() -> ((SwerveModule)drivetrain.getLeftFront()).getDrive().set(0)));
     }
 
 
