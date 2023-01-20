@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.util.*;
 
@@ -41,10 +42,10 @@ public class Drivetrain extends SubsystemBase {
 
     public Drivetrain() {
         // Positive is CCW, Negative is CW
-        leftFront = new SwerveModuleProto(1, 130); // 165
-        rightFront = new SwerveModuleProto(2, 225); // 290
-        rightBack = new SwerveModuleProto(3, 350); // 90
-        leftBack = new SwerveModuleProto(4, 163); // -20
+        leftFront = new SwerveModuleProto(1, Constants.DriveConstants.swerveModule1Offset, "AngleOffset1"); // 165
+        rightFront = new SwerveModuleProto(2, Constants.DriveConstants.swerveModule1Offset, "AngleOffset2"); // 290
+        rightBack = new SwerveModuleProto(3, Constants.DriveConstants.swerveModule1Offset, "AngleOffset3"); // 90
+        leftBack = new SwerveModuleProto(4, Constants.DriveConstants.swerveModule1Offset, "AngleOffset4"); // -20
         modules = new SwerveModuleProto[] { leftFront, rightFront, rightBack, leftBack };
 
         // Zero the gyro after 1 second while it calibrates

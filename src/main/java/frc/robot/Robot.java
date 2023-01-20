@@ -35,6 +35,10 @@ public class Robot extends TimedRobot {
         speedChooser.addOption("Mild (Medium 50%)", 0.5);
         speedChooser.addOption("Safe (Slow 25%)", 0.25);
         SmartDashboard.putData(speedChooser);
+        SmartDashboard.putNumber("AngleOffset1", kDefaultPeriod);
+        SmartDashboard.putNumber("AngleOffset2", kDefaultPeriod);
+        SmartDashboard.putNumber("AngleOffset3", kDefaultPeriod);
+        SmartDashboard.putNumber("AngleOffset4", kDefaultPeriod);
 
         robotContainer = new RobotContainer(this);
     }

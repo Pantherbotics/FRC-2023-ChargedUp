@@ -67,6 +67,11 @@ public class Constants {
         //These values could be tuned:
         public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 1.5;
         public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 1.5;
+
+        public static final double swerveModule1Offset = 130;
+        public static final double swerveModule2Offset = 225;
+        public static final double swerveModule3Offset = 350;
+        public static final double swerveModule4Offset = 163;
     }
 
     //Checked and verified as of May 1st, 2022
