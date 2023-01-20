@@ -29,7 +29,6 @@ public class SwerveModuleProto extends SwerveModule {
     // Module Variables
     private final int id;
     private final double offsetDeg;
-    private final String offsetKey;
 
     // Drive objects for the Module
     private final CANSparkMax drive;
@@ -53,10 +52,9 @@ public class SwerveModuleProto extends SwerveModule {
      * @param id        ID of the module's motors
      * @param offsetDeg Offset of the module in degrees
      */
-    public SwerveModuleProto(int id, double offsetDeg, String offsetKey) {
+    public SwerveModuleProto(int id, double offsetDeg) {
         this.id = id;
         this.offsetDeg = offsetDeg;
-        this.offsetKey = offsetKey;
 
         // Create the SparkMax for the drive motor, and configure the units for its
         // encoder
@@ -126,7 +124,7 @@ public class SwerveModuleProto extends SwerveModule {
         // Log some info about the target state
         double target = state.angle.getDegrees();
         SmartDashboard.putString("Swerve[" + id + "] Set",
-                "A: " + round(target, 1) + " S: " + round(state.speedMetersPerSecond, 1) + " OFFSET: " + SmartDashboard.getNumber(offsetKey, offsetDeg));
+                "A: " + round(target, 1) + " S: " + round(state.speedMetersPerSecond, 1) + " OFFSET: " + offsetDeg);
 
         // Either run the CanCoder logic for steering, or the AnalogInput logic
         if (Constants.kEncoderType == Constants.EncoderType.CanCoder && canCoder != null) {
@@ -171,14 +169,11 @@ public class SwerveModuleProto extends SwerveModule {
     public double getAngle() {
         if (Constants.kEncoderType == Constants.EncoderType.CanCoder && canCoder != null) {
             return -(MathUtils.restrictAngle(
-                    steer.getSelectedSensorPosition() * 360D / 4096D + SmartDashboard.getNumber(offsetKey, offsetDeg))
+                    steer.getSelectedSensorPosition() * 360D / 4096D + offsetDeg)
                     - 180);
         } else if (analogInput != null) {
             double ang = analogInput.getValue(); // analog in on the Rio
-            ang = ang * 360 / Constants.potMax + SmartDashboard.getNumber(offsetKey, offsetDeg) + 90; // Convert to
-                                                                                                      // compass type
-                                                                                                      // heading +
-                                                                                                      // offset
+            ang = ang * 360 / Constants.potMax + offsetDeg + 90; // Convert compass type heading + offset
             if (ang > 360) {
                 ang -= 360;
             } // correct for offset overshoot.
