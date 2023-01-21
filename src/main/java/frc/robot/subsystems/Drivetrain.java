@@ -43,9 +43,9 @@ public class Drivetrain extends SubsystemBase {
     public Drivetrain() {
         // Positive is CCW, Negative is CW
         leftFront = new SwerveModule(1, Constants.DriveConstants.swerveModule1Offset); 
-        rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule1Offset); 
-        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule1Offset);
-        leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule1Offset); 
+        rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule2Offset); 
+        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule3Offset);
+        leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule4Offset); 
         modules = new SwerveModule[] { leftFront, rightFront, rightBack, leftBack };
 
         // Zero the gyro after 1 second while it calibrates
