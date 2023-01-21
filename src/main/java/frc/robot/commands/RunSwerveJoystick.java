@@ -58,14 +58,14 @@ public class RunSwerveJoystick extends CommandBase {
         double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
 
         //The quirky exponent stuff is just so the value maintains its sign even after being raised by a power
-        double xSpeed = (yLeftValue >= 0.0 ? -Math.pow(yLeftValue, OIConstants.kDriverExp) : Math.pow(-yLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
-        double ySpeed = (xLeftValue >= 0.0 ? -Math.pow(xLeftValue, OIConstants.kDriverExp) : Math.pow(-xLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
+        double xSpeed = (yLeftValue >= 0 ? -Math.pow(yLeftValue, OIConstants.kDriverExp) : Math.pow(-yLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
+        double ySpeed = (xLeftValue >= 0 ? -Math.pow(xLeftValue, OIConstants.kDriverExp) : Math.pow(-xLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
         double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
 
         // 2. Apply deadband
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;
+        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
+        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
+        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0;
 
         // 3. Make the driving smoother
         xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;

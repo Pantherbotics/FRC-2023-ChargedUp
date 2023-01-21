@@ -11,12 +11,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
@@ -149,7 +147,6 @@ public class SwerveModule {
 
     public void resetEncoders() {
         driveEncoder.setPosition(0);
-        turningEncoder.setPosition(getAbsoluteEncoderRad());
     }
 
     public void setDesiredState(SwerveModuleState state) {
@@ -162,9 +159,14 @@ public class SwerveModule {
         //optimize the state, makes it so the wheel never has to travel more than 90 degrees
         state = SwerveModuleState.optimize(state, getState().angle);
         double target = state.angle.getDegrees();
+        SmartDashboard.putNumber("Swerve[" + id + "] Angle: ", Math.round(getTurningPosition()));
+        SmartDashboard.putNumber("Swerve[" + id + "] Speed: ", Math.round(state.speedMetersPerSecond));
+
         //Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
-        //Error has to be negated since Positive is CCW and Negative is CW for our swerve modules       
-        double position = turningMotor.getSelectedSensorPosition() + (-1) * (target - getAngle()) * (4096.0 / 360);
+        //Error has to be negated since Positive is CCW and Negative is CW for our swerve modules
+        double offset = -(target - getAngle()) * (4096.0 / 360);     
+        double position = turningMotor.getSelectedSensorPosition() + offset;
+
         turningMotor.set(TalonSRXControlMode.Position, position);
 
         //Drive Speed with spark and PID (or by percent output using the 2nd line)
