@@ -108,8 +108,9 @@ public class RunSwerveJoystick extends CommandBase {
         //Right stick speed
         double speed = (YL*YL);//square the speed but keep the sign so it can reverse
         if (YL < 0) { speed = -speed; }
-        if (speed > 1) { speed = 1; }
-        if (speed < -1) { speed = -1; }
+        /* if (speed > 1) { speed = 1; }
+        if (speed < -1) { speed = -1; } */
+        speed /= Math.abs(speed); //Should have the same effect as previous code.
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; //Scale it up to m/s
 
         //Calculate Steering Angle
