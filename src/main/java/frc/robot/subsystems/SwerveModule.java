@@ -160,7 +160,7 @@ public class SwerveModule {
         }
         
         //optimize the state, makes it so the wheel never has to travel more than 90 degrees
-        state = SwerveModuleState.optimize(state, state.angle);
+        state = SwerveModuleState.optimize(state, getState().angle);
         double target = state.angle.getDegrees();
         //Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
         //Error has to be negated since Positive is CCW and Negative is CW for our swerve modules       
