@@ -65,24 +65,9 @@ public class RobotContainer {
      * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        joyBB.whenPressed(drivetrain::zeroHeading);
-        joyBX.whileHeld(new RunVisionTargeting(drivetrain, limelight));
-
-        joyBY.whenPressed(new InstantCommand(() -> drivetrain.setLockDriveWhileTargeting(true)));
-        joyBA.whenReleased(new InstantCommand(() -> drivetrain.setLockDriveWhileTargeting(false)));
-
         //Configure multiple swerve modes
-        sJoyPOVN.whenPressed(new RunDriveMode(drivetrain, DriveMode.CAR));
-        sJoyPOVS.whenPressed(new RunDriveMode(drivetrain, DriveMode.BOAT));
-        sJoyPOVE.whenPressed(new RunDriveMode(drivetrain, DriveMode.FO_SWERVE));
-        sJoyPOVW.whenPressed(new RunDriveMode(drivetrain, DriveMode.SWERVE));
-
-        sJoyPOVNE.whenPressed(new RunDriveMode(drivetrain, DriveMode.WESTCOAST));
-        sJoyPOVSE.whileHeld(new RunDriveMode(drivetrain, DriveMode.TANK));
-
-
-        joyRB.whenPressed(new InstantCommand(() -> ((SwerveModule)drivetrain.getLeftFront()).getDrive().set(0.1)));
-        joyRB.whenReleased(new InstantCommand(() -> ((SwerveModule)drivetrain.getLeftFront()).getDrive().set(0)));
+        sJoyPOVE.toggleOnTrue(new RunDriveMode(drivetrain, DriveMode.FO_SWERVE));
+        sJoyPOVW.toggleOnTrue(new RunDriveMode(drivetrain, DriveMode.SWERVE));
     }
 
 
