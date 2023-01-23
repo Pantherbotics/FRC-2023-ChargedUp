@@ -11,12 +11,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
@@ -29,7 +26,7 @@ public class SwerveModule {
 
     //Module Variables
     private final int id;
-    private final double offsetDeg;
+    private final double offsetAngle;
 
     //Drive objects for the Module
     private final CANSparkMax driveMotor;
@@ -45,11 +42,11 @@ public class SwerveModule {
      * @param driveMotorID ID of the module's drive CANSparkMax 
      * @param turningMotorID ID of the modules turning TalonSRX motor
      * @param driveMotorID ID of the module's CANCoder for turning
-     * @param offsetDeg Offset of the module in degrees
+     * @param offsetAngle Offset of the module in radians
      */
-    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, int offsetDeg) {
+    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, double offsetAngle) {
         this.id = id;
-        this.offsetDeg = offsetDeg;
+        this.offsetAngle = offsetAngle;
 
         //Create the SparkMax for the drive motor, and configure the units for its encoder
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless); 
@@ -90,20 +87,21 @@ public class SwerveModule {
     }
 
     /**
-    * @return the position of the drive motor
+    * @return the position of the drive motor in meters
     */
     public double getDrivePosition() {
         return driveEncoder.getPosition();
     }
     /**
-     * @return the driving velocity of the module
+     * @return the driving velocity of the module in meters per second
      */
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
     }
 
     /**
-     * @return The position of the turning motor in degrees (absolute)
+     * @return The absolute position of the turning motor in degrees 
+     * you will probably have to convert to radians if you use this
      */
     public double getTurningPosition() {
         return turningEncoder.getPosition();
@@ -122,7 +120,7 @@ public class SwerveModule {
      * the wheel's measured velocity in meters per second and its angle in the form of a Rotation2d (in degrees)
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+        return new SwerveModuleState(getDriveVelocity(), getRotation2d());
     }
 
     /**
@@ -133,23 +131,17 @@ public class SwerveModule {
      * This function is mostly just for the odometry
      */
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getTurningPosition()));
+        return new SwerveModulePosition(getDrivePosition(), getRotation2d());
     }
 
-    public double getAngle() {
-        double angle = turningMotor.getSelectedSensorPosition() * 360.0 / 4096 + offsetDeg;
-        while (angle > 360) { angle -= 360; }
-		while (angle < 0) { angle += 360; }
-		return angle - 180;
-    }
-
-    public double getAbsoluteEncoderRad() {
-        return Math.toRadians(getAngle());
-    }
-
-    public void resetEncoders() {
-        driveEncoder.setPosition(0);
-        turningEncoder.setPosition(getAbsoluteEncoderRad());
+    /**
+     * @return The current angle of the module as a Rotation2d
+     * Note angle is negated
+     */
+    public Rotation2d getRotation2d() {
+        double currentPosition = turningMotor.getSelectedSensorPosition();
+        double angle = encoderUnitsToRadians(currentPosition) + offsetAngle;
+        return new Rotation2d(-angle);
     }
 
     public void setDesiredState(SwerveModuleState state) {
@@ -160,21 +152,45 @@ public class SwerveModule {
         }
         
         //optimize the state, makes it so the wheel never has to travel more than 90 degrees
-        state = SwerveModuleState.optimize(state, state.angle);
-        double target = state.angle.getDegrees();
-        //Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
-        //Error has to be negated since Positive is CCW and Negative is CW for our swerve modules       
-        double position = turningMotor.getSelectedSensorPosition() + (-1) * (target - getAngle()) * (4096.0 / 360);
-        turningMotor.set(TalonSRXControlMode.Position, position);
+        state = SwerveModuleState.optimize(state, getRotation2d());
 
         //Drive Speed with spark and PID (or by percent output using the 2nd line)
         //drivePID.setReference(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, CANSparkMax.ControlType.kVelocity);
+        //The set function of the Neos actually take in a ratio, which is why you can't just pass in the speed of the desired state
         driveMotor.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
+
+        //Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
+        //Fancy IEEE remainder algorithm to keep the angle with in 360 degrees
+        //Delta has to be negated since Positive is CCW and Negative is CW for our swerve modules
+        double currentPosition = turningMotor.getSelectedSensorPosition();
+        double desiredPosition = radiansToEncoderUnits(state.angle.getRadians());
+        double deltaPosition = Math.IEEEremainder(desiredPosition - currentPosition, ModuleConstants.kTurningEncoderTicksPerRev);
+        turningMotor.set(TalonSRXControlMode.Position, currentPosition - deltaPosition);
+    }
+
+    /**
+     * @param ticks The talon position you wish to convert to radians
+     * @return The position in radians [0, 360]
+     */
+    private double encoderUnitsToRadians(double ticks) {
+        return ticks * ((2 * Math.PI) / ModuleConstants.kTurningEncoderTicksPerRev);
+    }
+
+    /**
+     * @param radians The angle of the talon in radians you wish to convert to talon units
+     * @return The position in talon units [0, 4906]
+     */
+    private double radiansToEncoderUnits(double radians) {
+        return radians * (ModuleConstants.kTurningEncoderTicksPerRev / (2 * Math.PI));
+    }
+
+    public void resetEncoders() {
+        driveEncoder.setPosition(0);
     }
 
     public void stop() {
         driveMotor.set(0);
-        //drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
         turningMotor.set(ControlMode.PercentOutput, 0);
+        //drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
     }
 }

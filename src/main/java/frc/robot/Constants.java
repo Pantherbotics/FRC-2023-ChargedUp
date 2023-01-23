@@ -20,9 +20,10 @@ public class Constants {
     //Checked and verified as of May 1st, 2022
     public static final class ModuleConstants {
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4); //4 when new
-        public static final double kDriveMotorGearRatio = 2/15D; // 12:30 then 15:45
+        public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
+        public static final double kTurningEncoderTicksPerRev = 4096.0;
 
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
@@ -60,7 +61,7 @@ public class Constants {
                 new Translation2d(-kWheelBase / 2,  kTrackWidth / 2)   //Back Left
         );
 
-        //These are all id numbers, change if necessary (ie: you changed the motor ids for some reason)
+        //These are all id numbers, change if necessary (ie: you reconfigured the motor ids for some reason)
         public static final int kFrontLeftModuleID = 1;
         public static final int kFrontRightModuleID = 2;
         public static final int kBackRightModuleID = 3;
@@ -83,10 +84,10 @@ public class Constants {
 
         //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
         //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftTurningEncoderOffsetDeg = 165; //165  <-- I have no fucking clue what these commented numbers mean
-        public static final int kFrontRightTurningEncoderOffsetDeg = 225; //225
-        public static final int kBackRightTurningEncoderOffsetDeg = 350; //90
-        public static final int kBackLeftTurningEncoderOffsetDeg = 163; //-20 
+        public static final double kFrontLeftTurningEncoderOffsetDeg = Math.toRadians(165); //165  <-- I have no fucking clue what these commented numbers mean
+        public static final double kFrontRightTurningEncoderOffsetDeg = Math.toRadians(225); //225
+        public static final double kBackRightTurningEncoderOffsetDeg = Math.toRadians(350); //90
+        public static final double kBackLeftTurningEncoderOffsetDeg = Math.toRadians(163); //-20 
 
         public static final double kPhysicalMaxSpeedMetersPerSecond = (neoMaxRPM / 60.0) * ModuleConstants.kDriveEncoderRot2Meter; //~3.56 m/s
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * Math.PI; //About 2pi given wheelbase and drive speed
