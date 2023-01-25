@@ -26,7 +26,7 @@ public class SwerveModule {
 
 
     //Module Variables
-    private final int id;
+    private final String name;
     private final double offsetAngle;
 
     //Drive objects for the Module
@@ -46,7 +46,7 @@ public class SwerveModule {
      * @param offsetAngle Offset of the module in radians
      */
     public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, double offsetAngle) {
-        this.id = id;
+        name = "Swerve[" + id + "]";
         this.offsetAngle = offsetAngle;
 
         //Create the SparkMax for the drive motor, and configure the units for its encoder
