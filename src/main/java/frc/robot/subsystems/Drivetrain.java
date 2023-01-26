@@ -100,8 +100,6 @@ public class Drivetrain extends SubsystemBase {
     public void periodic() {
         //Update the odometry
         odometer.update(getRotation2d(), getModulePositions());
-        SmartDashboard.putNumber("Heading", getHeading());
-        SmartDashboard.putString("Location", getPose().getTranslation().toString());
     }
 
     /**

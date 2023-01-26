@@ -50,29 +50,41 @@ public class SwerveModule {
 
         //Create the SparkMax for the drive motor, and configure the units for its encoder
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless); 
-        driveMotor.restoreFactoryDefaults();
-
         driveEncoder = driveMotor.getEncoder();
+        drivePID = driveMotor.getPIDController();
+
+        configDriveMotor();
+        configDriveEncoder();
+        configDrivePID();
+        
+        turningMotor = new TalonSRX(turningMotorID);
+        turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
+
+        configTurningEncoder();
+        configTurningMotor();
+
+        resetEncoders();
+    }
+
+    private void configDriveMotor() {
+        driveMotor.restoreFactoryDefaults();
+    }
+
+    private void configDriveEncoder() {
         driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
         driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+    }
 
-        //Get the Drive PID Controller and configure it for Velocity PID
-        drivePID = driveMotor.getPIDController();
+    private void configDrivePID() {
         drivePID.setP(ModuleConstants.kPDrive);
         drivePID.setI(ModuleConstants.kIDrive);
         drivePID.setD(ModuleConstants.kDDrive);
         drivePID.setIZone(ModuleConstants.kIZoneDrive);
         drivePID.setFF(ModuleConstants.kFFDrive);
         drivePID.setOutputRange(-1, 1);
+    }
 
-        //Create the Steer TalonSRX
-        turningMotor = new TalonSRX(turningMotorID); //set in id create talon object
-
-        //Create the CANCoder and configure it to work as the RemoteSensor0 for the steer motor
-        turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
-        turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-        turningEncoder.setPositionToAbsolute();
-
+    private void configTurningMotor() {
         //Set the CANCoder to be the sensor for the Talon's feedback loop
         turningMotor.configRemoteFeedbackFilter(turningEncoder, ModuleConstants.kPIDRemoteOrdinal);
         turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, ModuleConstants.kPIDSlotID, ModuleConstants.kPIDTimeoutMs);
@@ -81,9 +93,11 @@ public class SwerveModule {
         turningMotor.config_kD(ModuleConstants.kPIDSlotID, ModuleConstants.kDTurning);
         turningMotor.config_kF(ModuleConstants.kPIDSlotID, ModuleConstants.kFTurning);
         turningMotor.setSelectedSensorPosition(turningEncoder.getAbsolutePosition());
+    }
 
-        //Reset the encoders
-        resetEncoders();
+    private void configTurningEncoder() {
+        turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        turningEncoder.setPositionToAbsolute();
     }
 
     /**
@@ -178,7 +192,7 @@ public class SwerveModule {
 
     /**
      * @param radians The angle of the talon in radians you wish to convert to talon units
-     * @return The position in talon units [0, 4906]
+     * @return The position in talon units [0, 4096]
      */
     private double radiansToEncoderUnits(double radians) {
         return radians * (ModuleConstants.kTurningEncoderTicksPerRev / (2 * Math.PI));
