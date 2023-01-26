@@ -14,6 +14,7 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
@@ -25,7 +26,7 @@ public class SwerveModule {
 
 
     //Module Variables
-    private final int id;
+    private final String name;
     private final double offsetAngle;
 
     //Drive objects for the Module
@@ -45,7 +46,7 @@ public class SwerveModule {
      * @param offsetAngle Offset of the module in radians
      */
     public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, double offsetAngle) {
-        this.id = id;
+        name = "Swerve[" + id + "]";
         this.offsetAngle = offsetAngle;
 
         //Create the SparkMax for the drive motor, and configure the units for its encoder
@@ -183,11 +184,11 @@ public class SwerveModule {
     }
 
     /**
-     * @param ticks The talon position you wish to convert to radians
+     * @param units The talon position you wish to convert to radians
      * @return The position in radians [0, 360]
      */
-    private double encoderUnitsToRadians(double ticks) {
-        return ticks * ((2 * Math.PI) / ModuleConstants.kTurningEncoderTicksPerRev);
+    private double encoderUnitsToRadians(double units) {
+        return units * ((2 * Math.PI) / ModuleConstants.kTurningEncoderTicksPerRev);
     }
 
     /**
