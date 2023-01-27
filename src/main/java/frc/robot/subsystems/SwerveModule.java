@@ -14,6 +14,7 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -46,7 +47,7 @@ public class SwerveModule {
      * @param offsetAngle Offset of the module in radians
      */
     public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, double offsetAngle) {
-        name = "Swerve[" + id + "]";
+        name = "Swerve Module [" + id + "]";
         this.offsetAngle = offsetAngle;
 
         //Create the SparkMax for the drive motor, and configure the units for its encoder
@@ -61,7 +62,7 @@ public class SwerveModule {
         turningMotor = new TalonSRX(turningMotorID);
         turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
 
-        configTurningEncoder();
+        configTurningEncoder(); //you need to config the encoder before the motor because you pass in the encoder to the motor
         configTurningMotor();
 
         resetEncoders();
@@ -69,6 +70,7 @@ public class SwerveModule {
 
     private void configDriveMotor() {
         driveMotor.restoreFactoryDefaults();
+        driveMotor.setIdleMode(ModuleConstants.kDriveMotorIdleMode);
     }
 
     private void configDriveEncoder() {
@@ -135,30 +137,32 @@ public class SwerveModule {
      * the wheel's measured velocity in meters per second and its angle in the form of a Rotation2d (in degrees)
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), getRotation2d());
+        return new SwerveModuleState(getDriveVelocity(), getTurningRotation2d());
     }
 
     /**
      * @return The current position of the module in the form of a SwerveModulePosition class: 
      * the wheel's measured distance in meters and its angle in the form of a Rotation2d (in degrees)
-     *                ^  
-     * what does this mean? No fucking clue 
-     * This function is mostly just for the odometry
      */
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), getRotation2d());
+        return new SwerveModulePosition(getDrivePosition(), getTurningRotation2d());
     }
 
     /**
      * @return The current angle of the module as a Rotation2d
      * Note angle is negated
      */
-    public Rotation2d getRotation2d() {
+    public Rotation2d getTurningRotation2d() {
         double currentPosition = turningMotor.getSelectedSensorPosition();
         double angle = encoderUnitsToRadians(currentPosition) + offsetAngle;
         return new Rotation2d(-angle);
     }
 
+    
+    /**
+     * 
+     * @param state The desired state to set the module to 
+     */
     public void setDesiredState(SwerveModuleState state) {
         //Ignore small states like when we let go of left stick so wheels don't default to 0 degrees
         if (Math.abs(state.speedMetersPerSecond) < 0.001) {
@@ -167,7 +171,7 @@ public class SwerveModule {
         }
         
         //optimize the state, makes it so the wheel never has to travel more than 90 degrees
-        state = SwerveModuleState.optimize(state, getRotation2d());
+        state = SwerveModuleState.optimize(state, getTurningRotation2d());
 
         //Drive Speed with spark and PID (or by percent output using the 2nd line)
         //drivePID.setReference(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, CANSparkMax.ControlType.kVelocity);
@@ -181,6 +185,23 @@ public class SwerveModule {
         double desiredPosition = radiansToEncoderUnits(state.angle.getRadians());
         double deltaPosition = Math.IEEEremainder(desiredPosition - currentPosition, ModuleConstants.kTurningEncoderTicksPerRev);
         turningMotor.set(TalonSRXControlMode.Position, currentPosition - deltaPosition);
+    }
+
+    public void storeTurningMotorZeroReference() {
+        double position = getAbsoluteEncoderUnits();
+        Preferences.setDouble(name, position);  
+    }
+
+    public void loadTurningMotorZeroReference() {
+        double reference = Preferences.getDouble(name, Integer.MIN_VALUE);
+        double encoderUnits = getAbsoluteEncoderUnits();
+        double setpoint = encoderUnits - reference;
+        turningMotor.setSelectedSensorPosition(setpoint);
+
+    }
+
+    private double getAbsoluteEncoderUnits() {
+        return turningMotor.getSensorCollection().getPulseWidthPosition() & 0xFFF;
     }
 
     /**

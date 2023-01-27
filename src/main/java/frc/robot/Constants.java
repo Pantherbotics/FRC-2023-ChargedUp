@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -45,6 +47,8 @@ public class Constants {
         public static final double kITurning = 0.0005;
         public static final double kDTurning = 0.0;
         public static final double kFTurning = 0.0;
+
+        public static final IdleMode kDriveMotorIdleMode = IdleMode.kCoast;
     }
 
     //Checked and verified as of May 1st, 2022
