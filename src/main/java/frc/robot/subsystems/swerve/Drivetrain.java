@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.swerve;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,35 +11,36 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 
 public class Drivetrain extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule( //1
-        DriveConstants.kFrontLeftModuleID, 
-        DriveConstants.kFrontLeftDriveMotorPort,
-        DriveConstants.kFrontLeftTurningMotorPort,
-        DriveConstants.kFrontLeftTurningEncoderPort,
-        DriveConstants.kFrontLeftTurningEncoderOffsetDeg 
+        ModuleConstants.kFrontLeftModuleID, 
+        ModuleConstants.kFrontLeftDriveMotorPort,
+        ModuleConstants.kFrontLeftTurningMotorPort,
+        ModuleConstants.kFrontLeftTurningEncoderPort,
+        ModuleConstants.kFrontLeftTurningEncoderOffsetDeg 
     );
     private final SwerveModule frontRight = new SwerveModule( //2
-        DriveConstants.kFrontRightModuleID,
-        DriveConstants.kFrontRightDriveMotorPort,
-        DriveConstants.kFrontRightTurningMotorPort, 
-        DriveConstants.kFrontRightTurningEncoderPort,
-        DriveConstants.kFrontRightTurningEncoderOffsetDeg
+        ModuleConstants.kFrontRightModuleID,
+        ModuleConstants.kFrontRightDriveMotorPort,
+        ModuleConstants.kFrontRightTurningMotorPort, 
+        ModuleConstants.kFrontRightTurningEncoderPort,
+        ModuleConstants.kFrontRightTurningEncoderOffsetDeg
     );
     private final SwerveModule backRight = new SwerveModule( //3
-        DriveConstants.kBackRightModuleID,
-        DriveConstants.kBackRightDriveMotorPort,
-        DriveConstants.kBackRightTurningMotorPort, 
-        DriveConstants.kBackRightTurningEncoderPort,
-        DriveConstants.kBackRightTurningEncoderOffsetDeg
+    ModuleConstants.kBackRightModuleID,
+        ModuleConstants.kBackRightDriveMotorPort,
+        ModuleConstants.kBackRightTurningMotorPort, 
+        ModuleConstants.kBackRightTurningEncoderPort,
+        ModuleConstants.kBackRightTurningEncoderOffsetDeg
     );
     private final SwerveModule backLeft = new SwerveModule( //4
-        DriveConstants.kBackLeftModuleID,
-        DriveConstants.kBackLeftDriveMotorPort,
-        DriveConstants.kBackLeftTurningMotorPort, 
-        DriveConstants.kBackLeftTurningEncoderPort,
-        DriveConstants.kBackLeftTurningEncoderOffsetDeg
+        ModuleConstants.kBackLeftModuleID,
+        ModuleConstants.kBackLeftDriveMotorPort,
+        ModuleConstants.kBackLeftTurningMotorPort, 
+        ModuleConstants.kBackLeftTurningEncoderPort,
+        ModuleConstants.kBackLeftTurningEncoderOffsetDeg
     );
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
@@ -49,7 +50,10 @@ public class Drivetrain extends SubsystemBase {
         getModulePositions()
     );
 
-    private DriveMode driveMode = DriveMode.SWERVE; //By default it drives relative to the robot, not the field
+    private DriveMode driveMode = DriveMode.SWERVE; //By default it is in normal swerve mode
+
+    private double yawOffset;
+    private double rollOffset;
 
     public Drivetrain() {
         //Zero the gyro after 1 second while it calibrates

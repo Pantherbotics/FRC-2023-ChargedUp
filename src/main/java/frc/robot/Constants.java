@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -30,37 +31,6 @@ public class Constants {
         //public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         //public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
 
-        public static final int kPIDSlotID = 0; //0 for primary closed-loop, 1 for auxiliary closed-loop
-        public static final int kPIDRemoteOrdinal = 0; //0 for RemoteSensor0, 1 for RemoteSensor1
-        public static final int kPIDTimeoutMs = 20; //20 ms
-
-        public static final double kPDrive = 0.0001;
-        public static final double kIDrive = 0.0;
-        public static final double kDDrive = 0.0001;
-        public static final double kIZoneDrive = 0.0;
-        public static final double kFFDrive = 0.000175;
-
-        //These values will need to be calibrated when swapping between CANCoders and Potentiometers
-        public static final double kPTurning = 1.0;
-        public static final double kITurning = 0.0005;
-        public static final double kDTurning = 0.0;
-        public static final double kFTurning = 0.0;
-    }
-
-    //Checked and verified as of May 1st, 2022
-    public static final class DriveConstants {
-        // Distance between right and left wheels
-        public static final double kTrackWidth = Units.inchesToMeters(19.5);
-        // Distance between front and back wheels
-        public static final double kWheelBase = Units.inchesToMeters(19.5);
-
-        public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-                new Translation2d( kWheelBase / 2,  kTrackWidth / 2),  //Front Left
-                new Translation2d( kWheelBase / 2, -kTrackWidth / 2),  //Front Right
-                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  //Back Right
-                new Translation2d(-kWheelBase / 2,  kTrackWidth / 2)   //Back Left
-        );
-
         //These are all id numbers, change if necessary (ie: you reconfigured the motor ids for some reason)
         public static final int kFrontLeftModuleID = 1;
         public static final int kFrontRightModuleID = 2;
@@ -84,10 +54,26 @@ public class Constants {
 
         //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
         //Positive is counterclockwise, Negative is clockwise
-        public static final double kFrontLeftTurningEncoderOffsetDeg = Math.toRadians(165); //165  <-- I have no fucking clue what these commented numbers mean
-        public static final double kFrontRightTurningEncoderOffsetDeg = Math.toRadians(225); //225
-        public static final double kBackRightTurningEncoderOffsetDeg = Math.toRadians(350); //90
-        public static final double kBackLeftTurningEncoderOffsetDeg = Math.toRadians(163); //-20 
+        public static final Rotation2d kFrontLeftTurningEncoderOffsetDeg = Rotation2d.fromDegrees(165); //165  <-- I have no fucking clue what these commented numbers mean
+        public static final Rotation2d kFrontRightTurningEncoderOffsetDeg = Rotation2d.fromDegrees(225); //225
+        public static final Rotation2d kBackRightTurningEncoderOffsetDeg = Rotation2d.fromDegrees(350); //90
+        public static final Rotation2d kBackLeftTurningEncoderOffsetDeg = Rotation2d.fromDegrees(163); //-20 
+    }
+
+    //Checked and verified as of May 1st, 2022
+    public static final class DriveConstants {
+        // Distance between right and left wheels
+        public static final double kTrackWidth = Units.inchesToMeters(19.5);
+        // Distance between front and back wheels
+        public static final double kWheelBase = Units.inchesToMeters(19.5);
+
+        public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
+                new Translation2d( kWheelBase / 2,  kTrackWidth / 2),  //Front Left
+                new Translation2d( kWheelBase / 2, -kTrackWidth / 2),  //Front Right
+                new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  //Back Right
+                new Translation2d(-kWheelBase / 2,  kTrackWidth / 2)   //Back Left
+        );
+
 
         public static final double kPhysicalMaxSpeedMetersPerSecond = (neoMaxRPM / 60.0) * ModuleConstants.kDriveEncoderRot2Meter; //~3.56 m/s
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * Math.PI; //About 2pi given wheelbase and drive speed

@@ -6,10 +6,10 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Drivetrain.DriveMode;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.swerve.Drivetrain.DriveMode;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;

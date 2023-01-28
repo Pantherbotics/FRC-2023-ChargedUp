@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.RunChooseDriveMode;
 import frc.robot.commands.RunSwerveJoystick;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Drivetrain.DriveMode;
+import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.swerve.Drivetrain.DriveMode;
 
 public class RobotContainer {
     public final Drivetrain drivetrain = new Drivetrain();
