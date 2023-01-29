@@ -190,11 +190,6 @@ public class SwerveModule {
         drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient * (flip ? -1 : 1), ControlType.kVelocity);
     }
 
-    public void resetEncoders() {
-        driveEncoder.setPosition(0);
-        //turning encoder is absolute, no need to reset 
-    }
-
     /**
      * @param angle The desired angle in radians
      */
@@ -226,6 +221,11 @@ public class SwerveModule {
 
         setTurningAngleUnbound(unboundPosition + relativeAngleRad);
         return flip;
+    }
+    
+    public void resetEncoders() {
+        driveEncoder.setPosition(0);
+        //turning encoder is absolute, no need to reset 
     }
     
     /**
