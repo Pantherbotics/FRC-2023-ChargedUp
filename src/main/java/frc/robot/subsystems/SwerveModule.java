@@ -72,6 +72,7 @@ public class SwerveModule {
         //Create the CANCoder and configure it to work as the RemoteSensor0 for the steer motor
         turningEncoder = new CANCoder(turningEncoderID); //Our CANCoders are configured to be IDs 5-8
         turningEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+        turningEncoder.configMagnetOffset(offsetAngle);
         turningEncoder.setPositionToAbsolute();
 
         //Set the CANCoder to be the sensor for the Talon's feedback loop
