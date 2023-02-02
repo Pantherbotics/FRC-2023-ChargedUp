@@ -46,7 +46,7 @@ public class SwerveModule {
     private Rotation2d turningMotorOffset;
 
     private final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / Constants.neoMaxRPM;
-    private final double kTurningPositionCoefficient = 2.0 * Math.PI / 2048.0;
+    private final double kTurningPositionCoefficient = 2.0 * Math.PI / 4069.0;
 
     /**
      * @param id Arbitrary identification number (should be a label on the neo motor)
@@ -93,7 +93,7 @@ public class SwerveModule {
         drivePID.setOutputRange(-1, 1);
 
         //turning motor 
-        turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
+        turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20); //setup to use the cancoder as an encoder
         turningMotor.setNeutralMode(NeutralMode.Coast);
         turningMotor.setInverted(false); //counter-clockwise I think? Needs testing
         turningMotor.setSensorPhase(false);
@@ -186,41 +186,9 @@ public class SwerveModule {
             return;
         }
         
-        boolean flip = setTurningAngleShortestPath(state.angle);
-        drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient * (flip ? -1 : 1), ControlType.kVelocity);
-    }
-
-    /**
-     * @param angle The desired angle in radians
-     */
-    private void setTurningAngleUnbound(double angle) {
-        turningMotor.set(TalonSRXControlMode.Position, (angle + turningMotorOffset.getRadians()) / kTurningPositionCoefficient); 
-    }
-    
-    /**
-     * Takes the shortest path to the desired angle, similar to WPILib's optimize function
-     * Should always travel 90 degrees or less 
-     * @param angle The desired angle to rotate to
-     * @return True if the drive velocity should be inverted, false otherwise
-     */
-    private boolean setTurningAngleShortestPath(Rotation2d angle) {
-        boolean flip = false;
-        double unboundPosition = getUnboundTurningAngleRadians();
-        Rotation2d boundPosition = Rotation2d.fromRadians(unboundPosition);
-        Rotation2d relativeRotation = angle.rotateBy(boundPosition.unaryMinus());
-        double relativeAngleRad = relativeRotation.getRadians();
-
-        // Flipping drive direction would be the shorter path.
-        if(relativeAngleRad > Math.PI / 2.0) {
-            flip = true;
-            relativeAngleRad -= Math.PI;
-        } else if(relativeAngleRad < -(Math.PI / 2.0)) {
-            flip = true;
-            relativeAngleRad += Math.PI;
-        }
-
-        setTurningAngleUnbound(unboundPosition + relativeAngleRad);
-        return flip;
+        state = SwerveModuleState.optimize(state, getTurningAngle());
+        turningMotor.set(TalonSRXControlMode.Position, (state.angle.getRadians() + turningMotorOffset.getRadians()) / kTurningPositionCoefficient);
+        drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
     }
     
     public void resetEncoders() {
@@ -234,9 +202,5 @@ public class SwerveModule {
     public void stop() {
         drivePID.setReference(0, ControlType.kVelocity);
         turningMotor.set(ControlMode.PercentOutput, 0);
-    }
-
-    public void outputTelemetry() {
-        SmartDashboard.putString("Swerve[" + id + "]", "Poggers");
     }
 }
