@@ -54,10 +54,10 @@ public class Constants {
 
         //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
         //Positive is counterclockwise, Negative is clockwise
-        public static final Rotation2d kFrontLeftTurningEncoderOffsetDeg = Rotation2d.fromDegrees(165); //165  <-- I have no fucking clue what these commented numbers mean
-        public static final Rotation2d kFrontRightTurningEncoderOffsetDeg = Rotation2d.fromDegrees(225); //225
-        public static final Rotation2d kBackRightTurningEncoderOffsetDeg = Rotation2d.fromDegrees(350); //90
-        public static final Rotation2d kBackLeftTurningEncoderOffsetDeg = Rotation2d.fromDegrees(163); //-20 
+        public static final int kFrontLeftTurningEncoderOffsetDeg = 165; //165  <-- I have no fucking clue what these commented numbers mean
+        public static final int kFrontRightTurningEncoderOffsetDeg = 225; //225
+        public static final int kBackRightTurningEncoderOffsetDeg = 350; //90
+        public static final int kBackLeftTurningEncoderOffsetDeg = 163; //-20 
     }
 
     //Checked and verified as of May 1st, 2022

@@ -55,9 +55,9 @@ public class SwerveModule {
      * @param driveMotorID ID of the module's CANCoder for turning
      * @param offsetAngle Offset of the module in radians
      */
-    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, Rotation2d offsetAngle) {
+    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, int offsetAngle) {
         this.id = id;
-        turningEncoderZero = offsetAngle;
+        turningEncoderZero = Rotation2d.fromDegrees(offsetAngle);
 
         //drive 
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
@@ -158,7 +158,7 @@ public class SwerveModule {
      * @return The unbound angle of the turning motor in radians
      */
     public double getUnboundTurningAngleRadians() {
-        return (turningMotor.getSelectedSensorPosition() * kTurningPositionCoefficient) - turningMotorOffset.getRadians();
+        return (turningMotor.getSelectedSensorPosition() * kTurningPositionCoefficient);// - turningMotorOffset.getRadians();
     }
 
     public void rezeroTurningMotor() {
@@ -187,7 +187,7 @@ public class SwerveModule {
         }
         
         state = SwerveModuleState.optimize(state, getTurningAngle());
-        turningMotor.set(TalonSRXControlMode.Position, (state.angle.getRadians() + turningMotorOffset.getRadians()) / kTurningPositionCoefficient);
+        turningMotor.set(TalonSRXControlMode.Position, (state.angle.getRadians()) / kTurningPositionCoefficient);
         drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
     }
     
