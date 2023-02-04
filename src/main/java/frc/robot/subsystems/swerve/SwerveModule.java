@@ -42,8 +42,8 @@ public class SwerveModule {
     private final TalonSRX turningMotor;
     private final CANCoder turningEncoder; 
 
-    private final Rotation2d turningEncoderZero;
-    private Rotation2d turningMotorOffset;
+    private final double turningEncoderZero;
+    private double turningMotorOffset;
 
     private final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / Constants.neoMaxRPM;
     private final double kTurningPositionCoefficient = 2.0 * Math.PI / 4069.0;
@@ -53,11 +53,11 @@ public class SwerveModule {
      * @param driveMotorID ID of the module's drive CANSparkMax 
      * @param turningMotorID ID of the modules turning TalonSRX motor
      * @param driveMotorID ID of the module's CANCoder for turning
-     * @param offsetAngle Offset of the module in radians
+     * @param turningEncoderOffset Offset of the module in radians
      */
-    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, int offsetAngle) {
+    public SwerveModule(int id, int driveMotorID, int turningMotorID, int turningEncoderID, int turningEncoderOffset) {
         this.id = id;
-        turningEncoderZero = Rotation2d.fromDegrees(offsetAngle);
+        this.turningEncoderZero = turningEncoderOffset;
 
         //drive 
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
@@ -163,7 +163,7 @@ public class SwerveModule {
 
     public void rezeroTurningMotor() {
         Rotation2d currentAngle = Rotation2d.fromRadians(turningMotor.getSelectedSensorPosition() * kTurningPositionCoefficient);
-        turningMotorOffset = currentAngle.rotateBy(getAdjustedTurningEncoderAngle().unaryMinus());
+        turningMotorOffset = currentAngle.rotateBy(getAdjustedTurningEncoderAngle().unaryMinus()).getRadians();
     }
     /**
      * @return The raw angle of the module's cancoder as a Rotation2d
@@ -176,7 +176,7 @@ public class SwerveModule {
      * @return The angle of module's cancoder taking into account the cancoder's offset
      */
     public Rotation2d getAdjustedTurningEncoderAngle() {
-        return getTurningEncoderAngle().rotateBy(turningEncoderZero.unaryMinus());
+        return getTurningEncoderAngle().rotateBy(Rotation2d.fromRadians(turningEncoderZero).unaryMinus());
     }
 
     public void setDesiredState(SwerveModuleState state) {
