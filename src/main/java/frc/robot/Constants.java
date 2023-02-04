@@ -104,6 +104,10 @@ public class Constants {
                     );
     }
 
+    public static final class ArmConstants {
+        
+    }
+
     //Checked and verified as of May 1st, 2022
     public static final class OIConstants {
         public static final int kPrimaryJoystickID = 0;
@@ -113,6 +117,10 @@ public class Constants {
         public static final int kPrimaryJoystickRightYAxisID = 5;
 
         public static final int kSecondaryJoystickID = 1;
+        public static final int kSecondaryJoystickLeftXAxisID = 0;
+        public static final int kSecondaryJoystickLeftYAxisID = 1;
+        public static final int kSecondaryJoystickRightXAxisID = 4;
+        public static final int kSecondaryJoystickRightYAxisID = 5;
 
         public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 

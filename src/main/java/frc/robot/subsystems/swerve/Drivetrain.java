@@ -14,34 +14,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModule frontLeft = new SwerveModule( //1
-        ModuleConstants.kFrontLeftModuleID, 
-        ModuleConstants.kFrontLeftDriveMotorPort,
-        ModuleConstants.kFrontLeftTurningMotorPort,
-        ModuleConstants.kFrontLeftTurningEncoderPort,
-        ModuleConstants.kFrontLeftTurningEncoderOffsetDeg 
-    );
-    private final SwerveModule frontRight = new SwerveModule( //2
-        ModuleConstants.kFrontRightModuleID,
-        ModuleConstants.kFrontRightDriveMotorPort,
-        ModuleConstants.kFrontRightTurningMotorPort, 
-        ModuleConstants.kFrontRightTurningEncoderPort,
-        ModuleConstants.kFrontRightTurningEncoderOffsetDeg
-    );
-    private final SwerveModule backRight = new SwerveModule( //3
-    ModuleConstants.kBackRightModuleID,
-        ModuleConstants.kBackRightDriveMotorPort,
-        ModuleConstants.kBackRightTurningMotorPort, 
-        ModuleConstants.kBackRightTurningEncoderPort,
-        ModuleConstants.kBackRightTurningEncoderOffsetDeg
-    );
-    private final SwerveModule backLeft = new SwerveModule( //4
-        ModuleConstants.kBackLeftModuleID,
-        ModuleConstants.kBackLeftDriveMotorPort,
-        ModuleConstants.kBackLeftTurningMotorPort, 
-        ModuleConstants.kBackLeftTurningEncoderPort,
-        ModuleConstants.kBackLeftTurningEncoderOffsetDeg
-    );
+    private final SwerveModule frontLeft, frontRight, backRight, backLeft;
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry( //WPILib's odometry class is fine, If a future person looking at this wants to make there own go ahead
@@ -52,10 +25,36 @@ public class Drivetrain extends SubsystemBase {
 
     private DriveMode driveMode = DriveMode.SWERVE; //By default it is in normal swerve mode
 
-    private double yawOffset;
-    private double rollOffset;
-
     public Drivetrain() {
+        frontLeft = new SwerveModule( //1
+            ModuleConstants.kFrontLeftModuleID, 
+            ModuleConstants.kFrontLeftDriveMotorPort,
+            ModuleConstants.kFrontLeftTurningMotorPort,
+            ModuleConstants.kFrontLeftTurningEncoderPort,
+            ModuleConstants.kFrontLeftTurningEncoderOffsetDeg 
+        );
+        frontRight = new SwerveModule( //2
+            ModuleConstants.kFrontRightModuleID,
+            ModuleConstants.kFrontRightDriveMotorPort,
+            ModuleConstants.kFrontRightTurningMotorPort, 
+            ModuleConstants.kFrontRightTurningEncoderPort,
+            ModuleConstants.kFrontRightTurningEncoderOffsetDeg
+        );
+        backRight = new SwerveModule( //3
+            ModuleConstants.kBackRightModuleID,
+            ModuleConstants.kBackRightDriveMotorPort,
+            ModuleConstants.kBackRightTurningMotorPort, 
+            ModuleConstants.kBackRightTurningEncoderPort,
+            ModuleConstants.kBackRightTurningEncoderOffsetDeg
+        );
+        backLeft = new SwerveModule( //4
+            ModuleConstants.kBackLeftModuleID,
+            ModuleConstants.kBackLeftDriveMotorPort,
+            ModuleConstants.kBackLeftTurningMotorPort, 
+            ModuleConstants.kBackLeftTurningEncoderPort,
+            ModuleConstants.kBackLeftTurningEncoderOffsetDeg
+        );
+
         //Zero the gyro after 1 second while it calibrates
         new Thread(() -> {
             try {

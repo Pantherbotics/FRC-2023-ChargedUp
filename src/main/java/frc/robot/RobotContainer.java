@@ -4,16 +4,23 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.RunChooseDriveMode;
+import frc.robot.commands.RunClaw;
 import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.swerve.Drivetrain.DriveMode;
 
 public class RobotContainer {
+    //subsystems
     public final Drivetrain drivetrain = new Drivetrain();
+    public final Claw claw = new Claw();
+    public final Arm arm = new Arm();
 
     public final SendableChooser<Double> speedChooser;
 
@@ -64,6 +71,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        //the drivetrain obviously needs to drive by default
         drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain, 
             primaryJoystick, 
@@ -71,15 +79,25 @@ public class RobotContainer {
             drivetrain::getDriveMode
         ));
 
+        //toggle between field oriented and normal
         secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
         secondaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
+
+        //claw default manual control
+        claw.setDefaultCommand(new RunClaw(
+            claw,
+            secondaryJoystick
+        ));
+
+        //pid testing
+        secondaryJoystickAButton.toggleOnTrue(new InstantCommand(() ->
+            claw.setDoPID(!claw.getDoPID())
+        ));
 
         //TODO: add more commands
     }
 
     public void updateSmartDashboard() {  
-        SmartDashboard.putNumber("Gyro", drivetrain.getHeading());
-        SmartDashboard.putString("Mode", drivetrain.getDriveMode().toString());
         //TODO: add more info
     }
 }
