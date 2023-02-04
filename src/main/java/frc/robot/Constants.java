@@ -68,10 +68,10 @@ public class Constants {
         public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 1.5;
         public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 1.5;
 
-        public static final double swerveModule1Offset = 250;
-        public static final double swerveModule2Offset = 100;
-        public static final double swerveModule3Offset = 5;
-        public static final double swerveModule4Offset = -90;
+        public static final double swerveModule1Offset = -30;
+        public static final double swerveModule2Offset = 16.19;
+        public static final double swerveModule3Offset = 17.15;
+        public static final double swerveModule4Offset = 7.12;
     }
 
     //Checked and verified as of May 1st, 2022

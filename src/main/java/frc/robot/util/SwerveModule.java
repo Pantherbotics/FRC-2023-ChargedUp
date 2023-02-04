@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
@@ -23,7 +24,8 @@ import static frc.robot.util.MathUtils.round;
 public class SwerveModule {
     // Module Variables
     private final int id;
-    private final double offsetDeg;
+    private double offsetDeg;
+    private boolean inverted;
 
     // Drive objects for the Module
     private final CANSparkMax drive;
@@ -47,9 +49,10 @@ public class SwerveModule {
      * @param id        ID of the module's motors
      * @param offsetDeg Offset of the module in degrees
      */
-    public SwerveModule(int id, double offsetDeg) {
+    public SwerveModule(int id, double offsetDeg, boolean inverted) {
         this.id = id;
         this.offsetDeg = offsetDeg;
+        this.inverted = inverted;
 
         // Create the SparkMax for the drive motor, and configure the units for its
         // encoder
@@ -77,9 +80,11 @@ public class SwerveModule {
             // steer motor
             canCoder = new CANCoder(id + 4); // Our CANCoders are configured to be IDs 5-8
             canCoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+            canCoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
             canCoder.setPositionToAbsolute();
             steer.configRemoteFeedbackFilter(canCoder, 0);
             steer.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
+            steer.setInverted(inverted);
             steer.config_kP(0, kP);
             steer.config_kI(0, kI);
             steer.config_kD(0, kD);
@@ -187,5 +192,13 @@ public class SwerveModule {
 
     public CANSparkMax getDrive() {
         return drive;
+    }
+
+    public double getOffsetAngle() {
+        return offsetDeg;
+    }
+
+    public void setOffsetAngle(double angle) {
+        offsetDeg = angle;
     }
 }

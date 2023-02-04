@@ -42,10 +42,10 @@ public class Drivetrain extends SubsystemBase {
 
     public Drivetrain() {
         // Positive is CCW, Negative is CW
-        leftFront = new SwerveModule(1, Constants.DriveConstants.swerveModule1Offset); 
-        rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule2Offset); 
-        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule3Offset);
-        leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule4Offset); 
+        leftFront = new SwerveModule(1, Constants.DriveConstants.swerveModule1Offset, true); 
+        rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule2Offset, true); 
+        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule3Offset, false);
+        leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule4Offset, true); 
         modules = new SwerveModule[] { leftFront, rightFront, rightBack, leftBack };
 
         // Zero the gyro after 1 second while it calibrates
@@ -155,6 +155,18 @@ public class Drivetrain extends SubsystemBase {
         if (output >= 30D) {
             spark.getEncoder().setPosition(0);
         }
+
+        SmartDashboard.putNumber("Swerve[1] Offset Degrees", leftFront.getOffsetAngle());
+        leftFront.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", leftFront.getOffsetAngle()));
+
+        SmartDashboard.putNumber("Swerve[2] Offset Degrees", rightFront.getOffsetAngle());
+        rightFront.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", rightFront.getOffsetAngle()));
+
+        SmartDashboard.putNumber("Swerve[3] Offset Degrees", rightBack.getOffsetAngle());
+        rightBack.setOffsetAngle(SmartDashboard.getNumber("Swerve[3] Offset Degrees", rightBack.getOffsetAngle()));
+
+        SmartDashboard.putNumber("Swerve[4] Offset Degrees", leftBack.getOffsetAngle());
+        leftBack.setOffsetAngle(SmartDashboard.getNumber("Swerve[4] Offset Degrees", leftBack.getOffsetAngle()));
     }
 
     /**
