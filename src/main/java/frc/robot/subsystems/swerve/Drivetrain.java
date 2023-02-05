@@ -16,13 +16,9 @@ import frc.robot.Constants.ModuleConstants;
 public class Drivetrain extends SubsystemBase {
     private final SwerveModule frontLeft, frontRight, backRight, backLeft;
 
-    private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry( //WPILib's odometry class is fine, If a future person looking at this wants to make there own go ahead
-        DriveConstants.kDriveKinematics, 
-        new Rotation2d(0), //At this point the gyro has not been reset but all good we can just pass in 0 degrees by making a new Rotation2d(0)
-        getModulePositions()
-    );
-
+    private final AHRS gyro;
+    private final SwerveDriveOdometry odometer;
+    
     private DriveMode driveMode = DriveMode.SWERVE; //By default it is in normal swerve mode
 
     public Drivetrain() {
@@ -53,6 +49,13 @@ public class Drivetrain extends SubsystemBase {
             ModuleConstants.kBackLeftTurningMotorPort, 
             ModuleConstants.kBackLeftTurningEncoderPort,
             ModuleConstants.kBackLeftTurningEncoderOffsetDeg
+        );
+
+        gyro = new AHRS(SPI.Port.kMXP);
+        odometer = new SwerveDriveOdometry( //WPILib's odometry class is fine, If a future person looking at this wants to make there own go ahead
+            DriveConstants.kDriveKinematics, 
+            new Rotation2d(0), //At this point the gyro has not been reset but all good we can just pass in 0 degrees by making a new Rotation2d(0)
+            getModulePositions()
         );
 
         //Zero the gyro after 1 second while it calibrates
