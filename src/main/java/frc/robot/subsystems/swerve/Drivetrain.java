@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -19,7 +20,6 @@ public class Drivetrain extends SubsystemBase {
     private final AHRS gyro;
     private final SwerveDriveOdometry odometer;
     
-    private DriveMode driveMode = DriveMode.SWERVE; //By default it is in normal swerve mode
 
     public Drivetrain() {
         frontLeft = new SwerveModule( //1
@@ -67,6 +67,15 @@ public class Drivetrain extends SubsystemBase {
         }).start();
     }
 
+    public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
+        ChassisSpeeds chassisSpeeds;
+        if(fieldRelative)
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getRotation2d());
+        else
+            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotation);
+        setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
+    }
+
     //Zero the heading of the gyro (Sets to 0)
     public void zeroHeading() {
         gyro.reset();
@@ -100,48 +109,6 @@ public class Drivetrain extends SubsystemBase {
         //When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
         odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
-    }
-
-    @Override
-    public void periodic() {
-        //Update the odometry
-        odometer.update(getRotation2d(), getModulePositions());
-    }
-
-    /**
-     * A convenient way of representing the ways the robot can be controlled
-     * As of 1/16/23 there are only two modes but more can be added if desired (West coast, tank, etc.)
-     */
-    public static enum DriveMode {
-        SWERVE,
-        FIELD_ORIENTED_SWERVE;
-        
-        public String toString() {
-            //switch statements are goated
-            switch(this) {
-                case SWERVE:
-                    return "Swerve";
-                case FIELD_ORIENTED_SWERVE:
-                    return "Field Oriented Swerve";
-                default:
-                    return "";
-            }
-        }
-    }
-
-    /**
-     * Sets the drive mode
-     * @param driveMode The desired mode to put the drivetrain in
-     */
-    public void setDriveMode(DriveMode driveMode) {
-        this.driveMode = driveMode;
-    }
-
-    /**
-     * @return The current drive mode of the drivetrain
-     */
-    public DriveMode getDriveMode() {
-        return driveMode;
     }
 
     /**
@@ -190,5 +157,11 @@ public class Drivetrain extends SubsystemBase {
         frontRight.setDesiredState(desiredStates[1]);
         backRight.setDesiredState(desiredStates[2]);
         backLeft.setDesiredState(desiredStates[3]);
+    }
+
+    @Override
+    public void periodic() {
+        //Update the odometry
+        odometer.update(getRotation2d(), getModulePositions());
     }
 }

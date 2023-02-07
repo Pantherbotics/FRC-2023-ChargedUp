@@ -1,28 +1,37 @@
 package frc.robot;
 
-import edu.wpi.first.util.sendable.Sendable;
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.RunChooseDriveMode;
+import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunClaw;
 import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.subsystems.swerve.Drivetrain.DriveMode;
 
 public class RobotContainer {
-    //subsystems
-    public final Drivetrain drivetrain = new Drivetrain();
-    public final Claw claw = new Claw();
+    //Subsystems
+    private final Drivetrain drivetrain = new Drivetrain();
+    private final Limelight limelight = new Limelight();
+    private final Claw claw = new Claw();
     //public final Arm arm = new Arm();
 
-    public final SendableChooser<Double> speedChooser;
+    private final AutoPaths autoPaths = new AutoPaths(drivetrain);
+
+    //Sendable choosers
+    private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
+    private final SendableChooser<String> driveModeChooser = new SendableChooser<String>();
+    private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
     //Joysticks
     private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
@@ -66,25 +75,42 @@ public class RobotContainer {
     private final POVButton secondaryJoystickPOVSouth = new POVButton(secondaryJoystick, 180); //South
     private final POVButton secondaryJoystickPOVWest  = new POVButton(secondaryJoystick, 270); //West
 
-    
-    
-    public RobotContainer(Robot robot) {
-        this.speedChooser = robot.speedChooser;
-        configureButtonBindings();
+    public RobotContainer() {
+        configSendables();
+        configButtonBindings();
+        updateSmartDashboard();
     }
 
-    private void configureButtonBindings() {
+    private void configSendables() {
+        //speed chooser
+        speedChooser.setDefaultOption("Slow", 0.25);
+        speedChooser.addOption("Normal", 0.65);
+        speedChooser.addOption("Demon", 1.0);
+        SmartDashboard.putData(speedChooser);
+
+        //drive mode chooser
+        driveModeChooser.setDefaultOption("Robot Oriented", null);
+        driveModeChooser.addOption("Field Oriented", null);
+        SmartDashboard.putData(driveModeChooser);
+
+        //auto chooser
+        autoChooser.setDefaultOption("None", null);
+        for(Map.Entry<String, Command> traj : autoPaths.getTrajectories().entrySet())
+        {
+            if(!traj.getKey().equals("None"))
+                autoChooser.addOption(traj.getKey(), traj.getValue());
+        }
+        SmartDashboard.putData(autoChooser);
+    }
+
+    private void configButtonBindings() {
         //the drivetrain obviously needs to drive by default
         drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain, 
             primaryJoystick, 
             speedChooser::getSelected, 
-            drivetrain::getDriveMode
+            driveModeChooser::getSelected
         ));
-
-        //toggle between field oriented and normal
-        primaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.FIELD_ORIENTED_SWERVE));
-        primaryJoystickPOVEast.toggleOnTrue(new RunChooseDriveMode(drivetrain, DriveMode.SWERVE));
 
         //claw default manual control
         claw.setDefaultCommand(new RunClaw(
@@ -102,5 +128,9 @@ public class RobotContainer {
 
     public void updateSmartDashboard() {  
         //TODO: add more info
+    }
+
+    public Command getAutoCommand() {
+        return autoChooser.getSelected();
     }
 }

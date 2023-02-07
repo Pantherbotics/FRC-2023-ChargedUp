@@ -5,8 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 /**
  * The VM is configuredW to automatically run this class, and to call the functions corresponding to
@@ -16,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
-  public final SendableChooser<String> autoChooser = new SendableChooser<>();
-  public final SendableChooser<Double> speedChooser = new SendableChooser<>();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -25,15 +21,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    //configure robot speed 
-    speedChooser.setDefaultOption("Fast 100%", 1.0);
-    speedChooser.addOption("Medium 50%", 0.5);
-    speedChooser.addOption("Slow 25%", 0.25);
-    SmartDashboard.putData(speedChooser);
-
-    robotContainer = new RobotContainer(this);
-
-    //TODO: configure robot autonomous commands
+    robotContainer = new RobotContainer();
   }
 
   /**
@@ -61,13 +49,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    
+    robotContainer.getAutoCommand().schedule();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    
+    CommandScheduler.getInstance().run();
   }
 
   /** This function is called once when teleop is enabled. */

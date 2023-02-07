@@ -8,7 +8,7 @@ public class AutoPaths {
     //subsystems
     private final Drivetrain drivetrain;
 
-    private HashMap<String, Command> trajectories = new HashMap<>();
+    private HashMap<String, Command> trajectories = new HashMap<String, Command>();
 
     public AutoPaths(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
@@ -17,7 +17,9 @@ public class AutoPaths {
     }
 
     private void createTrajectories() {
-        //trajectories.add(new NamedCommand("poggers", ));
+        trajectories.put("None", null);
+
+        //TODO: add more trajectories w/ pp
     }
 
     public HashMap<String, Command> getTrajectories() {

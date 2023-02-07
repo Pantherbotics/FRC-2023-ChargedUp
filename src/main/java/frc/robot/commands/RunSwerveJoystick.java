@@ -3,38 +3,39 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.subsystems.swerve.Drivetrain.DriveMode;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
     private final Supplier<Double> speedChooser;
+    private final Supplier<String> driveModeChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
     
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<DriveMode> driveModeChooser) {
+    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<String> driveModeChooser) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
         this.speedChooser = speedChooser;
+        this.driveModeChooser = driveModeChooser;
 
         //These limiters help to smooth out the joystick input by limiting the acceleration during sudden changes
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
+
         addRequirements(drivetrain);
     }
 
     @Override
     public void execute() {
-        switch(drivetrain.getDriveMode()) {
-            case SWERVE:
+        switch(driveModeChooser.get()) {
+            case "Swerve":
                 runSwerve(false);
-            case FIELD_ORIENTED_SWERVE:
+            case "Field Oriented Swerve":
                 runSwerve(true);
             default:
                 break;
@@ -70,11 +71,7 @@ public class RunSwerveJoystick extends CommandBase {
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-        // 4. Construct desired chassis speeds
-        ChassisSpeeds chassisSpeeds = isFieldOriented ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, drivetrain.getRotation2d()) : new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-
-        // 5. Output each module states to wheels
-        drivetrain.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
+        drivetrain.drive(xSpeed, ySpeed, turningSpeed, isFieldOriented);
     }
 
     @Override
