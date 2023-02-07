@@ -105,7 +105,8 @@ public class Constants {
     }
 
     public static final class ArmConstants {
-        
+        public static final double kPivotEncoderRot2Meter = 1;
+        public static final double kPivotEncoderRPM2MeterPerSec = 1;
     }
 
     //Checked and verified as of May 1st, 2022
