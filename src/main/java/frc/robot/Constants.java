@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -22,10 +21,9 @@ public class Constants {
     public static final class ModuleConstants {
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4); //4 when new
         public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
-        public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
+        public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
-        public static final double kTurningEncoderTicksPerRev = 4096.0;
-
+        
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
         //public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
