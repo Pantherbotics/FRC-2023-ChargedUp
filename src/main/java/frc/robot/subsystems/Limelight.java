@@ -21,6 +21,8 @@ public class Limelight {
 
         Notifier updateLoop = new Notifier(this::update);
         updateLoop.startPeriodic(10.0 / 1000);
+
+        target = new Target();
     }
 
     public class Target {

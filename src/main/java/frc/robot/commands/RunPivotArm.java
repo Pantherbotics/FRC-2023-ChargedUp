@@ -7,11 +7,11 @@ import frc.robot.subsystems.arm.Arm;
 
 public class RunPivotArm extends CommandBase {
     private Arm arm;
-    private Joystick joystick;
+    private boolean reversed;
 
-    public RunPivotArm(Arm arm, Joystick joystick) {
+    public RunPivotArm(Arm arm, boolean reversed) {
         this.arm = arm;
-        this.joystick = joystick;
+        this.reversed = reversed;
         addRequirements(arm);
     }
 
@@ -20,10 +20,7 @@ public class RunPivotArm extends CommandBase {
   
     @Override
     public void execute() {
-        double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
-        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
-  
-
+        arm.pivot(reversed);
     }
   
     //Called once the command ends or is interrupted.
