@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
@@ -58,7 +59,7 @@ public class RunSwerveJoystick extends CommandBase {
 
         //The quirky exponent stuff is just so the value maintains its sign even after being raised by a power
         double xSpeed = Math.copySign(Math.pow(yLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
-        double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
+        double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), xLeftValue) * speedChooser.get();
         double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
 
         // 2. Apply deadband
@@ -71,7 +72,7 @@ public class RunSwerveJoystick extends CommandBase {
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-        drivetrain.drive(xSpeed, ySpeed, turningSpeed, isFieldOriented);
+        drivetrain.drive(new Translation2d(xSpeed, ySpeed), turningSpeed, isFieldOriented);
     }
 
     @Override

@@ -63,8 +63,8 @@ public class Arm extends SubsystemBase {
         pivotSlave.burnFlash();
 
         //pivot encoder, only need one
-        pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Meter);
-        pivotEncoder.setVelocityConversionFactor(ArmConstants.kPivotEncoderRPM2MeterPerSec);
+        pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Degrees);
+        pivotEncoder.setVelocityConversionFactor(ArmConstants.kPivotEncoderRPM2DegreesPerSec);
 
         /*pivot pid, again only need one
         pivotPID.setP(0);

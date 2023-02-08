@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -67,13 +68,19 @@ public class Drivetrain extends SubsystemBase {
         }).start();
     }
 
-    public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
-        ChassisSpeeds chassisSpeeds;
+    /**
+     * 
+     * @param translation The x speed and y speed in the form of a translation2d
+     * @param rotation The angle of the desired 
+     * @param fieldRelative Whether the robot is in field oriented drive or not
+     */
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
+        ChassisSpeeds speeds;
         if(fieldRelative)
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getHeading());
         else
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotation);
-        setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
+            speeds = new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
+        setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
     }
 
     //Zero the heading of the gyro (Sets to 0)
@@ -85,12 +92,8 @@ public class Drivetrain extends SubsystemBase {
      * Get the rotation of the robot (positive CCW, negative CW)
      * @return the current heading of the robot in degrees [-180, 180]
      */
-    public double getHeading() {
-        return -gyro.getYaw();
-    }
-
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+    public Rotation2d getHeading() {
+        return Rotation2d.fromDegrees(-gyro.getYaw());
     }
 
     /**
@@ -108,7 +111,7 @@ public class Drivetrain extends SubsystemBase {
     public void resetOdometry(Pose2d pose) {
         //When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
-        odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
+        odometer.resetPosition(getHeading(), getModulePositions(), pose);
     }
 
     /**
@@ -162,6 +165,11 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         //Update the odometry
-        odometer.update(getRotation2d(), getModulePositions());
+        odometer.update(getHeading(), getModulePositions());
+        
+        frontLeft.outputTelemetry();
+        frontRight.outputTelemetry();
+        backRight.outputTelemetry();
+        backLeft.outputTelemetry();
     }
 }

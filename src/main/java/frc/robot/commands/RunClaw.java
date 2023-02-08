@@ -12,6 +12,7 @@ public class RunClaw extends CommandBase {
     public RunClaw(Claw claw, Joystick joystick) {
         this.claw = claw;
         this.joystick = joystick;
+        
         addRequirements(claw);
     }
 
@@ -21,7 +22,7 @@ public class RunClaw extends CommandBase {
     @Override
     public void execute() {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
-        double yLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftYAxisID);
+        double yLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
   
         if(claw.getDoPID()) {
             claw.flexPID(yLeftValue);

@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -30,7 +31,7 @@ public class SwerveModule {
 
 
     //Module Variables
-    private final int moduleNumber;
+    private final String moduleName;
     
     //Drive objects for the Module
     private final CANSparkMax driveMotor;
@@ -38,23 +39,22 @@ public class SwerveModule {
     private final SparkMaxPIDController drivePID;
 
     //Steering objects for the Module
-    private final TalonSRX turningMotor;
+    private final TalonSRX turnMotor;
     private final CANCoder cancoder; 
-    private final double angleOffset;
+    private final double moduleOffset;
 
     private final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / Constants.neoMaxRPM;
-    private final double kTurningPositionCoefficient = 360.0 / 4069.0;
+    private final double kTurnPositionCoefficient = 360.0 / 4069.0;
 
     /**
      * @param moduleNumber Arbitrary identification number (should be a label on the neo motor)
      * @param driveMotorID ID of the module's drive CANSparkMax 
-     * @param turningMotorID ID of the modules turning TalonSRX motor
+     * @param turnMotorID ID of the modules turning TalonSRX motor
      * @param driveMotorID ID of the module's CANCoder for turning
      * @param angleOffset Offset of the module in degrees
      */
-    public SwerveModule(int moduleNumber, int driveMotorID, int turningMotorID, int turningEncoderID, int angleOffset) {
-        this.moduleNumber = moduleNumber;
-        this.angleOffset = angleOffset;
+    public SwerveModule(int moduleNumber, int driveMotorID, int turnMotorID, int turnEncoderID, int angleOffset) {
+        moduleName = "Swerve[" + moduleNumber + "]";
 
         //drive 
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
@@ -62,8 +62,9 @@ public class SwerveModule {
         drivePID = driveMotor.getPIDController();
         
         //turning
-        turningMotor = new TalonSRX(turningMotorID);
-        cancoder = new CANCoder(turningEncoderID); 
+        turnMotor = new TalonSRX(turnMotorID);
+        cancoder = new CANCoder(turnEncoderID); 
+        moduleOffset = angleOffset;
 
         configDevices();
 
@@ -80,6 +81,7 @@ public class SwerveModule {
         //drive encoder
         driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
         driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MeterPerSec);
+        driveEncoder.setPosition(0);
 
         //drive pid
         drivePID.setP(0.0001);
@@ -90,17 +92,17 @@ public class SwerveModule {
         drivePID.setOutputRange(-1, 1);
 
         //turning motor 
-        turningMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 20); //setup to use the cancoder as an encoder
-        turningMotor.setNeutralMode(NeutralMode.Coast);
-        turningMotor.setInverted(false); //counter-clockwise I think? Needs testing
-        turningMotor.setSensorPhase(false);
+        turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 20); //setup to use the cancoder as an encoder
+        turnMotor.setNeutralMode(NeutralMode.Coast);
+        turnMotor.setInverted(false); //counter-clockwise I think? Needs testing
+        turnMotor.setSensorPhase(false);
 
         //turning pid configs
-        turningMotor.config_kP(0, 1.0);
-        turningMotor.config_kI(0, 0.0005);
-        turningMotor.config_kD(0, 0.0);
-        turningMotor.config_kF(0, 0.0);
-        turningMotor.setSelectedSensorPosition(cancoder.getAbsolutePosition());
+        turnMotor.config_kP(0, 1.0);
+        turnMotor.config_kI(0, 0.0005);
+        turnMotor.config_kD(0, 0.0);
+        turnMotor.config_kF(0, 0.0);
+        turnMotor.setSelectedSensorPosition(cancoder.getAbsolutePosition());
 
         //cancoder
         cancoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
@@ -112,12 +114,24 @@ public class SwerveModule {
         //turningMotor.configRemoteFeedbackFilter(turningEncoder, 0);
     }
 
+    public void setDesiredState(SwerveModuleState state) {
+        //Ignore small states like when we let go of left stick so wheels don't default to 0 degrees
+        if(Math.abs(state.speedMetersPerSecond) < 0.001) {
+            stop();
+            return;
+        }
+        
+        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(getTurnAngle()));
+        turnMotor.set(TalonSRXControlMode.Position, state.angle.getRadians() / kTurnPositionCoefficient);
+        drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
+    }
+
     /**
      * @return The current state of the module in the form of a SwerveModuleState class: 
      * the wheel's measured velocity in meters per second and its angle in the form of a Rotation2d
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), Rotation2d.fromDegrees(getTurningAngle()));
+        return new SwerveModuleState(getDriveVelocity(), Rotation2d.fromDegrees(getTurnAngle()));
     }
 
     /**
@@ -127,7 +141,7 @@ public class SwerveModule {
      * This function is mostly just for the odometry
      */
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), Rotation2d.fromDegrees(getTurningAngle()));
+        return new SwerveModulePosition(getDrivePosition(), Rotation2d.fromDegrees(getTurnAngle()));
     }
     
     /**
@@ -146,27 +160,15 @@ public class SwerveModule {
     /**
      * @return The angle of the turning motor in degrees from 0 to 360
      */
-    public double getTurningAngle() {
-        return turningMotor.getSelectedSensorPosition() * kTurningPositionCoefficient % 360;
+    public double getTurnAngle() {
+        return (turnMotor.getSelectedSensorPosition() * kTurnPositionCoefficient) % 360;
     }
 
     /**
      * @return The raw angle of the module's cancoder as a Rotation2d
      */
     public double getCancoderAngle() {
-        return cancoder.getAbsolutePosition() - angleOffset;
-    }
-
-    public void setDesiredState(SwerveModuleState state) {
-        //Ignore small states like when we let go of left stick so wheels don't default to 0 degrees
-        if(Math.abs(state.speedMetersPerSecond) < 0.001) {
-            stop();
-            return;
-        }
-        
-        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(getTurningAngle()));
-        turningMotor.set(TalonSRXControlMode.Position, (state.angle.getRadians()) / kTurningPositionCoefficient);
-        drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
+        return cancoder.getAbsolutePosition() - moduleOffset;
     }
     
     public void resetEncoders() {
@@ -179,10 +181,15 @@ public class SwerveModule {
      */
     public void stop() {
         drivePID.setReference(0, ControlType.kVelocity);
-        turningMotor.set(ControlMode.PercentOutput, 0);
+        turnMotor.set(ControlMode.PercentOutput, 0);
     }
 
-    public int getModuleNumber() {
-        return moduleNumber;
+    //output module data to SmartDashboard
+    public void outputTelemetry() {
+        SmartDashboard.putNumber(moduleName + " cancoder", cancoder.getPosition());
+        SmartDashboard.putNumber(moduleName + " cancoder w/ offset", getCancoderAngle());
+        SmartDashboard.putNumber(moduleName + " error", turnMotor.getClosedLoopError());
+        SmartDashboard.putNumber(moduleName + " error degrees", turnMotor.getClosedLoopError() * kTurnPositionCoefficient);
+        SmartDashboard.putNumber(moduleName + " turn motor", turnMotor.getSelectedSensorPosition() * kTurnPositionCoefficient);
     }
 }

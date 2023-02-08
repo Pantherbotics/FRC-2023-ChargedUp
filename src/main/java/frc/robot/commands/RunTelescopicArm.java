@@ -12,6 +12,7 @@ public class RunTelescopicArm extends CommandBase {
     public RunTelescopicArm(Arm arm, Joystick joystick) {
         this.arm = arm;
         this.joystick = joystick;
+        
         addRequirements(arm);
     }
 
