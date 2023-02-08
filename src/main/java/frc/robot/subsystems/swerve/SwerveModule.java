@@ -117,7 +117,7 @@ public class SwerveModule {
      * the wheel's measured velocity in meters per second and its angle in the form of a Rotation2d
      */
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), getTurningAngle());
+        return new SwerveModuleState(getDriveVelocity(), Rotation2d.fromDegrees(getTurningAngle()));
     }
 
     /**
@@ -127,7 +127,7 @@ public class SwerveModule {
      * This function is mostly just for the odometry
      */
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), getTurningAngle());
+        return new SwerveModulePosition(getDrivePosition(), Rotation2d.fromDegrees(getTurningAngle()));
     }
     
     /**
@@ -164,7 +164,7 @@ public class SwerveModule {
             return;
         }
         
-        state = SwerveModuleState.optimize(state, getTurningAngle());
+        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(getTurningAngle()));
         turningMotor.set(TalonSRXControlMode.Position, (state.angle.getRadians()) / kTurningPositionCoefficient);
         drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
     }

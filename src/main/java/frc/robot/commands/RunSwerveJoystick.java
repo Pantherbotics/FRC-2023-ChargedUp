@@ -57,8 +57,8 @@ public class RunSwerveJoystick extends CommandBase {
         double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
 
         //The quirky exponent stuff is just so the value maintains its sign even after being raised by a power
-        double xSpeed = (yLeftValue >= 0 ? -Math.pow(yLeftValue, OIConstants.kDriverExp) : Math.pow(-yLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
-        double ySpeed = (xLeftValue >= 0 ? -Math.pow(xLeftValue, OIConstants.kDriverExp) : Math.pow(-xLeftValue, OIConstants.kDriverExp)) * speedChooser.get();
+        double xSpeed = Math.copySign(Math.pow(yLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
+        double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
         double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
 
         // 2. Apply deadband

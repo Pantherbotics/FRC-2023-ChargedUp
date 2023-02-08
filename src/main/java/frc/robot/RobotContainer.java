@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunClaw;
+import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
@@ -24,7 +25,7 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     private final Limelight limelight = new Limelight();
     private final Claw claw = new Claw();
-    //public final Arm arm = new Arm();
+    private final Arm arm = new Arm();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
@@ -105,12 +106,12 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         //the drivetrain obviously needs to drive by default
-        drivetrain.setDefaultCommand(new RunSwerveJoystick(
+        /*drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain, 
             primaryJoystick, 
             speedChooser::getSelected, 
             driveModeChooser::getSelected
-        ));
+        ));*/
 
         //claw default manual control
         claw.setDefaultCommand(new RunClaw(
@@ -122,6 +123,9 @@ public class RobotContainer {
         secondaryJoystickTriangleButton.toggleOnTrue(new InstantCommand(() ->
             claw.setDoPID(!claw.getDoPID())
         ));
+
+        primaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true));
+        primaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false));
 
         //TODO: add more commands
     }

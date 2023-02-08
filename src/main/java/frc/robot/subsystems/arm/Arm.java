@@ -20,23 +20,23 @@ public class Arm extends SubsystemBase {
     private final SparkMaxPIDController pivotPID;
 
     //cancoder for the pivot
-    private final CANCoder cancoder; 
+    //private final CANCoder cancoder; 
 
     private final TalonFX extensionMotor;
 
     public Arm() {
         //pivot motors, they basically do the exact same thing
-        pivotMaster = new CANSparkMax(0, MotorType.kBrushless);
-        pivotSlave = new CANSparkMax(0, MotorType.kBrushless);
+        pivotMaster = new CANSparkMax(5, MotorType.kBrushless);
+        pivotSlave = new CANSparkMax(6, MotorType.kBrushless);
         
         pivotEncoder = pivotMaster.getEncoder();
 
         pivotPID = pivotMaster.getPIDController();
 
-        cancoder = new CANCoder(0);
+        //cancoder = new CANCoder(0);
         
         //telescoping motor
-        extensionMotor = new TalonFX(0);
+        extensionMotor = new TalonFX(5);
 
         configDevices();
     }
@@ -77,19 +77,19 @@ public class Arm extends SubsystemBase {
         pivotPID.setPositionPIDWrappingEnabled(true);
     }
 
-    public void pivot(double position) {
-        pivotPID.setReference(position, ControlType.kPosition);
-    }
-
-    public void extend() {
-        extensionMotor.set(ControlMode.Position, 300);
-    }
-
-    public void stopExtension() {
-        extensionMotor.set(ControlMode.PercentOutput, 0);
+    public void pivot(boolean reversed) {
+        pivotMaster.set(reversed ? -0.3 : 0.3);
     }
 
     public void stopPivot() {
         pivotMaster.set(0);
+    }
+
+    public void extend(boolean reversed) {
+        extensionMotor.set(ControlMode.PercentOutput, reversed ? -0.3 : 0.3);
+    }
+
+    public void stopExtension() {
+        extensionMotor.set(ControlMode.PercentOutput, 0);
     }
 }
