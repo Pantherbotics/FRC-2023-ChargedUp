@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -67,13 +68,13 @@ public class Drivetrain extends SubsystemBase {
         }).start();
     }
 
-    public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
-        ChassisSpeeds chassisSpeeds;
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
+        ChassisSpeeds speeds;
         if(fieldRelative)
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getRotation2d());
         else
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotation);
-        setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
+            speeds = new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
+        setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
     }
 
     //Zero the heading of the gyro (Sets to 0)
