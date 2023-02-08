@@ -27,8 +27,8 @@ public class RunClaw extends CommandBase {
             claw.flexPID(yLeftValue);
             claw.rotatePID(xLeftValue);
         } else {
-            claw.rotateOpenLoop(xLeftValue);
             claw.flexOpenLoop(yLeftValue);
+            claw.rotateOpenLoop(xLeftValue);
         }
     }
   

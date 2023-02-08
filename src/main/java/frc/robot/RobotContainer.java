@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,13 +120,15 @@ public class RobotContainer {
             secondaryJoystick
         ));
 
+        primaryJoystickBButton.toggleOnTrue(new InstantCommand(() -> System.out.println("lmao")));
+
         //pid testing
         secondaryJoystickTriangleButton.toggleOnTrue(new InstantCommand(() ->
-            claw.setDoPID(!claw.getDoPID())
+            System.out.println("poggers")//claw.setDoPID(!claw.getDoPID())
         ));
 
-        primaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true));
-        primaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false));
+        primaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true).andThen(new InstantCommand(() -> System.out.println("FORWARD"))));
+        primaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false).andThen(new InstantCommand(() -> System.out.println("BACKWARDS"))));
 
         //TODO: add more commands
     }

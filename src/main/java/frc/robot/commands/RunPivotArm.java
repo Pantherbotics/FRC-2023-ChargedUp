@@ -20,6 +20,7 @@ public class RunPivotArm extends CommandBase {
   
     @Override
     public void execute() {
+        System.out.println(reversed ? "pog" : "gop");
         arm.pivot(reversed);
     }
   

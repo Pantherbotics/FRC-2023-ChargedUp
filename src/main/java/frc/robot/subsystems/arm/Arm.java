@@ -45,28 +45,28 @@ public class Arm extends SubsystemBase {
         //pivot master
         pivotMaster.restoreFactoryDefaults();
         pivotMaster.setIdleMode(IdleMode.kCoast);
+        pivotMaster.setInverted(false);
         pivotMaster.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotMaster.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotMaster.enableSoftLimit(SoftLimitDirection.kForward, true);
-        pivotMaster.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        pivotMaster.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotMaster.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
         pivotMaster.burnFlash();
 
         //pivot slave
         pivotSlave.restoreFactoryDefaults();
         pivotSlave.setIdleMode(IdleMode.kCoast);
+        pivotSlave.setInverted(true);
         pivotSlave.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotSlave.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotSlave.enableSoftLimit(SoftLimitDirection.kForward, true);
-        pivotSlave.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        pivotSlave.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotSlave.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
         pivotSlave.burnFlash();
-    
-        pivotSlave.follow(pivotMaster, true); //follow the master motor
 
         //pivot encoder, only need one
         pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Meter);
         pivotEncoder.setVelocityConversionFactor(ArmConstants.kPivotEncoderRPM2MeterPerSec);
 
-        //pivot pid, again only need one
+        /*pivot pid, again only need one
         pivotPID.setP(0);
         pivotPID.setI(0);
         pivotPID.setD(0);
@@ -74,15 +74,18 @@ public class Arm extends SubsystemBase {
         pivotPID.setFF(0);
         pivotPID.setPositionPIDWrappingMinInput(0);
         pivotPID.setPositionPIDWrappingMaxInput(0);
-        pivotPID.setPositionPIDWrappingEnabled(true);
+        pivotPID.setPositionPIDWrappingEnabled(true);*/
     }
 
     public void pivot(boolean reversed) {
-        pivotMaster.set(reversed ? -0.3 : 0.3);
+        System.out.print(reversed ? "gop" : "pog");
+        pivotMaster.set(reversed ? -0.7 : 0.7);
+        pivotSlave.set(reversed ? -0.7 : 0.7);
     }
 
     public void stopPivot() {
         pivotMaster.set(0);
+        pivotSlave.set(0);
     }
 
     public void extend(boolean reversed) {

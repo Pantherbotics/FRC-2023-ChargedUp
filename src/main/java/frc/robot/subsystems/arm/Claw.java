@@ -64,7 +64,7 @@ public class Claw extends SubsystemBase {
     }
 
     public double getFlexAbsolutePosition() {
-        return flexEncoder.getAbsolutePosition();
+        return flexEncoder.getAbsolutePosition() + (flexEncoder.getAbsolutePosition() < 250 ? 360 : 0);
     }
 
     private void setFlexMotors(double speed) {
@@ -88,7 +88,7 @@ public class Claw extends SubsystemBase {
 
     private void setRotateMotors(double speed) {
         for(PWMSparkMax motor : rotateMotors) {
-            motor.set(speed);
+            //motor.set(speed);
         }
     }
 
