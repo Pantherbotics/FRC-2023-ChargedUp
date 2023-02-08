@@ -70,7 +70,7 @@ public class Drivetrain extends SubsystemBase {
     public void drive(double xSpeed, double ySpeed, double rotation, boolean fieldRelative) {
         ChassisSpeeds chassisSpeeds;
         if(fieldRelative)
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getRotation2d());
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotation, getHeading());
         else
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotation);
         setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
@@ -85,12 +85,8 @@ public class Drivetrain extends SubsystemBase {
      * Get the rotation of the robot (positive CCW, negative CW)
      * @return the current heading of the robot in degrees [-180, 180]
      */
-    public double getHeading() {
-        return -gyro.getYaw();
-    }
-
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getHeading());
+    public Rotation2d getHeading() {
+        return Rotation2d.fromDegrees(-gyro.getYaw());
     }
 
     /**
@@ -108,7 +104,7 @@ public class Drivetrain extends SubsystemBase {
     public void resetOdometry(Pose2d pose) {
         //When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
-        odometer.resetPosition(getRotation2d(), getModulePositions(), pose);
+        odometer.resetPosition(getHeading(), getModulePositions(), pose);
     }
 
     /**
@@ -162,6 +158,6 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         //Update the odometry
-        odometer.update(getRotation2d(), getModulePositions());
+        odometer.update(getHeading(), getModulePositions());
     }
 }
