@@ -68,10 +68,16 @@ public class Drivetrain extends SubsystemBase {
         }).start();
     }
 
+    /**
+     * 
+     * @param translation The x speed and y speed in the form of a translation2d
+     * @param rotation The angle of the desired 
+     * @param fieldRelative Whether the robot is in field oriented drive or not
+     */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
         ChassisSpeeds speeds;
         if(fieldRelative)
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getHeading());
         else
             speeds = new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
         setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
@@ -160,5 +166,10 @@ public class Drivetrain extends SubsystemBase {
     public void periodic() {
         //Update the odometry
         odometer.update(getHeading(), getModulePositions());
+        
+        frontLeft.outputTelemetry();
+        frontRight.outputTelemetry();
+        backRight.outputTelemetry();
+        backLeft.outputTelemetry();
     }
 }

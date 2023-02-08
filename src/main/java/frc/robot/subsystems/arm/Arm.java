@@ -47,8 +47,8 @@ public class Arm extends SubsystemBase {
         pivotMaster.setIdleMode(IdleMode.kCoast);
         pivotMaster.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotMaster.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotMaster.enableSoftLimit(SoftLimitDirection.kForward, true);
-        pivotMaster.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        pivotMaster.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotMaster.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
         pivotMaster.burnFlash();
 
         //pivot slave
@@ -56,8 +56,8 @@ public class Arm extends SubsystemBase {
         pivotSlave.setIdleMode(IdleMode.kCoast);
         pivotSlave.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotSlave.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotSlave.enableSoftLimit(SoftLimitDirection.kForward, true);
-        pivotSlave.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        pivotSlave.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotSlave.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
         pivotSlave.burnFlash();
     
         pivotSlave.follow(pivotMaster, true); //follow the master motor

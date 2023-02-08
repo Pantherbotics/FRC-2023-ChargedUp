@@ -12,6 +12,7 @@ public class RunClaw extends CommandBase {
     public RunClaw(Claw claw, Joystick joystick) {
         this.claw = claw;
         this.joystick = joystick;
+        
         addRequirements(claw);
     }
 
