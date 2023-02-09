@@ -73,6 +73,7 @@ public class RunSwerveJoystick extends CommandBase {
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         drivetrain.drive(new Translation2d(xSpeed, ySpeed), turningSpeed, isFieldOriented);
+        System.out.println("pog");
     }
 
     @Override

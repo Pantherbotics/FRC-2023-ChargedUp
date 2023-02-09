@@ -81,6 +81,7 @@ public class Drivetrain extends SubsystemBase {
         else
             speeds = new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
         setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
+        System.out.println(speeds);
     }
 
     //Zero the heading of the gyro (Sets to 0)

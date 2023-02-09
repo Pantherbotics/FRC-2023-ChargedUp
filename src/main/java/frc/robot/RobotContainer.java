@@ -91,8 +91,8 @@ public class RobotContainer {
         SmartDashboard.putData(speedChooser);
 
         //drive mode chooser
-        driveModeChooser.setDefaultOption("Robot Oriented", null);
-        driveModeChooser.addOption("Field Oriented", null);
+        driveModeChooser.setDefaultOption("Robot Oriented", "Swerve");
+        driveModeChooser.addOption("Field Oriented", "Field Oriented Swerve");
         SmartDashboard.putData(driveModeChooser);
 
         //auto chooser
@@ -107,20 +107,18 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         //the drivetrain obviously needs to drive by default
-        /*drivetrain.setDefaultCommand(new RunSwerveJoystick(
+        drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain, 
             primaryJoystick, 
             speedChooser::getSelected, 
             driveModeChooser::getSelected
-        ));*/
+        ));
 
         //claw default manual control
         claw.setDefaultCommand(new RunClaw(
             claw,
             secondaryJoystick
         ));
-
-        primaryJoystickBButton.toggleOnTrue(new InstantCommand(() -> System.out.println("lmao")));
 
         //pid testing
         secondaryJoystickTriangleButton.toggleOnTrue(new InstantCommand(() ->
