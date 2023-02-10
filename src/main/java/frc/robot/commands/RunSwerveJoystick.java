@@ -3,7 +3,9 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
@@ -38,6 +40,14 @@ public class RunSwerveJoystick extends CommandBase {
                 runSwerve(false);
             case "Field Oriented Swerve":
                 runSwerve(true);
+            case "Boat":
+                runBoat();
+            case "Car":
+                runCar();
+            case "West Coast":
+                runWestCoast();
+            case "Tank":
+                runTank();
             default:
                 break;
         }
@@ -73,9 +83,73 @@ public class RunSwerveJoystick extends CommandBase {
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         drivetrain.drive(new Translation2d(xSpeed, ySpeed), turningSpeed, isFieldOriented);
-        System.out.println("pog");
     }
 
+    private void runBoat() {
+        double xRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
+        double yLeftValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
+        
+        // Right stick speed
+        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue);// square the speed but keep the sign so it can reverse
+        if(Math.abs(speed) > 1) speed /= Math.abs(speed); // Should have the same effect as previous code.
+        speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
+
+        // Calculate Steering Angl
+        SwerveModuleState[] states = {
+            new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //left front
+            new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //right front
+            new SwerveModuleState(speed, Rotation2d.fromDegrees(-xRightValue * 90)), //right back
+            new SwerveModuleState(speed, Rotation2d.fromDegrees(-xRightValue * 90)) //left back
+        };
+        drivetrain.setModuleStates(states);
+    }
+
+    private void runCar() {
+        double yLeftValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
+        double xRightValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID); // The swerve follows positive CCW wheel angles, so to turn the wheel left we
+                              // must have a positive XR
+        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue);// square the speed but keep the sign so it can reverse
+        if(Math.abs(speed) > 1) speed /= Math.abs(speed);
+        speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
+
+        // Calculate Steering Angle
+        SwerveModuleState lF = new SwerveModuleState(speed, Rotation2d.fromDegrees(xRightValue * 90));
+        SwerveModuleState rF = new SwerveModuleState(speed, Rotation2d.fromDegrees(xRightValue * 90));
+        SwerveModuleState rB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
+        SwerveModuleState lB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
+
+        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+    }
+
+    private void runWestCoast() {
+        // No negation of these values since the west coast code we use is already
+        // handling the inverted Y axis
+        double YL = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        double XR = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
+
+        // Y axis weirdness handled here already
+        double left = (XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double right = (-XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
+        SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
+        SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
+        SwerveModuleState lB = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
+        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+    }
+
+    private void runTank() {
+        double YL = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // Invert the Y axis so that positive is forwards
+        double YR = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID); // Invert the Y axis so that positive is forwards
+
+        double left = YL * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double right = YR * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
+        SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
+        SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
+        SwerveModuleState lB = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
+        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+    }
+    
     @Override
     public void end(boolean interrupted) {
         drivetrain.stopModules();

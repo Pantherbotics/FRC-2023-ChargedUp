@@ -1,7 +1,5 @@
 package frc.robot;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,18 +13,20 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunClaw;
 import frc.robot.commands.RunPivotArm;
-import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.commands.RunWrist;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
+import frc.robot.subsystems.arm.Wrist;
 import frc.robot.subsystems.swerve.Drivetrain;
 
 public class RobotContainer {
     //Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
     private final Limelight limelight = new Limelight();
-    private final Claw claw = new Claw();
     private final Arm arm = new Arm();
+    private final Claw claw = new Claw();
+    private final Wrist wrist = new Wrist();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
@@ -93,6 +93,10 @@ public class RobotContainer {
         //drive mode chooser
         driveModeChooser.setDefaultOption("Robot Oriented", "Swerve");
         driveModeChooser.addOption("Field Oriented", "Field Oriented Swerve");
+        driveModeChooser.addOption("Boat", "Boat");
+        driveModeChooser.addOption("Car", "Car");
+        driveModeChooser.addOption("West Coast", "West Coast");
+        driveModeChooser.addOption("Tank", "Tank");
         SmartDashboard.putData(driveModeChooser);
 
         //auto chooser
@@ -107,26 +111,21 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         //the drivetrain obviously needs to drive by default
-        drivetrain.setDefaultCommand(new RunSwerveJoystick(
-            drivetrain, 
-            primaryJoystick, 
-            speedChooser::getSelected, 
-            driveModeChooser::getSelected
+        // drivetrain.setDefaultCommand(new RunSwerveJoystick(
+        //     drivetrain, 
+        //     primaryJoystick, 
+        //     speedChooser::getSelected, 
+        //     driveModeChooser::getSelected
+        // ));
+
+        //wrist manual control
+        wrist.setDefaultCommand(new RunWrist(
+            wrist, 
+            primaryJoystick
         ));
 
-        //claw default manual control
-        claw.setDefaultCommand(new RunClaw(
-            claw,
-            secondaryJoystick
-        ));
-
-        //pid testing
-        secondaryJoystickTriangleButton.toggleOnTrue(new InstantCommand(() ->
-            System.out.println("poggers")//claw.setDoPID(!claw.getDoPID())
-        ));
-
-        primaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true).andThen(new InstantCommand(() -> System.out.println("FORWARD"))));
-        primaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false).andThen(new InstantCommand(() -> System.out.println("BACKWARDS"))));
+        secondaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true));
+        secondaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false));
 
         //TODO: add more commands
     }

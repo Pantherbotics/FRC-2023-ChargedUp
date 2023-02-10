@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
-    private final CANSparkMax pivotMaster, pivotSlave;
+    private final CANSparkMax pivotLeft, pivotRight;
     private final RelativeEncoder pivotEncoder;
     private final SparkMaxPIDController pivotPID;
 
@@ -26,12 +26,12 @@ public class Arm extends SubsystemBase {
 
     public Arm() {
         //pivot motors, they basically do the exact same thing
-        pivotMaster = new CANSparkMax(5, MotorType.kBrushless);
-        pivotSlave = new CANSparkMax(6, MotorType.kBrushless);
+        pivotLeft = new CANSparkMax(5, MotorType.kBrushless);
+        pivotRight = new CANSparkMax(6, MotorType.kBrushless);
         
-        pivotEncoder = pivotMaster.getEncoder();
+        pivotEncoder = pivotLeft.getEncoder();
 
-        pivotPID = pivotMaster.getPIDController();
+        pivotPID = pivotLeft.getPIDController();
 
         //cancoder = new CANCoder(0);
         
@@ -42,25 +42,22 @@ public class Arm extends SubsystemBase {
     }
 
     private void configDevices() {
-        //pivot master
-        pivotMaster.restoreFactoryDefaults();
-        pivotMaster.setIdleMode(IdleMode.kCoast);
-        pivotMaster.setInverted(false);
-        pivotMaster.setSoftLimit(SoftLimitDirection.kForward, 0);
-        pivotMaster.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotMaster.enableSoftLimit(SoftLimitDirection.kForward, false);
-        pivotMaster.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
-        pivotMaster.burnFlash();
+        pivotLeft.restoreFactoryDefaults();
+        pivotLeft.setIdleMode(IdleMode.kCoast);
+        pivotLeft.setInverted(false);
+        pivotLeft.setSoftLimit(SoftLimitDirection.kForward, 0);
+        pivotLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
+        pivotLeft.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotLeft.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
+        pivotLeft.burnFlash();
 
-        //pivot slave
-        pivotSlave.restoreFactoryDefaults();
-        pivotSlave.setIdleMode(IdleMode.kCoast);
-        pivotSlave.setInverted(true);
-        pivotSlave.setSoftLimit(SoftLimitDirection.kForward, 0);
-        pivotSlave.setSoftLimit(SoftLimitDirection.kReverse, 0);
-        pivotSlave.enableSoftLimit(SoftLimitDirection.kForward, false);
-        pivotSlave.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
-        pivotSlave.burnFlash();
+        pivotRight.setIdleMode(IdleMode.kCoast);
+        pivotRight.setInverted(true);
+        pivotRight.setSoftLimit(SoftLimitDirection.kForward, 0);
+        pivotRight.setSoftLimit(SoftLimitDirection.kReverse, 0);
+        pivotRight.enableSoftLimit(SoftLimitDirection.kForward, false);
+        pivotRight.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
+        pivotRight.burnFlash();
 
         //pivot encoder, only need one
         pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Degrees);
@@ -78,14 +75,14 @@ public class Arm extends SubsystemBase {
     }
 
     public void pivot(boolean reversed) {
-        System.out.print(reversed ? "gop" : "pog");
-        pivotMaster.set(reversed ? -0.7 : 0.7);
-        pivotSlave.set(reversed ? -0.7 : 0.7);
+        double value = reversed ? -1 : 1;
+        pivotLeft.set(value);
+        pivotRight.set(value);
     }
 
     public void stopPivot() {
-        pivotMaster.set(0);
-        pivotSlave.set(0);
+        pivotLeft.set(0);
+        pivotRight.set(0);
     }
 
     public void extend(boolean reversed) {

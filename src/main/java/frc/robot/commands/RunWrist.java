@@ -3,17 +3,17 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Wrist;
 
-public class RunPivotArm extends CommandBase {
-    private Arm arm;
-    private boolean reversed;
+public class RunWrist extends CommandBase {
+    private Wrist wrist;
+    private Joystick joystick;
 
-    public RunPivotArm(Arm arm, boolean reversed) {
-        this.arm = arm;
-        this.reversed = reversed;
+    public RunWrist(Wrist wrist, Joystick joystick) {
+        this.wrist = wrist;
+        this.joystick = joystick;
         
-        addRequirements(arm);
+        addRequirements(wrist);
     }
 
     @Override
@@ -21,13 +21,15 @@ public class RunPivotArm extends CommandBase {
   
     @Override
     public void execute() {
-        arm.pivot(reversed);
+        double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
+        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+  
     }
   
     //Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        arm.stopPivot();
+        wrist.stop();
     }
   
     // Returns true when the command should end.

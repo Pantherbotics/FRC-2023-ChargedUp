@@ -88,7 +88,7 @@ public class Claw extends SubsystemBase {
 
     private void setRotateMotors(double speed) {
         for(PWMSparkMax motor : rotateMotors) {
-            //motor.set(speed);
+            motor.set(speed);
         }
     }
 
