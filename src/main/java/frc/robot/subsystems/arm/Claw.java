@@ -2,16 +2,17 @@ package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Claw extends SubsystemBase {
-    private final PWMSparkMax[] flexMotors, rotateMotors; //switch to not vex stuff
+    private final CANSparkMax flexMotor, rotateMotor; //switch to not vex stuff
 
     private final CANCoder flexEncoder;
     private final PIDController flexPID;
@@ -21,13 +22,9 @@ public class Claw extends SubsystemBase {
     private boolean doPID = false;
 
     public Claw() {
-        //flex motors (4)
-        flexMotors = new PWMSparkMax[] {
-            new PWMSparkMax(0),
-            new PWMSparkMax(1),
-            new PWMSparkMax(2),
-            new PWMSparkMax(3),
-        };
+        //motors
+        flexMotor = new CANSparkMax(11, MotorType.kBrushless);
+        rotateMotor = new CANSparkMax(12, MotorType.kBrushless);
 
         //flex encoder
         flexEncoder = new CANCoder(1);
@@ -35,12 +32,6 @@ public class Claw extends SubsystemBase {
 
         //flex pid
         flexPID = new PIDController(0.05, 0.1, 0);
-        
-        //rotation motors (2)
-        rotateMotors = new PWMSparkMax[] {
-            new PWMSparkMax(4),
-            new PWMSparkMax(5)
-        };
 
         //solenoid, open/closes the claw
         clawSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
@@ -53,29 +44,10 @@ public class Claw extends SubsystemBase {
         flexPID.setSetpoint(newSetpoint);
     }
 
-    public void flexOpenLoop(double speed) {
-        setFlexMotors(normalizeSpeed(speed));
-    }
-
     public double getFlexAbsolutePosition() {
         return flexEncoder.getAbsolutePosition() + (flexEncoder.getAbsolutePosition() < 250 ? 360 : 0);
     }
-
-    private void setFlexMotors(double speed) {
-        for(PWMSparkMax motor : flexMotors) {
-            motor.set(speed);
-        }
-    }
     
-    public void rotateOpenLoop(double speed) {
-        setRotateMotors(normalizeSpeed(speed));
-    }
-
-    private void setRotateMotors(double speed) {
-        for(PWMSparkMax motor : rotateMotors) {
-            motor.set(speed);
-        }
-    }
 
     private double normalizeSpeed(double speed) {
         double magnitude = Math.abs(speed);
@@ -93,15 +65,15 @@ public class Claw extends SubsystemBase {
     }
 
     public void stop() {
-        setFlexMotors(0);
-        setRotateMotors(0);
+        flexMotor.set(0);
+        rotateMotor.set(0);
     }
 
     @Override
     public void periodic() {
         if(doPID) 
         {
-            setFlexMotors(flexPID.calculate(getFlexAbsolutePosition()));
+            
         }
 
         SmartDashboard.putNumber("Flex point", flexPID.getSetpoint());
