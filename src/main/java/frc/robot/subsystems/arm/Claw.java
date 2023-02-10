@@ -39,16 +39,15 @@ public class Claw extends SubsystemBase {
     }
 
     public void flexPID(double speed) {
-        boolean withinBounds = getFlexAbsolutePosition() < 485 && getFlexAbsolutePosition() > 253;
+        /* boolean withinBounds = getFlexAbsolutePosition() < 485 && getFlexAbsolutePosition() > 253;
         double newSetpoint = flexPID.getSetpoint() + (withinBounds ? normalizeSpeed(speed) : 0);
-        flexPID.setSetpoint(newSetpoint);
+        flexPID.setSetpoint(newSetpoint); */
     }
 
     public double getFlexAbsolutePosition() {
         return flexEncoder.getAbsolutePosition() + (flexEncoder.getAbsolutePosition() < 250 ? 360 : 0);
     }
     
-
     private double normalizeSpeed(double speed) {
         double magnitude = Math.abs(speed);
         if(magnitude <= 0.3) return 0;
@@ -62,6 +61,14 @@ public class Claw extends SubsystemBase {
 
     public void setDoPID(boolean doPID) {
         this.doPID = doPID;
+    }
+
+    public void flexOpenLoop(double speed){
+        flexMotor.set(speed);
+    }
+
+    public void rotateOpenLoop(double speed){
+        flexMotor.set(speed);
     }
 
     public void stop() {
