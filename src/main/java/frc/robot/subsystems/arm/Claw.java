@@ -1,8 +1,7 @@
 package frc.robot.subsystems.arm;
 
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -14,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Claw extends SubsystemBase {
     private final CANSparkMax flexMotor, rotateMotor; //switch to not vex stuff
 
-    private final CANCoder flexEncoder;
+    private final RelativeEncoder flexEncoder;
     private final PIDController flexPID;
 
     private final DoubleSolenoid clawSolenoid;
@@ -27,9 +26,8 @@ public class Claw extends SubsystemBase {
         rotateMotor = new CANSparkMax(12, MotorType.kBrushless);
 
         //flex encoder
-        flexEncoder = new CANCoder(1);
-        flexEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-
+        flexEncoder = flexMotor.getEncoder();
+        
         //flex pid
         flexPID = new PIDController(0.05, 0.1, 0);
 
@@ -44,9 +42,9 @@ public class Claw extends SubsystemBase {
         flexPID.setSetpoint(newSetpoint); */
     }
 
-    public double getFlexAbsolutePosition() {
+    /* public double getFlexAbsolutePosition() {
         return flexEncoder.getAbsolutePosition() + (flexEncoder.getAbsolutePosition() < 250 ? 360 : 0);
-    }
+    } */
     
     private double normalizeSpeed(double speed) {
         double magnitude = Math.abs(speed);
@@ -67,6 +65,11 @@ public class Claw extends SubsystemBase {
         flexMotor.set(speed);
     }
 
+    //Switch to flexPID(double speed) above as soon as testing is done.
+    public void flexClosedLoop(double input){
+        flexPID.setSetpoint(flexPID.getSetpoint() + input);
+    }
+
     public void rotateOpenLoop(double speed){
         flexMotor.set(speed);
     }
@@ -85,8 +88,8 @@ public class Claw extends SubsystemBase {
 
         SmartDashboard.putNumber("Flex point", flexPID.getSetpoint());
 
-        SmartDashboard.putNumber("Flex Encoder", getFlexAbsolutePosition());
-        SmartDashboard.putNumber("Raw Flex Encoder", flexEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("Flex Encoder", flexEncoder.getPosition());
+        SmartDashboard.putNumber("Raw Flex Encoder", flexEncoder.getPosition());
 
         SmartDashboard.putNumber("Flex kP", 0);
         SmartDashboard.getNumber("Flex kP", 0);

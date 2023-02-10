@@ -25,7 +25,8 @@ public class RunClaw extends CommandBase {
         double yLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
   
         if(claw.getDoPID()) {
-            
+            claw.flexPID(yLeftValue * 5);
+            claw.rotateOpenLoop(xLeftValue);
         } else {
             claw.flexOpenLoop(yLeftValue);
             claw.rotateOpenLoop(xLeftValue);
