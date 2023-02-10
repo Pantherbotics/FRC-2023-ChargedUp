@@ -88,7 +88,7 @@ public class RobotContainer {
         speedChooser.setDefaultOption("Slow", 0.25);
         speedChooser.addOption("Normal", 0.65);
         speedChooser.addOption("Demon", 1.0);
-        SmartDashboard.putData(speedChooser);
+        SmartDashboard.putData("Speed", speedChooser);
 
         //drive mode chooser
         driveModeChooser.setDefaultOption("Robot Oriented", "Swerve");
@@ -97,7 +97,7 @@ public class RobotContainer {
         driveModeChooser.addOption("Car", "Car");
         driveModeChooser.addOption("West Coast", "West Coast");
         driveModeChooser.addOption("Tank", "Tank");
-        SmartDashboard.putData(driveModeChooser);
+        SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         //auto chooser
         autoChooser.setDefaultOption("None", null);

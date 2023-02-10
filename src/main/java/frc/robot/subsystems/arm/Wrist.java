@@ -13,38 +13,32 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
 
     public Wrist() {
+        //flex motor
         flexMotor = new CANSparkMax(0, MotorType.kBrushless);
-        flexEncoder = flexMotor.getEncoder();
-        flexPID = flexMotor.getPIDController();
-
-        rotateMotor = new CANSparkMax(0, MotorType.kBrushless);
-        rotateEncoder = rotateMotor.getEncoder();
-        rotatePID = rotateMotor.getPIDController();
-
-        configDevices();
-    }
-
-    private void configDevices() {
-        //flex
         flexMotor.restoreFactoryDefaults();
         flexMotor.burnFlash();
 
         //flex encoder
+        flexEncoder = flexMotor.getEncoder();
         flexEncoder.setPositionConversionFactor(360); //360 degrees per rotation
         flexEncoder.setVelocityConversionFactor(6); //6 degrees per second
-        
+
         //flex pid
+        flexPID = flexMotor.getPIDController();
         flexPID.setP(0);
         flexPID.setP(0);
         flexPID.setP(0);
         flexPID.setIZone(0);
         flexPID.setFF(0);
 
-        //rotate
+        //rotate motor
+        rotateMotor = new CANSparkMax(0, MotorType.kBrushless);
 
         //rotate encoder
+        rotateEncoder = rotateMotor.getEncoder();
 
         //rotate pid
+        rotatePID = rotateMotor.getPIDController();
         rotatePID.setP(0);
         rotatePID.setP(0);
         rotatePID.setP(0);
