@@ -13,11 +13,11 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
 
     public Wrist() {
-        flexMotor = new CANSparkMax(0, MotorType.kBrushless);
+        flexMotor = new CANSparkMax(7, MotorType.kBrushless);
         flexEncoder = flexMotor.getEncoder();
         flexPID = flexMotor.getPIDController();
 
-        rotateMotor = new CANSparkMax(0, MotorType.kBrushless);
+        rotateMotor = new CANSparkMax(8, MotorType.kBrushless);
         rotateEncoder = rotateMotor.getEncoder();
         rotatePID = rotateMotor.getPIDController();
 
