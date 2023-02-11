@@ -52,10 +52,10 @@ public class Constants {
 
         //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
         //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftTurningEncoderOffsetDeg = 165; //165  <-- I have no fucking clue what these commented numbers mean
-        public static final int kFrontRightTurningEncoderOffsetDeg = 225; //225
-        public static final int kBackRightTurningEncoderOffsetDeg = 350; //90
-        public static final int kBackLeftTurningEncoderOffsetDeg = 163; //-20 
+        public static final int kFrontLeftTurningEncoderOffsetDeg = 0; 
+        public static final int kFrontRightTurningEncoderOffsetDeg = 0; 
+        public static final int kBackRightTurningEncoderOffsetDeg = 0; 
+        public static final int kBackLeftTurningEncoderOffsetDeg = 0; 
     }
 
     //Checked and verified as of May 1st, 2022

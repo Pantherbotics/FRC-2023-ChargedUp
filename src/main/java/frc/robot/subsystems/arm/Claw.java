@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Claw extends SubsystemBase {
     private final PWMSparkMax[] flexMotors, rotateMotors; //switch to not vex stuff
 
-    private final CANCoder flexEncoder, rotateEncoder;
-    private final PIDController flexPID, rotatePID;
+    private final CANCoder flexEncoder;
+    private final PIDController flexPID;
 
     private final DoubleSolenoid clawSolenoid;
 
@@ -42,12 +42,6 @@ public class Claw extends SubsystemBase {
             new PWMSparkMax(5)
         };
 
-        //rotation encoder
-        rotateEncoder = new CANCoder(0);
-
-        //rotation pid
-        rotatePID = new PIDController(0.8, 0.2, 0);
-
         //solenoid, open/closes the claw
         clawSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
         clawSolenoid.set(DoubleSolenoid.Value.kForward);
@@ -73,17 +67,8 @@ public class Claw extends SubsystemBase {
         }
     }
     
-    public void rotatePID(double speed) {
-        double newSetpoint = flexPID.getSetpoint() + normalizeSpeed(speed);
-        rotatePID.setSetpoint(newSetpoint);
-    }
-    
     public void rotateOpenLoop(double speed) {
         setRotateMotors(normalizeSpeed(speed));
-    }
-
-    public double getRotateAbsolutePosition() {
-        return rotateEncoder.getAbsolutePosition();
     }
 
     private void setRotateMotors(double speed) {
@@ -117,15 +102,12 @@ public class Claw extends SubsystemBase {
         if(doPID) 
         {
             setFlexMotors(flexPID.calculate(getFlexAbsolutePosition()));
-            setRotateMotors(rotatePID.calculate(getRotateAbsolutePosition()));
         }
 
         SmartDashboard.putNumber("Flex point", flexPID.getSetpoint());
-        SmartDashboard.putNumber("Rotate point", rotatePID.getSetpoint());
 
         SmartDashboard.putNumber("Flex Encoder", getFlexAbsolutePosition());
         SmartDashboard.putNumber("Raw Flex Encoder", flexEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("Rotate Encoder", rotateEncoder.getAbsolutePosition());
 
         SmartDashboard.putNumber("Flex kP", 0);
         SmartDashboard.getNumber("Flex kP", 0);

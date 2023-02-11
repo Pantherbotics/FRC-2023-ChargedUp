@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -53,7 +54,7 @@ public class RunSwerveJoystick extends CommandBase {
         }
     }
 
-    private void runSwerve(boolean isFieldOriented) {
+    private void runSwerve(boolean fieldOriented) {
         //Background on the speed values:
         // - Left Y is positive when pulled BACKWARDS, and negative when pushed FORWARDS (not intuitive)
         // - Left X is positive when pushed to the right, and negative when pushed to the left (normal)
@@ -82,7 +83,13 @@ public class RunSwerveJoystick extends CommandBase {
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
-        drivetrain.drive(new Translation2d(xSpeed, ySpeed), turningSpeed, isFieldOriented);
+        ChassisSpeeds speeds;
+        if(fieldOriented)
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, drivetrain.getHeading());
+        else
+            speeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+        
+        drivetrain.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds));
     }
 
     private void runBoat() {
@@ -90,7 +97,7 @@ public class RunSwerveJoystick extends CommandBase {
         double yLeftValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
         
         // Right stick speed
-        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue);// square the speed but keep the sign so it can reverse
+        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue); // square the speed but keep the sign so it can reverse
         if(Math.abs(speed) > 1) speed /= Math.abs(speed); // Should have the same effect as previous code.
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
@@ -124,12 +131,12 @@ public class RunSwerveJoystick extends CommandBase {
     private void runWestCoast() {
         // No negation of these values since the west coast code we use is already
         // handling the inverted Y axis
-        double YL = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
-        double XR = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
+        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        double xRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
         // Y axis weirdness handled here already
-        double left = (XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = (-XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double left = (xRightValue - yLeftValue) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double right = -(xRightValue + yLeftValue) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
         SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
         SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
         SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
@@ -138,11 +145,11 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     private void runTank() {
-        double YL = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // Invert the Y axis so that positive is forwards
-        double YR = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID); // Invert the Y axis so that positive is forwards
+        double yLeftValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // Invert the Y axis so that positive is forwards
+        double yRightValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID); // Invert the Y axis so that positive is forwards
 
-        double left = YL * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = YR * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double left = yLeftValue * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double right = yRightValue * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
         SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
         SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
         SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
