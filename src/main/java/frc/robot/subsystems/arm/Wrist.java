@@ -18,19 +18,8 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
 
     public Wrist() {
-        flexMotor = new CANSparkMax(7, MotorType.kBrushless);
-        flexEncoder = flexMotor.getEncoder();
-        flexPID = flexMotor.getPIDController();
-
-        rotateMotor = new CANSparkMax(8, MotorType.kBrushless);
-        rotateEncoder = rotateMotor.getEncoder();
-        rotatePID = rotateMotor.getPIDController();
-
-        configDevices();
-    }
-
-    private void configDevices() {
-        //flex
+        //flex motor
+        flexMotor = new CANSparkMax(8, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
         flexMotor.setSoftLimit(SoftLimitDirection.kForward, 50);
@@ -40,17 +29,24 @@ public class Wrist extends SubsystemBase {
         flexMotor.burnFlash();
 
         //flex encoder
+        flexEncoder = flexMotor.getEncoder();
         flexEncoder.setPositionConversionFactor(360); //360 degrees per rotation
         flexEncoder.setVelocityConversionFactor(6); //6 degrees per second
-        
-        //flex pid
-        flexPID.setP(0);
-        flexPID.setP(0);
-        flexPID.setP(0);
-        flexPID.setIZone(0);
-        flexPID.setFF(0);
 
-        //rotate
+        //flex pid
+        flexPID = flexMotor.getPIDController();
+        flexPID.setP(ArmConstants.kFlexP);
+        flexPID.setI(ArmConstants.kFlexI);
+        flexPID.setD(ArmConstants.kFlexD);
+        flexPID.setIZone(ArmConstants.kFlexIZone);
+        flexPID.setFF(ArmConstants.kFlexFF);
+
+        SmartDashboard.putNumber("Flex kP", flexPID.getP());
+        SmartDashboard.putNumber("Flex kI", flexPID.getI());
+        SmartDashboard.putNumber("Flex kD", flexPID.getD());
+        SmartDashboard.putNumber("Flex kIZone", flexPID.getIZone());
+        SmartDashboard.putNumber("Flex kFF", flexPID.getFF());
+
         //rotate motor
         rotateMotor = new CANSparkMax(7, MotorType.kBrushless);
         rotateMotor.restoreFactoryDefaults();
@@ -63,11 +59,6 @@ public class Wrist extends SubsystemBase {
         rotateEncoder.setVelocityConversionFactor(6);
 
         //rotate pid
-        rotatePID.setP(0);
-        rotatePID.setP(0);
-        rotatePID.setP(0);
-        rotatePID.setIZone(0);
-        rotatePID.setFF(0);
         rotatePID = rotateMotor.getPIDController();
         rotatePID.setP(ArmConstants.kFlexP);
         rotatePID.setI(ArmConstants.kFlexI);
