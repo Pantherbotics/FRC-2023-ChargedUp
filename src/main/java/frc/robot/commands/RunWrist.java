@@ -22,10 +22,10 @@ public class RunWrist extends CommandBase {
     @Override
     public void execute() {
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
-        double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
 
-        
-  
+        wrist.flex(yRightValue);
+        wrist.rotate(xLeftValue);
     }
   
     //Called once the command ends or is interrupted.

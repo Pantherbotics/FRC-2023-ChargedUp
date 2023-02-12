@@ -23,11 +23,27 @@ public class Constants {
         public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
+
+        public static final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / neoMaxRPM;
+        public static final double kTurnPositionCoefficient = 360.0 / 4069.0;
         
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
         //public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         //public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
+
+        //drive pid values
+        public static final double kDriveP = 0.0001;
+        public static final double kDriveI = 0.0;
+        public static final double kDriveD = 0.0001;
+        public static final double kDriveIZone = 0.0;
+        public static final double kDriveFF = 0.000175;
+
+        //turn pid values
+        public static final double kTurnP = 1.0;
+        public static final double kTurnI = 0.0005;
+        public static final double kTurnD = 0.0;
+        public static final double kTurnF = 0;
 
         //These are all id numbers, change if necessary (ie: you reconfigured the motor ids for some reason)
         public static final int kFrontLeftModuleID = 1;
@@ -40,22 +56,39 @@ public class Constants {
         public static final int kBackRightDriveMotorPort = 3;
         public static final int kBackLeftDriveMotorPort = 4;
 
-        public static final int kFrontLeftTurningMotorPort = 1;
-        public static final int kFrontRightTurningMotorPort = 2;
-        public static final int kBackRightTurningMotorPort = 3;
-        public static final int kBackLeftTurningMotorPort = 4;
+        public static final int kFrontLeftTurnMotorPort = 1;
+        public static final int kFrontRightTurnMotorPort = 2;
+        public static final int kBackRightTurnMotorPort = 3;
+        public static final int kBackLeftTurnMotorPort = 4;
 
-        public static final int kFrontLeftTurningEncoderPort = 5;
-        public static final int kFrontRightTurningEncoderPort = 6;
-        public static final int kBackRightTurningEncoderPort = 7;
-        public static final int kBackLeftTurningEncoderPort = 8;
+        public static final int kFrontLeftCANCoderPort = 5;
+        public static final int kFrontRightCANCoderPort = 6;
 
-        //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
+        public static final int kBackRightCANCoderPort = 7;
+        public static final int kBackLeftCANCoderPort = 8;
+
         //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftTurningEncoderOffsetDeg = 0; 
-        public static final int kFrontRightTurningEncoderOffsetDeg = 0; 
-        public static final int kBackRightTurningEncoderOffsetDeg = 0; 
-        public static final int kBackLeftTurningEncoderOffsetDeg = 0; 
+        public static final int kFrontLeftCANCoderOffsetDegrees = 0; 
+        public static final int kFrontRightCANCoderOffsetDeg = 0; 
+        public static final int kBackRightCANCoderOffsetDeg = 0; 
+        public static final int kBackLeftCANCoderOffsetDeg = 0; 
+    }
+    
+    public static final class ArmConstants {
+        public static final double kPivotEncoderRot2Degrees = 1;
+        public static final double kPivotEncoderRPM2DegreesPerSec = 1;
+
+        public static final double kFlexP = 0;
+        public static final double kFlexI = 0;
+        public static final double kFlexD = 0;
+        public static final double kFlexIZone = 0;
+        public static final double kFlexFF = 0;
+
+        public static final double kRotateP = 0;
+        public static final double kRotateI = 0;
+        public static final double kRotateD = 0;
+        public static final double kRotateIZone = 0;
+        public static final double kRotateFF = 0;
     }
 
     //Checked and verified as of May 1st, 2022
@@ -100,11 +133,6 @@ public class Constants {
                         kMaxAngularSpeedRadiansPerSecond,
                         kMaxAngularAccelerationRadiansPerSecondSquared
                     );
-    }
-
-    public static final class ArmConstants {
-        public static final double kPivotEncoderRot2Degrees = 1;
-        public static final double kPivotEncoderRPM2DegreesPerSec = 1;
     }
 
     //Checked and verified as of May 1st, 2022

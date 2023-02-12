@@ -26,30 +26,30 @@ public class Drivetrain extends SubsystemBase {
         frontLeft = new SwerveModule( //1
             ModuleConstants.kFrontLeftModuleID, 
             ModuleConstants.kFrontLeftDriveMotorPort,
-            ModuleConstants.kFrontLeftTurningMotorPort,
-            ModuleConstants.kFrontLeftTurningEncoderPort,
-            ModuleConstants.kFrontLeftTurningEncoderOffsetDeg 
+            ModuleConstants.kFrontLeftTurnMotorPort,
+            ModuleConstants.kFrontLeftCANCoderPort,
+            ModuleConstants.kFrontLeftCANCoderOffsetDegrees 
         );
         frontRight = new SwerveModule( //2
             ModuleConstants.kFrontRightModuleID,
             ModuleConstants.kFrontRightDriveMotorPort,
-            ModuleConstants.kFrontRightTurningMotorPort, 
-            ModuleConstants.kFrontRightTurningEncoderPort,
-            ModuleConstants.kFrontRightTurningEncoderOffsetDeg
+            ModuleConstants.kFrontRightTurnMotorPort, 
+            ModuleConstants.kFrontRightCANCoderPort,
+            ModuleConstants.kFrontRightCANCoderOffsetDeg
         );
         backRight = new SwerveModule( //3
             ModuleConstants.kBackRightModuleID,
             ModuleConstants.kBackRightDriveMotorPort,
-            ModuleConstants.kBackRightTurningMotorPort, 
-            ModuleConstants.kBackRightTurningEncoderPort,
-            ModuleConstants.kBackRightTurningEncoderOffsetDeg
+            ModuleConstants.kBackRightTurnMotorPort, 
+            ModuleConstants.kBackRightCANCoderPort,
+            ModuleConstants.kBackRightCANCoderOffsetDeg
         );
         backLeft = new SwerveModule( //4
             ModuleConstants.kBackLeftModuleID,
             ModuleConstants.kBackLeftDriveMotorPort,
-            ModuleConstants.kBackLeftTurningMotorPort, 
-            ModuleConstants.kBackLeftTurningEncoderPort,
-            ModuleConstants.kBackLeftTurningEncoderOffsetDeg
+            ModuleConstants.kBackLeftTurnMotorPort, 
+            ModuleConstants.kBackLeftCANCoderPort,
+            ModuleConstants.kBackLeftCANCoderOffsetDeg
         );
 
         gyro = new AHRS(SPI.Port.kMXP);

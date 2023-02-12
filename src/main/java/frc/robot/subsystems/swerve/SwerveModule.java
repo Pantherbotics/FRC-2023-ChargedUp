@@ -37,9 +37,6 @@ public class SwerveModule {
     private final CANCoder cancoder; 
     private final double moduleOffset;
 
-    private final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / Constants.neoMaxRPM;
-    private final double kTurnPositionCoefficient = 360.0 / 4069.0;
-
     /**
      * @param moduleNumber Arbitrary identification number (should be a label on the neo motor)
      * @param driveMotorID ID of the module's drive CANSparkMax 
@@ -54,7 +51,6 @@ public class SwerveModule {
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
         driveMotor.setIdleMode(IdleMode.kBrake);
-        driveMotor.setSmartCurrentLimit(40);
         driveMotor.burnFlash();
 
         //drive encoder
@@ -65,18 +61,17 @@ public class SwerveModule {
 
         //drive pid
         drivePID = driveMotor.getPIDController();
-        drivePID.setP(0.0001);
-        drivePID.setI(0.0);
-        drivePID.setD(0.0001);
-        drivePID.setIZone(0.0);
-        drivePID.setFF(0.000175);
+        drivePID.setP(ModuleConstants.kDriveP);
+        drivePID.setI(ModuleConstants.kDriveI);
+        drivePID.setD(ModuleConstants.kDriveD);
+        drivePID.setIZone(ModuleConstants.kDriveIZone);
+        drivePID.setFF(ModuleConstants.kDriveFF);
         drivePID.setOutputRange(-1, 1);
         
         //turn motor
         turnMotor = new TalonSRX(turnMotorID);
         turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20); 
         turnMotor.setNeutralMode(NeutralMode.Brake);
-        turnMotor.setInverted(false); //counter-clockwise I think? Needs testing
         
         //cancoder
         cancoder = new CANCoder(turnEncoderID); 
@@ -85,10 +80,10 @@ public class SwerveModule {
         cancoder.configMagnetOffset(angleOffset);
 
         //turn pid
-        turnMotor.config_kP(0, 1.0);
-        turnMotor.config_kI(0, 0.0005);
-        turnMotor.config_kD(0, 0.0);
-        turnMotor.config_kF(0, 0.0);
+        turnMotor.config_kP(0, ModuleConstants.kTurnP);
+        turnMotor.config_kI(0, ModuleConstants.kTurnI);
+        turnMotor.config_kD(0, ModuleConstants.kTurnD);
+        turnMotor.config_kF(0, ModuleConstants.kTurnF);
         turnMotor.setSelectedSensorPosition(cancoder.getAbsolutePosition());
 
         //set the cancoder to be the remote feedback sensor for the turning motor
@@ -124,15 +119,15 @@ public class SwerveModule {
         
         state = SwerveModuleState.optimize(state, getTurnAngle());
 
-        drivePID.setReference(state.speedMetersPerSecond / kDriveVelocityCoefficient, ControlType.kVelocity);
-        turnMotor.set(TalonSRXControlMode.Position, state.angle.getDegrees() / kTurnPositionCoefficient);
+        drivePID.setReference(state.speedMetersPerSecond / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
+        turnMotor.set(TalonSRXControlMode.Position, state.angle.getDegrees() / ModuleConstants.kTurnPositionCoefficient);
     }
 
     /**
      * @return The angle of the turning motor in degrees from -180 to 180
      */
     public Rotation2d getTurnAngle() {
-        double angle = turnMotor.getSelectedSensorPosition() * kTurnPositionCoefficient;
+        double angle = turnMotor.getSelectedSensorPosition() * ModuleConstants.kTurnPositionCoefficient;
         if(angle >= 360) 
             angle %= 360;
         else

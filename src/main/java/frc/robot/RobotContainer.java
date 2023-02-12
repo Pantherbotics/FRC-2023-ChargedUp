@@ -6,17 +6,15 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
-import frc.robot.commands.RunClaw;
 import frc.robot.commands.RunPivotArm;
+import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunWrist;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
 import frc.robot.subsystems.swerve.Drivetrain;
 
@@ -25,7 +23,6 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     private final Limelight limelight = new Limelight();
     private final Arm arm = new Arm();
-    private final Claw claw = new Claw();
     private final Wrist wrist = new Wrist();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
@@ -111,17 +108,17 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         //the drivetrain obviously needs to drive by default
-        // drivetrain.setDefaultCommand(new RunSwerveJoystick(
-        //     drivetrain, 
-        //     primaryJoystick, 
-        //     speedChooser::getSelected, 
-        //     driveModeChooser::getSelected
-        // ));
+        drivetrain.setDefaultCommand(new RunSwerveJoystick(
+            drivetrain, 
+            primaryJoystick, 
+            speedChooser::getSelected, 
+            driveModeChooser::getSelected
+        ));
 
         //wrist manual control
         wrist.setDefaultCommand(new RunWrist(
             wrist, 
-            primaryJoystick
+            secondaryJoystick
         ));
 
         secondaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true));
