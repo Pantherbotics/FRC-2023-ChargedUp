@@ -116,10 +116,11 @@ public class SwerveModule {
             return;
         }
         
-        state = SwerveModuleState.optimize(state, getTurnAngle());
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getTurnAngle());
+        double errorAngle = getTurnAngle().getDegrees() - optimizedState.angle.getDegrees();
+        turnMotor.set(TalonSRXControlMode.Position, turnMotor.getSelectedSensorPosition() + errorAngle / ModuleConstants.kTurnPositionCoefficient);
 
-        drivePID.setReference(state.speedMetersPerSecond / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
-        turnMotor.set(TalonSRXControlMode.Position, state.angle.getDegrees() / ModuleConstants.kTurnPositionCoefficient);
+        drivePID.setReference(optimizedState.speedMetersPerSecond / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
     }
 
     /**
