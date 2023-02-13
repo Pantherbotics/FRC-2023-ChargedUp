@@ -98,10 +98,10 @@ public class RobotContainer {
 
         //auto chooser
         autoChooser.setDefaultOption("None", null);
-        for(Map.Entry<String, Command> traj : autoPaths.getTrajectories().entrySet())
+        for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
         {
-            if(!traj.getKey().equals("None"))
-                autoChooser.addOption(traj.getKey(), traj.getValue());
+            if(!path.getKey().equals("None"))
+                autoChooser.addOption(path.getKey(), path.getValue());
         }
         SmartDashboard.putData(autoChooser);
     }
@@ -116,10 +116,10 @@ public class RobotContainer {
         ));
 
         //wrist manual control
-        wrist.setDefaultCommand(new RunWrist(
-            wrist, 
-            secondaryJoystick
-        ));
+        // wrist.setDefaultCommand(new RunWrist(
+        //     wrist, 
+        //     secondaryJoystick
+        // ));
 
         secondaryJoystickRightBumperButton.toggleOnTrue(new RunPivotArm(arm, true));
         secondaryJoystickLeftBumperButton.toggleOnTrue(new RunPivotArm(arm, false));

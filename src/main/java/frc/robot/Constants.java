@@ -63,12 +63,11 @@ public class Constants {
 
         public static final int kFrontLeftCANCoderPort = 5;
         public static final int kFrontRightCANCoderPort = 6;
-
         public static final int kBackRightCANCoderPort = 7;
         public static final int kBackLeftCANCoderPort = 8;
 
         //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftCANCoderOffsetDegrees = 0; 
+        public static final int kFrontLeftCANCoderOffsetDeg = 0; 
         public static final int kFrontRightCANCoderOffsetDeg = 0; 
         public static final int kBackRightCANCoderOffsetDeg = 0; 
         public static final int kBackLeftCANCoderOffsetDeg = 0; 

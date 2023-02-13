@@ -44,13 +44,13 @@ public class SwerveModule {
      * @param driveMotorID ID of the module's CANCoder for turning
      * @param angleOffset Offset of the module in degrees
      */
-    public SwerveModule(int moduleNumber, int driveMotorID, int turnMotorID, int turnEncoderID, int angleOffset) {
+    public SwerveModule(int moduleNumber, int driveMotorID, int turnMotorID, int cancoderID, int angleOffset) {
         moduleName = "Swerve[" + moduleNumber + "]";
 
         //drive motor
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         driveMotor.restoreFactoryDefaults();
-        driveMotor.setIdleMode(IdleMode.kBrake);
+        driveMotor.setIdleMode(IdleMode.kCoast);
         driveMotor.burnFlash();
 
         //drive encoder
@@ -71,10 +71,10 @@ public class SwerveModule {
         //turn motor
         turnMotor = new TalonSRX(turnMotorID);
         turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20); 
-        turnMotor.setNeutralMode(NeutralMode.Brake);
+        turnMotor.setNeutralMode(NeutralMode.Coast);
         
         //cancoder
-        cancoder = new CANCoder(turnEncoderID); 
+        cancoder = new CANCoder(cancoderID); 
         cancoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         cancoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
         cancoder.configMagnetOffset(angleOffset);

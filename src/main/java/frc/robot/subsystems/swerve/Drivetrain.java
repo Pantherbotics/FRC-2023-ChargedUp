@@ -28,7 +28,7 @@ public class Drivetrain extends SubsystemBase {
             ModuleConstants.kFrontLeftDriveMotorPort,
             ModuleConstants.kFrontLeftTurnMotorPort,
             ModuleConstants.kFrontLeftCANCoderPort,
-            ModuleConstants.kFrontLeftCANCoderOffsetDegrees 
+            ModuleConstants.kFrontLeftCANCoderOffsetDeg 
         );
         frontRight = new SwerveModule( //2
             ModuleConstants.kFrontRightModuleID,
