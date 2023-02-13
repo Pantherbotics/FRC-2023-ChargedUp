@@ -33,17 +33,17 @@ public class Constants {
         //public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
 
         //drive pid values
-        public static final double kDriveP = 0.0001;
-        public static final double kDriveI = 0.0;
-        public static final double kDriveD = 0.0001;
-        public static final double kDriveIZone = 0.0;
-        public static final double kDriveFF = 0.000175;
+        public static final double kPDrive = 0.0001;
+        public static final double kIDrive = 0.0;
+        public static final double kDDrive = 0.0001;
+        public static final double kIZoneDrive = 0.0;
+        public static final double kFFDrive = 0.000175;
 
         //turn pid values
-        public static final double kTurnP = 1.0;
-        public static final double kTurnI = 0.0005;
-        public static final double kTurnD = 0.0;
-        public static final double kTurnF = 0;
+        public static final double kPTurn = 1.0;
+        public static final double kITurn = 0.0005;
+        public static final double kDTurn = 0.0;
+        public static final double kFTurn = 0.0;
 
         //These are all id numbers, change if necessary (ie: you reconfigured the motor ids for some reason)
         public static final int kFrontLeftModuleID = 1;

@@ -61,34 +61,38 @@ public class SwerveModule {
 
         //drive pid
         drivePID = driveMotor.getPIDController();
-        drivePID.setP(ModuleConstants.kDriveP);
-        drivePID.setI(ModuleConstants.kDriveI);
-        drivePID.setD(ModuleConstants.kDriveD);
-        drivePID.setIZone(ModuleConstants.kDriveIZone);
-        drivePID.setFF(ModuleConstants.kDriveFF);
+        drivePID.setP(ModuleConstants.kPDrive);
+        drivePID.setI(ModuleConstants.kIDrive);
+        drivePID.setD(ModuleConstants.kDDrive);
+        drivePID.setIZone(ModuleConstants.kIZoneDrive);
+        drivePID.setFF(ModuleConstants.kFFDrive);
         drivePID.setOutputRange(-1, 1);
-        
-        //turn motor
-        turnMotor = new TalonSRX(turnMotorID);
-        turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20); 
-        turnMotor.setNeutralMode(NeutralMode.Coast);
-        
+
         //cancoder
         cancoder = new CANCoder(cancoderID); 
         cancoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
         cancoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
         cancoder.configMagnetOffset(angleOffset);
+        
+        //turn motor
+        turnMotor = new TalonSRX(turnMotorID);
+        turnMotor.configRemoteFeedbackFilter(cancoder, 0);
+        turnMotor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20); 
+        turnMotor.setNeutralMode(NeutralMode.Coast);
 
         //turn pid
-        turnMotor.config_kP(0, ModuleConstants.kTurnP);
-        turnMotor.config_kI(0, ModuleConstants.kTurnI);
-        turnMotor.config_kD(0, ModuleConstants.kTurnD);
-        turnMotor.config_kF(0, ModuleConstants.kTurnF);
+        turnMotor.config_kP(0, ModuleConstants.kPTurn);
+        turnMotor.config_kI(0, ModuleConstants.kITurn);
+        turnMotor.config_kD(0, ModuleConstants.kDTurn);
+        turnMotor.config_kF(0, ModuleConstants.kFTurn);
 
-        //set the cancoder to be the remote feedback sensor for the turning motor
-        turnMotor.configRemoteFeedbackFilter(cancoder, 0);
-        
+        //set the cancoder to be the remote feedback sensor for the turning motor        
         moduleOffset = angleOffset;
+
+        SmartDashboard.putNumber(moduleName + " drive position (m)", driveEncoder.getPosition());
+        SmartDashboard.putNumber(moduleName + " drive velocity (m/s)", driveEncoder.getVelocity());
+        SmartDashboard.putNumber(moduleName + " turn angle (deg)", getTurnAngle().getDegrees());
+        SmartDashboard.putNumber(moduleName + " turn offset (deg)", moduleOffset);
     }
 
     /**
@@ -118,7 +122,8 @@ public class SwerveModule {
         
         SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getTurnAngle());
         double errorAngle = getTurnAngle().getDegrees() - optimizedState.angle.getDegrees();
-        turnMotor.set(TalonSRXControlMode.Position, turnMotor.getSelectedSensorPosition() + errorAngle / ModuleConstants.kTurnPositionCoefficient);
+        double newPosition = turnMotor.getSelectedSensorPosition() + errorAngle / ModuleConstants.kTurnPositionCoefficient;
+        turnMotor.set(TalonSRXControlMode.Position, newPosition);
 
         drivePID.setReference(optimizedState.speedMetersPerSecond / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
     }
@@ -142,6 +147,6 @@ public class SwerveModule {
 
     //output module data to SmartDashboard
     public void outputTelemetry() {
-        
+        SmartDashboard.getNumber(moduleName + " offset (deg)", moduleOffset);
     }
 }
