@@ -84,7 +84,6 @@ public class SwerveModule {
         turnMotor.config_kI(0, ModuleConstants.kTurnI);
         turnMotor.config_kD(0, ModuleConstants.kTurnD);
         turnMotor.config_kF(0, ModuleConstants.kTurnF);
-        turnMotor.setSelectedSensorPosition(cancoder.getAbsolutePosition());
 
         //set the cancoder to be the remote feedback sensor for the turning motor
         turnMotor.configRemoteFeedbackFilter(cancoder, 0);
