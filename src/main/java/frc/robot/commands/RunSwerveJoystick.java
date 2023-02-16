@@ -16,10 +16,10 @@ public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
     private final Supplier<Double> speedChooser;
-    private final Supplier<String> driveModeChooser;
+    private final Supplier<Character> driveModeChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
     
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<String> driveModeChooser) {
+    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<Character> driveModeChooser) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
         this.speedChooser = speedChooser;
@@ -36,17 +36,17 @@ public class RunSwerveJoystick extends CommandBase {
     @Override
     public void execute() {
         switch(driveModeChooser.get()) {
-            case "Swerve":
+            case 's': //swerve
                 runSwerve(false);
-            case "Field Oriented Swerve":
+            case 'f': //field oriented swerve
                 runSwerve(true);
-            case "Boat":
+            case 'b': //boat
                 runBoat();
-            case "Car":
+            case 'c': //car
                 runCar();
-            case "West Coast":
+            case 'w': //west coast
                 runWestCoast();
-            case "Tank":
+            case 't': //tank
                 runTank();
             default:
                 break;
@@ -66,11 +66,12 @@ public class RunSwerveJoystick extends CommandBase {
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
         double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        System.out.println("(" + xLeftValue + ", " + yLeftValue + ")");
 
-        //The quirky exponent stuff is just so the value maintains its sign even after being raised by a power
         double xSpeed = Math.copySign(Math.pow(yLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
         double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), xLeftValue) * speedChooser.get();
         double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
+        System.out.println(xSpeed + ", " + ySpeed + ", " + turningSpeed);
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
@@ -100,7 +101,7 @@ public class RunSwerveJoystick extends CommandBase {
         if(Math.abs(speed) > 1) speed /= Math.abs(speed); // Should have the same effect as previous code.
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
-        // Calculate Steering Angl
+        // Calculate Steering Angle
         SwerveModuleState[] states = {
             new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //left front
             new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //right front
@@ -114,8 +115,8 @@ public class RunSwerveJoystick extends CommandBase {
         double yLeftValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
         double xRightValue = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID); // The swerve follows positive CCW wheel angles, so to turn the wheel left we
                               // must have a positive XR
-        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue);// square the speed but keep the sign so it can reverse
-        if(Math.abs(speed) > 1) speed /= Math.abs(speed);
+        double speed = Math.copySign(yLeftValue * yLeftValue, yLeftValue); // square the speed but keep the sign so it can reverse
+        speed /= (Math.abs(speed) > 1) ? Math.abs(speed) : 1;
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle
@@ -123,7 +124,6 @@ public class RunSwerveJoystick extends CommandBase {
         SwerveModuleState rF = new SwerveModuleState(speed, Rotation2d.fromDegrees(xRightValue * 90));
         SwerveModuleState rB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
         SwerveModuleState lB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
-
         drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
     }
 
@@ -149,13 +149,15 @@ public class RunSwerveJoystick extends CommandBase {
 
         double left = yLeftValue * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
         double right = yRightValue * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState lB = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
-    }
-    
+
+        SwerveModuleState[] states = {
+            new SwerveModuleState(left, Rotation2d.fromDegrees(0)), //left front
+            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right front
+            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right back
+            new SwerveModuleState(left, Rotation2d.fromDegrees(0)) //left back
+        };
+        drivetrain.setModuleStates(states);
+    }    
     @Override
     public void end(boolean interrupted) {
         drivetrain.stopModules();

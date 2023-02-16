@@ -22,7 +22,7 @@ public class Constants {
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4); //4 when new
         public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
-        public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
+        public static final double kDriveEncoderRPM2MetersPerSec = kDriveEncoderRot2Meter / 60;
 
         public static final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / neoMaxRPM;
         public static final double kTurnPositionCoefficient = 360.0 / 4069.0;
@@ -74,8 +74,9 @@ public class Constants {
     }
     
     public static final class ArmConstants {
-        public static final double kPivotEncoderRot2Degrees = 1;
-        public static final double kPivotEncoderRPM2DegreesPerSec = 1;
+        public static final double kPivotMotorGearRatio = 5.0 * 4 * 10;
+        public static final double kPivotEncoderRot2Degrees = 360;
+        public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
         public static final double kFlexP = 0;
         public static final double kFlexI = 0;

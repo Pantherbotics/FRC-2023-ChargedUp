@@ -13,35 +13,35 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModule frontLeft, frontRight, backRight, backLeft;
+    private final SwerveModuleOld frontLeft, frontRight, backRight, backLeft;
 
     private final AHRS gyro;
     private final SwerveDriveOdometry odometer;
     
 
     public Drivetrain() {
-        frontLeft = new SwerveModule( //1
+        frontLeft = new SwerveModuleOld( //1
             ModuleConstants.kFrontLeftModuleID, 
             ModuleConstants.kFrontLeftDriveMotorPort,
             ModuleConstants.kFrontLeftTurnMotorPort,
             ModuleConstants.kFrontLeftCANCoderPort,
             ModuleConstants.kFrontLeftCANCoderOffsetDeg 
         );
-        frontRight = new SwerveModule( //2
+        frontRight = new SwerveModuleOld( //2
             ModuleConstants.kFrontRightModuleID,
             ModuleConstants.kFrontRightDriveMotorPort,
             ModuleConstants.kFrontRightTurnMotorPort, 
             ModuleConstants.kFrontRightCANCoderPort,
             ModuleConstants.kFrontRightCANCoderOffsetDeg
         );
-        backRight = new SwerveModule( //3
+        backRight = new SwerveModuleOld( //3
             ModuleConstants.kBackRightModuleID,
             ModuleConstants.kBackRightDriveMotorPort,
             ModuleConstants.kBackRightTurnMotorPort, 
             ModuleConstants.kBackRightCANCoderPort,
             ModuleConstants.kBackRightCANCoderOffsetDeg
         );
-        backLeft = new SwerveModule( //4
+        backLeft = new SwerveModuleOld( //4
             ModuleConstants.kBackLeftModuleID,
             ModuleConstants.kBackLeftDriveMotorPort,
             ModuleConstants.kBackLeftTurnMotorPort, 
@@ -147,7 +147,7 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         //Update the odometry
-        odometer.update(getHeading(), getModulePositions());
+        //odometer.update(getHeading(), getModulePositions());
         
         frontLeft.outputTelemetry();
         frontRight.outputTelemetry();
