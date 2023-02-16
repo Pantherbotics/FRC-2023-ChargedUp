@@ -20,7 +20,6 @@ public class RunPivotArm extends CommandBase {
 
     @Override
     public void initialize() {
-        arm.setIdleMode(IdleMode.kCoast);
     }
   
     @Override
@@ -32,7 +31,6 @@ public class RunPivotArm extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         arm.stopPivot();
-        arm.setIdleMode(IdleMode.kBrake);
     }
   
     // Returns true when the command should end.

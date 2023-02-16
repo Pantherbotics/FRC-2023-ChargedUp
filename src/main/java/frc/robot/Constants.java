@@ -89,6 +89,13 @@ public class Constants {
         public static final double kRotateD = 0;
         public static final double kRotateIZone = 0;
         public static final double kRotateFF = 0;
+
+        public static final int kPivotLeaderMotorPort = 5;
+        public static final int kPivotFollowerMotorPort = 6;
+
+        public static final int kPivotCANCoderPort = 0;
+        
+        public static final int kExtensionMotorPort = 5;
     }
 
     //Checked and verified as of May 1st, 2022

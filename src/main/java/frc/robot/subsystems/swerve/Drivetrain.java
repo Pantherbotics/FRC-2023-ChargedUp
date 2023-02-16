@@ -1,53 +1,83 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax.IdleMode;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class Drivetrain extends SubsystemBase {
-    private final SwerveModuleOld frontLeft, frontRight, backRight, backLeft;
+    private final SwerveModule frontLeft, frontRight, backRight, backLeft;
+    private final SwerveModule[] swerveModules;
 
     private final AHRS gyro;
     private final SwerveDriveOdometry odometer;
     
 
     public Drivetrain() {
-        frontLeft = new SwerveModuleOld( //1
-            ModuleConstants.kFrontLeftModuleID, 
+        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+        ShuffleboardLayout frontLeftLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(0, 0);
+        ShuffleboardLayout frontRightLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(2, 0);
+        ShuffleboardLayout backRightLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(4, 0);
+        ShuffleboardLayout backLeftLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(6, 0);
+        
+        frontLeft = createSwerveModule( //1
             ModuleConstants.kFrontLeftDriveMotorPort,
             ModuleConstants.kFrontLeftTurnMotorPort,
             ModuleConstants.kFrontLeftCANCoderPort,
-            ModuleConstants.kFrontLeftCANCoderOffsetDeg 
+            ModuleConstants.kFrontLeftCANCoderOffsetDeg,
+            frontLeftLayout        
         );
-        frontRight = new SwerveModuleOld( //2
-            ModuleConstants.kFrontRightModuleID,
+        frontRight = createSwerveModule( //2
             ModuleConstants.kFrontRightDriveMotorPort,
             ModuleConstants.kFrontRightTurnMotorPort, 
             ModuleConstants.kFrontRightCANCoderPort,
-            ModuleConstants.kFrontRightCANCoderOffsetDeg
+            ModuleConstants.kFrontRightCANCoderOffsetDeg,
+            frontRightLayout
         );
-        backRight = new SwerveModuleOld( //3
-            ModuleConstants.kBackRightModuleID,
+        backRight = createSwerveModule( //3
             ModuleConstants.kBackRightDriveMotorPort,
             ModuleConstants.kBackRightTurnMotorPort, 
             ModuleConstants.kBackRightCANCoderPort,
-            ModuleConstants.kBackRightCANCoderOffsetDeg
+            ModuleConstants.kBackRightCANCoderOffsetDeg,
+            backRightLayout
         );
-        backLeft = new SwerveModuleOld( //4
-            ModuleConstants.kBackLeftModuleID,
+        backLeft = createSwerveModule( //4
             ModuleConstants.kBackLeftDriveMotorPort,
             ModuleConstants.kBackLeftTurnMotorPort, 
             ModuleConstants.kBackLeftCANCoderPort,
-            ModuleConstants.kBackLeftCANCoderOffsetDeg
+            ModuleConstants.kBackLeftCANCoderOffsetDeg,
+            backLeftLayout
         );
+        swerveModules = new SwerveModule[] { frontLeft, frontRight, backRight, backLeft };
 
         gyro = new AHRS(SPI.Port.kMXP);
         odometer = new SwerveDriveOdometry( //WPILib's odometry class is fine, If a future person looking at this wants to make there own go ahead
@@ -63,7 +93,21 @@ public class Drivetrain extends SubsystemBase {
                 zeroHeading();
             } catch (Exception e) {}
         }).start();
+
+        //Put the motors in brake mode when enabled, coast mode when disabled
+        new Trigger(RobotState::isEnabled).onTrue(new StartEndCommand(() -> {
+            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setIsBrake(true));
+        }, () -> {
+            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setIsBrake(false));
+        }));
     }
+
+    private SwerveModule createSwerveModule(int driveMotorPort, int turnMotorPort, int cancoderPort, double cancoderOffset, ShuffleboardContainer container) {
+        return new SwerveModule(
+            new SwerveSpeedController(driveMotorPort, container),
+            new SwerveSteerController(turnMotorPort, cancoderPort, cancoderOffset, container)
+        );
+    } 
 
     //Zero the heading of the gyro (Sets to 0)
     public void zeroHeading() {
@@ -97,13 +141,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Invokes stop() on all modules so the robot stops
+     * stops all 4 modules
      */
-    public void stopModules() {
-        frontLeft.stop();
-        frontRight.stop();
-        backRight.stop();
-        backLeft.stop();
+    public void stop() {
+        IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].stop());
     }
 
     /**
@@ -113,45 +154,27 @@ public class Drivetrain extends SubsystemBase {
      * This function is mostly just because the SwerveDriveOdometry needs a SwerveModulePosition
      */
     public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-            frontLeft.getPosition(),
-            frontRight.getPosition(),
-            backRight.getPosition(),
-            backLeft.getPosition()
-        };
+        return Arrays.stream(swerveModules).map(module -> module.getPosition()).toArray(SwerveModulePosition[]::new);
+
     }
 
     /**
      * @return An array of the current states of the modules, in the order specified in kinematics
      */
     public SwerveModuleState[] getModuleStates() {
-        return new SwerveModuleState[] {
-            frontLeft.getState(),
-            frontRight.getState(),
-            backRight.getState(),
-            backLeft.getState()
-        };
+        return Arrays.stream(swerveModules).map(module -> module.getState()).toArray(SwerveModuleState[]::new);
     }
     /**
      * @param desiredStates The states to set the modules to, in the order specified in kinematics
      * This method does not optimize the states beforehand, should be done before passing in the states
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        frontLeft.setDesiredState(desiredStates[0]);
-        frontRight.setDesiredState(desiredStates[1]);
-        backRight.setDesiredState(desiredStates[2]);
-        backLeft.setDesiredState(desiredStates[3]);
+        IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setDesiredState(desiredStates[i]));
     }
 
     @Override
     public void periodic() {
         //Update the odometry
         //odometer.update(getHeading(), getModulePositions());
-        
-        frontLeft.outputTelemetry();
-        frontRight.outputTelemetry();
-        backRight.outputTelemetry();
-        backLeft.outputTelemetry();
     }
 }

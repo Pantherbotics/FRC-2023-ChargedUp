@@ -12,7 +12,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSwerveJoystick;
-import frc.robot.commands.RunTelescopicArm;
+import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWrist;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
@@ -122,8 +122,8 @@ public class RobotContainer {
         //secondaryJoystickXButton.toggleOnTrue(new RunPivotArm(arm, true));
         //secondaryJoystickYButton.toggleOnTrue(new RunPivotArm(arm, false));
 
-        secondaryJoystickAButton.whileTrue(new RunTelescopicArm(arm, true));
-        secondaryJoystickBButton.whileTrue(new RunTelescopicArm(arm, false));
+        secondaryJoystickAButton.whileTrue(new RunExtendArm(arm, true));
+        secondaryJoystickBButton.whileTrue(new RunExtendArm(arm, false));
 
         secondaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
         secondaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));

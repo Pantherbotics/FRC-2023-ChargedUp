@@ -61,11 +61,11 @@ public class SwerveModuleOld {
 
         //drive pid
         drivePID = driveMotor.getPIDController();
-        drivePID.setP(ModuleConstants.kDriveP);
-        drivePID.setI(ModuleConstants.kDriveI);
-        drivePID.setD(ModuleConstants.kDriveD);
-        drivePID.setIZone(ModuleConstants.kDriveIZone);
-        drivePID.setFF(ModuleConstants.kDriveFF);
+        drivePID.setP(ModuleConstants.kPDrive);
+        drivePID.setI(ModuleConstants.kIDrive);
+        drivePID.setD(ModuleConstants.kDDrive);
+        drivePID.setIZone(ModuleConstants.kIZoneDrive);
+        drivePID.setFF(ModuleConstants.kFFDrive);
         drivePID.setOutputRange(-1, 1);
         
         //cancoder
@@ -82,10 +82,10 @@ public class SwerveModuleOld {
         turnMotor.setNeutralMode(NeutralMode.Coast);
         
         //turn pid
-        turnMotor.config_kP(0, ModuleConstants.kTurnP);
-        turnMotor.config_kI(0, ModuleConstants.kTurnI);
-        turnMotor.config_kD(0, ModuleConstants.kTurnD);
-        turnMotor.config_kF(0, ModuleConstants.kTurnF);        
+        turnMotor.config_kP(0, ModuleConstants.kPTurn);
+        turnMotor.config_kI(0, ModuleConstants.kITurn);
+        turnMotor.config_kD(0, ModuleConstants.kDTurn);
+        turnMotor.config_kF(0, ModuleConstants.kFTurn);        
         
         moduleOffset = angleOffset;
     }

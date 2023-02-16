@@ -3,11 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.arm.Arm;
 
-public class RunTelescopicArm extends CommandBase {
+public class RunExtendArm extends CommandBase {
     private Arm arm;
     private boolean inverted;
 
-    public RunTelescopicArm(Arm arm, boolean inverted) {
+    public RunExtendArm(Arm arm, boolean inverted) {
         this.arm = arm;
         this.inverted = inverted;
 
@@ -19,13 +19,13 @@ public class RunTelescopicArm extends CommandBase {
   
     @Override
     public void execute() {
-        arm.telescope(inverted);
+        arm.extend(inverted);
     }
   
     //Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        arm.stopTelescope();
+        arm.stopExtension();
     }
   
     // Returns true when the command should end.

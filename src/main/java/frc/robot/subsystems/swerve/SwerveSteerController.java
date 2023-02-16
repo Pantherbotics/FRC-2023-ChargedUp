@@ -2,7 +2,6 @@ package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
@@ -17,6 +16,13 @@ public class SwerveSteerController {
     private final TalonSRX motor;
     private final CANCoder cancoder;
 
+    /**
+     * 
+     * @param motorPort The port number of the drive motor
+     * @param cancoderPort The port number of the cancoder
+     * @param cancoderOffset The cancoder offset in degrees
+     * @param container 
+     */
     public SwerveSteerController(int motorPort, int cancoderPort, double cancoderOffset, ShuffleboardContainer container) {
         //cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
@@ -31,10 +37,10 @@ public class SwerveSteerController {
 
         //motor
         TalonSRXConfiguration motorConfig = new TalonSRXConfiguration();
-        motorConfig.slot0.kP = ModuleConstants.kTurnP;
-        motorConfig.slot0.kI = ModuleConstants.kTurnI;
-        motorConfig.slot0.kD = ModuleConstants.kTurnD;
-        motorConfig.slot0.kF = ModuleConstants.kTurnF;
+        motorConfig.slot0.kP = ModuleConstants.kPTurn;
+        motorConfig.slot0.kI = ModuleConstants.kITurn;
+        motorConfig.slot0.kD = ModuleConstants.kDTurn;
+        motorConfig.slot0.kF = ModuleConstants.kFTurn;
 
         motor = new TalonSRX(motorPort);
         motor.configAllSettings(motorConfig);
@@ -45,7 +51,7 @@ public class SwerveSteerController {
     }
 
     /**
-     * Returns the angle in degrees [0, 360]
+     * Returns the angle in degrees from 0 to 360 degrees
      * @return the position in degrees
      */
     public double getAngle() {
@@ -55,11 +61,24 @@ public class SwerveSteerController {
         return angle;
     }
 
-    public void setAngle(double angle) {
-        motor.set(ControlMode.Position, angle);
+    /**
+     * 
+     * @param targetAngle The desired angle to set the module to in degrees
+     */
+    public void setAngle(double targetAngle) {
+        double position = motor.getSelectedSensorPosition() + (targetAngle - getAngle()) / ModuleConstants.kTurnPositionCoefficient; 
+        motor.set(ControlMode.Position, position);
     }
 
-    public void setNeutralMode(NeutralMode mode) {
-        motor.setNeutralMode(mode);
+    public void stop() {
+        motor.set(ControlMode.PercentOutput, 0);
+    }
+
+    /**
+     * Set the idle mode of the module to either Brake or Coast
+     * @param brake True for brake, false for Coast
+     */
+    public void setNeutralMode(boolean brake) {
+        motor.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
     }
 }

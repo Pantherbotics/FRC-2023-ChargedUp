@@ -15,6 +15,11 @@ public class SwerveSpeedController {
     private final RelativeEncoder encoder;
     private final SparkMaxPIDController pid;
 
+    /**
+     * 
+     * @param motorPort The port number of the turn motor
+     * @param container
+     */
     public SwerveSpeedController(int motorPort, ShuffleboardContainer container) {
         //motor
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
@@ -29,11 +34,11 @@ public class SwerveSpeedController {
 
         //pid
         pid = motor.getPIDController();
-        pid.setP(ModuleConstants.kDriveP);
-        pid.setI(ModuleConstants.kDriveI);
-        pid.setD(ModuleConstants.kDriveD);
-        pid.setIZone(ModuleConstants.kDriveIZone);
-        pid.setFF(ModuleConstants.kDriveFF);
+        pid.setP(ModuleConstants.kPDrive);
+        pid.setI(ModuleConstants.kIDrive);
+        pid.setD(ModuleConstants.kDDrive);
+        pid.setIZone(ModuleConstants.kIZoneDrive);
+        pid.setFF(ModuleConstants.kFFDrive);
         pid.setOutputRange(-1, 1);
         
         container.addNumber("Current Position", () -> getPosition());
@@ -42,7 +47,7 @@ public class SwerveSpeedController {
 
     /**
      * Returns the position in meters
-     * @return the position in m
+     * @return the position in meters
      */
     public double getPosition() {
         return encoder.getPosition();
@@ -58,13 +63,21 @@ public class SwerveSpeedController {
 
     /**
      * Sets the drive motor the desired velocity in meters per second
-     * @param velocity The target velocity to set the 
+     * @param targetVelocity The target velocity to set the module to in meters per second
      */
-    public void setVelocity(double velocity) {
-        pid.setReference(velocity / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
+    public void setVelocity(double targetVelocity) {
+        pid.setReference(targetVelocity / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
     }
 
-    public void setIdleMode(IdleMode mode) {
-        motor.setIdleMode(mode);
+    public void stop() {
+        motor.stopMotor();
+    }
+
+    /**
+     * Set the idle mode of the module to either Brake or Coast
+     * @param brake True for brake, false for Coast
+     */
+    public void setIdleMode(boolean brake) {
+        motor.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
     }
 }

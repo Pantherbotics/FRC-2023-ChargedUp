@@ -96,10 +96,6 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        outputTelemetry();
-    }
-
-    public void outputTelemetry() {
         SmartDashboard.putNumber("Flex encoder", getFlexPosition());
         SmartDashboard.putNumber("Rotate encoder", getRotatePosition());
 
@@ -113,6 +109,6 @@ public class Wrist extends SubsystemBase {
         rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
         rotatePID.setD(SmartDashboard.getNumber("Rotate kD", rotatePID.getD()));
         rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone", rotatePID.getIZone()));
-        rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));
+        rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));    
     }
 }

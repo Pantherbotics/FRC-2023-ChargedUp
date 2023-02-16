@@ -34,6 +34,11 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     @Override
+    public void initialize() {
+
+    }
+
+    @Override
     public void execute() {
         switch(driveModeChooser.get()) {
             case 's': //swerve
@@ -160,7 +165,7 @@ public class RunSwerveJoystick extends CommandBase {
     }    
     @Override
     public void end(boolean interrupted) {
-        drivetrain.stopModules();
+        drivetrain.stop();
     }
 
     @Override
