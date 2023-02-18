@@ -30,6 +30,10 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
+    private final PIDTuner[] tuners = new PIDTuner[] { wrist };
+    private int tunerIndex = 0;
+    private TuningMode tuningMode = TuningMode.FocusP;
+
     // private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
     // Sendable choosers
