@@ -74,7 +74,8 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flex(double speed) {
-        flexPID.setReference(getFlexPosition() + speed, ControlType.kVelocity);
+        // flexPID.setReference(getFlexPosition() + speed, ControlType.kVelocity);
+        flexMotor.set(speed);
     }
 
     public double getFlexPosition() {
@@ -82,7 +83,8 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotate(double speed) {
-        rotatePID.setReference(getRotatePosition() + speed, ControlType.kVelocity);
+        // rotatePID.setReference(getRotatePosition() + speed, ControlType.kVelocity);
+        rotateMotor.set(speed);
     }
 
     public double getRotatePosition() {
@@ -96,19 +98,19 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Flex encoder", getFlexPosition());
-        SmartDashboard.putNumber("Rotate encoder", getRotatePosition());
+        // SmartDashboard.putNumber("Flex encoder", getFlexPosition());
+        // SmartDashboard.putNumber("Rotate encoder", getRotatePosition());
 
-        flexPID.setP(SmartDashboard.getNumber("Flex kP", flexPID.getP()));
-        flexPID.setI(SmartDashboard.getNumber("Flex kI", flexPID.getI()));
-        flexPID.setD(SmartDashboard.getNumber("Flex kD", flexPID.getD()));
-        flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone", flexPID.getIZone()));
-        flexPID.setFF(SmartDashboard.getNumber("Flex kFF", flexPID.getFF()));
+        // flexPID.setP(SmartDashboard.getNumber("Flex kP", flexPID.getP()));
+        // flexPID.setI(SmartDashboard.getNumber("Flex kI", flexPID.getI()));
+        // flexPID.setD(SmartDashboard.getNumber("Flex kD", flexPID.getD()));
+        // flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone", flexPID.getIZone()));
+        // flexPID.setFF(SmartDashboard.getNumber("Flex kFF", flexPID.getFF()));
 
-        rotatePID.setP(SmartDashboard.getNumber("Rotate kP", rotatePID.getP()));
-        rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
-        rotatePID.setD(SmartDashboard.getNumber("Rotate kD", rotatePID.getD()));
-        rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone", rotatePID.getIZone()));
-        rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));    
+        // rotatePID.setP(SmartDashboard.getNumber("Rotate kP", rotatePID.getP()));
+        // rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
+        // rotatePID.setD(SmartDashboard.getNumber("Rotate kD", rotatePID.getD()));
+        // rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone", rotatePID.getIZone()));
+        // rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));    
     }
 }
