@@ -144,6 +144,35 @@ public class RobotContainer {
                 wrist,
                 primaryJoystick));
 
+        primaryJoystickLeftBumperButton.whileTrue(new InstantCommand(() -> incrementTuningMode()));
+        primaryJoystickRightBumperButton.whileTrue(new InstantCommand(() -> incrementTuner()));
+
+        primaryJoystickAButton.whileTrue(new InstantCommand(() -> {
+            switch (tuningMode) {
+                case FocusP:
+                    getCurrentTuner().alterP(-0.05);
+                    break;
+                case FocusI:
+                    getCurrentTuner().alterI(-0.05);
+                    break;
+                case FocusD:
+                    getCurrentTuner().alterD(-0.05);
+                    break;
+            }
+        }));
+        primaryJoystickBButton.whileTrue(new InstantCommand(() -> {
+            switch (tuningMode) {
+                case FocusP:
+                    getCurrentTuner().alterP(0.05);
+                    break;
+                case FocusI:
+                    getCurrentTuner().alterI(0.05);
+                    break;
+                case FocusD:
+                    getCurrentTuner().alterD(0.05);
+                    break;
+            }
+        }));
 
         // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
         // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
@@ -161,5 +190,27 @@ public class RobotContainer {
 
     public Command getAutoCommand() {
         return autoChooser.getSelected();
+    }
+
+    private PIDTuner getCurrentTuner() {
+        return tuners[tunerIndex];
+    }
+
+    private void incrementTuner() {
+        if (tunerIndex == tuners.length - 1) {
+            tunerIndex = 0;
+        } else {
+            tunerIndex++;
+        }
+    }
+
+    private void incrementTuningMode() {
+        if (tuningMode == TuningMode.FocusP) {
+            tuningMode = TuningMode.FocusI;
+        } else if (tuningMode == TuningMode.FocusI) {
+            tuningMode = TuningMode.FocusD;
+        } else {
+            tuningMode = TuningMode.FocusP;
+        }
     }
 }
