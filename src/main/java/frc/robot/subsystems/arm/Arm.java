@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
@@ -67,6 +68,10 @@ public class Arm extends SubsystemBase implements PIDTuner {
         localP = 0;
         localI = 0;
         localD = 0;
+
+        SmartDashboard.putNumber("Pivot P Value", pivotPID.getP());
+        SmartDashboard.putNumber("Pivot I Value", pivotPID.getI());
+        SmartDashboard.putNumber("Pivot D Value", pivotPID.getD());
 
         // cancoder
         CANCoderConfiguration config = new CANCoderConfiguration();
