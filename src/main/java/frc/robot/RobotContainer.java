@@ -30,7 +30,7 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    // private final AutoPaths autoPaths = new AutoPaths(drivetrain);
+    private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
     // Sendable choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
@@ -76,7 +76,7 @@ public class RobotContainer {
                                                                                                                // Button
     private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left
                                                                                                                 // Bumper
-                                                                                                                // Button
+                                                                                                        // Button
     private final JoystickButton secondaryJoystickBackButton = new JoystickButton(secondaryJoystick, 7); // Share Button
     private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Options
                                                                                                           // Button
@@ -115,15 +115,15 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         // auto chooser
-        /*
-         * autoChooser.setDefaultOption("None", null);
-         * for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
-         * {
-         * if(!path.getKey().equals("None"))
-         * autoChooser.addOption(path.getKey(), path.getValue());
-         * }
-         * SmartDashboard.putData("Auto", autoChooser);
-         */
+        for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
+        {
+            if(path.getKey().equals("None"))
+                autoChooser.setDefaultOption(path.getKey(), path.getValue());
+            else
+                autoChooser.addOption(path.getKey(), path.getValue());
+        }
+        SmartDashboard.putData("Auto", autoChooser);
+         
     }
 
     private void configButtonBindings() {
@@ -136,9 +136,7 @@ public class RobotContainer {
         // ));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWrist(
-                wrist,
-                primaryJoystick));
+        wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
 
         //primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
         //primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
