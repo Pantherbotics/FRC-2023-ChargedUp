@@ -28,6 +28,7 @@ public class Arm extends SubsystemBase {
     //cancoder for the pivot
     private final CANCoder cancoder; 
 
+    //extension 
     private final TalonFX extensionMotor;
 
     public Arm() {
@@ -80,6 +81,7 @@ public class Arm extends SubsystemBase {
         extensionMotor = new TalonFX(5);
         extensionMotor.configAllSettings(motorConfig);
         extensionMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
+        extensionMotor.setSelectedSensorPosition(0); //0 position should be when the arm is fully down
         extensionMotor.setNeutralMode(NeutralMode.Brake);
         extensionMotor.setInverted(TalonFXInvertType.Clockwise);
     }
@@ -94,7 +96,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void extend(boolean reversed) {
-        extensionMotor.set(ControlMode.PercentOutput, reversed ? -0.3 : 0.3);
+        extensionMotor.set(ControlMode.Position, reversed ? -0.3 : 0.3);
     }
 
     public void stopExtension() {
