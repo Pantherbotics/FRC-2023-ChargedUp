@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
@@ -185,7 +186,8 @@ public class RobotContainer {
     }
 
     public void updateSmartDashboard() {
-        // TODO: add more info
+        SmartDashboard.putString("Current Tuning System", getCurrentTuner().getIdentifier());
+        SmartDashboard.putString("Current Tuning Mode", ("TUNING MODE: " + tuningMode.name()));
     }
 
     public Command getAutoCommand() {
