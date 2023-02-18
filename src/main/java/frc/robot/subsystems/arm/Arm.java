@@ -85,11 +85,12 @@ public class Arm extends SubsystemBase {
     }
 
     public void pivot(boolean reversed) {
-        pivotLeader.set(reversed ? -0.1 : 0.1);
+        pivotLeader.set(reversed ? -0.2 : 0.2);
     }
 
     public void stopPivot() {
-        pivotLeader.stopMotor();
+        pivotLeader.set(0);
+        pivotFollower.set(0);
     }
 
     public void extend(boolean reversed) {
