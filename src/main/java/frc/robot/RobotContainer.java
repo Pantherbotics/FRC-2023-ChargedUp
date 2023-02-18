@@ -140,14 +140,14 @@ public class RobotContainer {
                 wrist,
                 primaryJoystick));
 
-        primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
+        //primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
+        //primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
         primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
         primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
 
-        primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
+        //primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
+        //primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
         // TODO: add more commands
     }
 
