@@ -22,7 +22,7 @@ public class RunWrist extends CommandBase {
     @Override
     public void execute() {
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
-        double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
+        double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
 
         wrist.flex(yRightValue);
         wrist.rotate(xLeftValue);
