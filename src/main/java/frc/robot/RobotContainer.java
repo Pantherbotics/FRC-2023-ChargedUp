@@ -25,7 +25,7 @@ import frc.robot.subsystems.swerve.Drivetrain;
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    //private final Limelight limelight = new Limelight();
+    // private final Limelight limelight = new Limelight();
     private final Arm arm = new Arm();
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
@@ -140,15 +140,15 @@ public class RobotContainer {
                 wrist,
                 primaryJoystick));
 
-        //primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        //primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
-        primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
-        primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+        // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
+        // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
-        //primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        //primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
-        // TODO: add more commands
+        // primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
+        // primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+
+        // primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
+        // primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
     }
 
     public void updateSmartDashboard() {
