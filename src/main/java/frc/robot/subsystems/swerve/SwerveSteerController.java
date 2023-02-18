@@ -47,7 +47,7 @@ public class SwerveSteerController {
         motor.configRemoteFeedbackFilter(cancoder, 0);
         motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
 
-        container.addNumber("Current Angle", () -> getAngle());
+        //container.addNumber("Current Angle", () -> getAngle());
     }
 
     /**

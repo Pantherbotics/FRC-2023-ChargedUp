@@ -96,6 +96,8 @@ public class Constants {
         public static final int kPivotCANCoderPort = 0;
         
         public static final int kExtensionMotorPort = 5;
+
+        public static final int kCTREPCMid = 9;
     }
 
     //Checked and verified as of May 1st, 2022

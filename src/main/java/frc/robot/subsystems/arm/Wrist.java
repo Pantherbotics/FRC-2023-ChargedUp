@@ -18,7 +18,7 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
 
     public Wrist() {
-        //flex motor
+        // flex motor
         flexMotor = new CANSparkMax(8, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
@@ -28,12 +28,12 @@ public class Wrist extends SubsystemBase {
         flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
         flexMotor.burnFlash();
 
-        //flex encoder
+        // flex encoder
         flexEncoder = flexMotor.getEncoder();
-        flexEncoder.setPositionConversionFactor(360); //360 degrees per rotation
-        flexEncoder.setVelocityConversionFactor(6); //6 degrees per second
+        flexEncoder.setPositionConversionFactor(360); // 360 degrees per rotation
+        flexEncoder.setVelocityConversionFactor(6); // 6 degrees per second
 
-        //flex pid
+        // flex pid
         flexPID = flexMotor.getPIDController();
         flexPID.setP(ArmConstants.kFlexP);
         flexPID.setI(ArmConstants.kFlexI);
@@ -47,18 +47,18 @@ public class Wrist extends SubsystemBase {
         SmartDashboard.putNumber("Flex kIZone", flexPID.getIZone());
         SmartDashboard.putNumber("Flex kFF", flexPID.getFF());
 
-        //rotate motor
+        // rotate motor
         rotateMotor = new CANSparkMax(7, MotorType.kBrushless);
         rotateMotor.restoreFactoryDefaults();
         rotateMotor.setIdleMode(IdleMode.kCoast);
         rotateMotor.burnFlash();
 
-        //rotate encoder
+        // rotate encoder
         rotateEncoder = rotateMotor.getEncoder();
         rotateEncoder.setPositionConversionFactor(360);
         rotateEncoder.setVelocityConversionFactor(6);
 
-        //rotate pid
+        // rotate pid
         rotatePID = rotateMotor.getPIDController();
         rotatePID.setP(ArmConstants.kFlexP);
         rotatePID.setI(ArmConstants.kFlexI);
@@ -74,7 +74,8 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flex(double speed) {
-        flexPID.setReference(getFlexPosition() + speed, ControlType.kVelocity);
+        // flexPID.setReference(getFlexPosition() + speed, ControlType.kVelocity);
+        flexMotor.set(speed);
     }
 
     public double getFlexPosition() {
@@ -82,7 +83,8 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotate(double speed) {
-        rotatePID.setReference(getRotatePosition() + speed, ControlType.kVelocity);
+        // rotatePID.setReference(getRotatePosition() + speed, ControlType.kVelocity);
+        rotateMotor.set(speed);
     }
 
     public double getRotatePosition() {
@@ -102,13 +104,15 @@ public class Wrist extends SubsystemBase {
         flexPID.setP(SmartDashboard.getNumber("Flex kP", flexPID.getP()));
         flexPID.setI(SmartDashboard.getNumber("Flex kI", flexPID.getI()));
         flexPID.setD(SmartDashboard.getNumber("Flex kD", flexPID.getD()));
-        flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone", flexPID.getIZone()));
+        flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone",
+        flexPID.getIZone()));
         flexPID.setFF(SmartDashboard.getNumber("Flex kFF", flexPID.getFF()));
 
-        rotatePID.setP(SmartDashboard.getNumber("Rotate kP", rotatePID.getP()));
-        rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
-        rotatePID.setD(SmartDashboard.getNumber("Rotate kD", rotatePID.getD()));
-        rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone", rotatePID.getIZone()));
-        rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));    
+        // rotatePID.setP(SmartDashboard.getNumber("Rotate kP", rotatePID.getP()));
+        // rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
+        // rotatePID.setD(SmartDashboard.getNumber("Rotate kD", rotatePID.getD()));
+        // rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone",
+        // rotatePID.getIZone()));
+        // rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));
     }
 }

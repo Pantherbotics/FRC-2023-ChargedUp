@@ -41,8 +41,8 @@ public class SwerveSpeedController {
         pid.setFF(ModuleConstants.kFFDrive);
         pid.setOutputRange(-1, 1);
         
-        container.addNumber("Current Position", () -> getPosition());
-        container.addNumber("Current Velocity", () -> getVelocity());
+        //\container.addNumber("Current Swerve Position", () -> getPosition());
+        //container.addNumber("Current Swerve Velocity", () -> getVelocity());
     }
 
     /**
