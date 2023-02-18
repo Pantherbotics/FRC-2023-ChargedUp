@@ -10,12 +10,14 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
 
-public class Wrist extends SubsystemBase {
+public class Wrist extends SubsystemBase implements PIDTuner{
     private final CANSparkMax flexMotor, rotateMotor;
     private final RelativeEncoder flexEncoder, rotateEncoder;
     private final SparkMaxPIDController flexPID, rotatePID;
+    private double localP, localI, localD;
 
     public Wrist() {
         // flex motor
@@ -41,12 +43,17 @@ public class Wrist extends SubsystemBase {
         flexPID.setIZone(ArmConstants.kFlexIZone);
         flexPID.setFF(ArmConstants.kFlexFF);
 
+        localP = ArmConstants.kFlexP;
+        localI = ArmConstants.kFlexI;
+        localD = ArmConstants.kFlexD;
+
         SmartDashboard.putNumber("Flex kP", flexPID.getP());
         SmartDashboard.putNumber("Flex kI", flexPID.getI());
         SmartDashboard.putNumber("Flex kD", flexPID.getD());
         SmartDashboard.putNumber("Flex kIZone", flexPID.getIZone());
         SmartDashboard.putNumber("Flex kFF", flexPID.getFF());
 
+        SmartDashboard.putNumber("Flex encoder", getFlexPosition());
         // rotate motor
         rotateMotor = new CANSparkMax(7, MotorType.kBrushless);
         rotateMotor.restoreFactoryDefaults();
@@ -65,12 +72,13 @@ public class Wrist extends SubsystemBase {
         rotatePID.setD(ArmConstants.kFlexD);
         rotatePID.setIZone(ArmConstants.kFlexIZone);
         rotatePID.setFF(ArmConstants.kFlexFF);
+        SmartDashboard.putNumber("Rotate encoder", getRotatePosition());
 
-        SmartDashboard.putNumber("Rotate kP", rotatePID.getP());
-        SmartDashboard.putNumber("Rotate kI", rotatePID.getI());
-        SmartDashboard.putNumber("Rotate kD", rotatePID.getD());
-        SmartDashboard.putNumber("Rotate kIZone", rotatePID.getIZone());
-        SmartDashboard.putNumber("Rotate kF", rotatePID.getFF());
+        // SmartDashboard.putNumber("Rotate kP", rotatePID.getP());
+        // SmartDashboard.putNumber("Rotate kI", rotatePID.getI());
+        // SmartDashboard.putNumber("Rotate kD", rotatePID.getD());
+        // SmartDashboard.putNumber("Rotate kIZone", rotatePID.getIZone());
+        // SmartDashboard.putNumber("Rotate kF", rotatePID.getFF());
     }
 
     public void flex(double speed) {
@@ -98,15 +106,12 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Flex encoder", getFlexPosition());
-        SmartDashboard.putNumber("Rotate encoder", getRotatePosition());
-
-        flexPID.setP(SmartDashboard.getNumber("Flex kP", flexPID.getP()));
-        flexPID.setI(SmartDashboard.getNumber("Flex kI", flexPID.getI()));
-        flexPID.setD(SmartDashboard.getNumber("Flex kD", flexPID.getD()));
-        flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone",
-        flexPID.getIZone()));
-        flexPID.setFF(SmartDashboard.getNumber("Flex kFF", flexPID.getFF()));
+        //flexPID.setP(SmartDashboard.getNumber("Flex kP", flexPID.getP()));
+        //flexPID.setI(SmartDashboard.getNumber("Flex kI", flexPID.getI()));
+        //flexPID.setD(SmartDashboard.getNumber("Flex kD", flexPID.getD()));
+        //flexPID.setIZone(SmartDashboard.getNumber("Flex kIZone",
+        //flexPID.getIZone()));
+        //flexPID.setFF(SmartDashboard.getNumber("Flex kFF", flexPID.getFF()));
 
         // rotatePID.setP(SmartDashboard.getNumber("Rotate kP", rotatePID.getP()));
         // rotatePID.setI(SmartDashboard.getNumber("Rotate kI", rotatePID.getI()));
@@ -114,5 +119,28 @@ public class Wrist extends SubsystemBase {
         // rotatePID.setIZone(SmartDashboard.getNumber("Rotate kIZone",
         // rotatePID.getIZone()));
         // rotatePID.setFF(SmartDashboard.getNumber("Rotate kF", rotatePID.getFF()));
+    }
+
+    @Override
+    public void alterP(double val) {
+        localP += val;
+        flexPID.setP(localP);
+    }
+
+    @Override
+    public void alterI(double val) {
+        localI += val;
+        flexPID.setI(localI);
+    }
+
+    @Override
+    public void alterD(double val) {
+        localD += val;
+        flexPID.setD(localD);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "Wrist PID Tuner";
     }
 }
