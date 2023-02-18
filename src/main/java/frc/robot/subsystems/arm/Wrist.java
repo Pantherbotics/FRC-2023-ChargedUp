@@ -141,6 +141,6 @@ public class Wrist extends SubsystemBase implements PIDTuner{
 
     @Override
     public String getIdentifier() {
-        return "Wrist PID Tuner";
+        return "WRIST FLEX PID Tuner";
     }
 }

@@ -18,21 +18,23 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxLimitSwitch.Type;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
 
-public class Arm extends SubsystemBase {
+public class Arm extends SubsystemBase implements PIDTuner {
     private final CANSparkMax pivotLeader, pivotFollower;
     private final RelativeEncoder pivotEncoder;
     private final SparkMaxPIDController pivotPID;
+    private double localP, localI, localD;
 
-    //cancoder for the pivot
-    private final CANCoder cancoder; 
+    // cancoder for the pivot
+    private final CANCoder cancoder;
 
-    //extension 
+    // extension
     private final TalonFX extensionMotor;
 
     public Arm() {
-        //pivot leader
+        // pivot leader
         pivotLeader = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
         pivotLeader.restoreFactoryDefaults();
         pivotLeader.setIdleMode(IdleMode.kBrake);
@@ -43,35 +45,38 @@ public class Arm extends SubsystemBase {
         pivotLeader.getForwardLimitSwitch(Type.kNormallyClosed).enableLimitSwitch(false);
         pivotLeader.getReverseLimitSwitch(Type.kNormallyClosed).enableLimitSwitch(false);
 
-        //pivot follower
+        // pivot follower
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
         pivotFollower.setIdleMode(IdleMode.kBrake);
         pivotFollower.follow(pivotLeader);
         pivotFollower.burnFlash();
 
-        //pivot encoder
+        // pivot encoder
         pivotEncoder = pivotLeader.getEncoder();
         pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Degrees);
         pivotEncoder.setVelocityConversionFactor(ArmConstants.kPivotEncoderRPM2DegreesPerSec);
 
-        //pivot pid
+        // pivot pid
         pivotPID = pivotLeader.getPIDController();
         pivotPID.setP(0);
         pivotPID.setI(0);
         pivotPID.setD(0);
         pivotPID.setIZone(0);
         pivotPID.setFF(0);
+        localP = 0;
+        localI = 0;
+        localD = 0;
 
-        //cancoder
+        // cancoder
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        config.magnetOffsetDegrees = 0; //change
+        config.magnetOffsetDegrees = 0; // change
 
         cancoder = new CANCoder(0);
         cancoder.configAllSettings(config);
-        
-        //extension motor
+
+        // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
         motorConfig.slot0.kP = 0;
         motorConfig.slot0.kI = 0;
@@ -81,7 +86,7 @@ public class Arm extends SubsystemBase {
         extensionMotor = new TalonFX(5);
         extensionMotor.configAllSettings(motorConfig);
         extensionMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
-        extensionMotor.setSelectedSensorPosition(0); //0 position should be when the arm is fully down
+        extensionMotor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
         extensionMotor.setNeutralMode(NeutralMode.Brake);
         extensionMotor.setInverted(TalonFXInvertType.Clockwise);
     }
@@ -101,5 +106,28 @@ public class Arm extends SubsystemBase {
 
     public void stopExtension() {
         extensionMotor.set(ControlMode.PercentOutput, 0);
+    }
+
+    @Override
+    public void alterP(double val) {
+        localP += val;
+        pivotPID.setP(localP);
+    }
+
+    @Override
+    public void alterI(double val) {
+        localI += val;
+        pivotPID.setI(localI);
+    }
+
+    @Override
+    public void alterD(double val) {
+        localD += val;
+        pivotPID.setD(localD);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return "ARM PIVOT PID TUNER";
     }
 }
