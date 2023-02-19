@@ -24,7 +24,6 @@ public class SwerveSpeedController {
         //motor
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         motor.restoreFactoryDefaults();
-        motor.burnFlash();
 
         //encoder
         encoder = motor.getEncoder();
@@ -40,8 +39,10 @@ public class SwerveSpeedController {
         pid.setIZone(ModuleConstants.kIZoneDrive);
         pid.setFF(ModuleConstants.kFFDrive);
         pid.setOutputRange(-1, 1);
+
+        motor.burnFlash();
         
-        //\container.addNumber("Current Swerve Position", () -> getPosition());
+        //container.addNumber("Current Swerve Position", () -> getPosition());
         //container.addNumber("Current Swerve Velocity", () -> getVelocity());
     }
 

@@ -20,12 +20,17 @@ public class RunWrist extends CommandBase {
     public void initialize() {}
   
     @Override
-    public void execute() {
+    public
+     void execute() {
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
 
-        wrist.flex(yRightValue);
-        wrist.rotate(xLeftValue);
+        if(wrist.isOpenLoop)
+            wrist.flexOpenLoop(yRightValue);
+        else
+            wrist.flexClosedLoop(yRightValue);
+        
+        wrist.rotateOpenLoop(xLeftValue);
     }
   
     //Called once the command ends or is interrupted.

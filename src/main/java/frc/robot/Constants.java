@@ -78,17 +78,17 @@ public class Constants {
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
-        public static final double kFlexP = 0;
-        public static final double kFlexI = 0;
-        public static final double kFlexD = 0;
-        public static final double kFlexIZone = 0;
-        public static final double kFlexFF = 0;
+        public static final double kPFlex = 0.01;
+        public static final double kIFlex = 0.0;
+        public static final double kDFlex = 0.00;
+        public static final double kIZoneFlex = 0;
+        public static final double kFFFlex = 0;
 
-        public static final double kRotateP = 0;
-        public static final double kRotateI = 0;
-        public static final double kRotateD = 0;
-        public static final double kRotateIZone = 0;
-        public static final double kRotateFF = 0;
+        public static final double kPRotate = 0.7;
+        public static final double kIRotate = 0.0;
+        public static final double kDRotate = 0.00;
+        public static final double kIZoneRotate = 0;
+        public static final double kFFRotate = 0;
 
         public static final int kPivotLeaderMotorPort = 5;
         public static final int kPivotFollowerMotorPort = 6;
@@ -113,7 +113,6 @@ public class Constants {
                 new Translation2d(-kWheelBase / 2, -kTrackWidth / 2),  //Back Right
                 new Translation2d(-kWheelBase / 2,  kTrackWidth / 2)   //Back Left
         );
-
 
         public static final double kPhysicalMaxSpeedMetersPerSecond = (neoMaxRPM / 60.0) * ModuleConstants.kDriveEncoderRot2Meter; //~3.56 m/s
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * Math.PI; //About 2pi given wheelbase and drive speed

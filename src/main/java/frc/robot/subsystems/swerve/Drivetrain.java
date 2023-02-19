@@ -39,13 +39,13 @@ public class Drivetrain extends SubsystemBase {
         ShuffleboardLayout frontLeftLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
             .withSize(2, 4)
             .withPosition(0, 0);
-        ShuffleboardLayout frontRightLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+        ShuffleboardLayout frontRightLayout = tab.getLayout("Front Right", BuiltInLayouts.kList)
             .withSize(2, 4)
             .withPosition(2, 0);
-        ShuffleboardLayout backRightLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+        ShuffleboardLayout backRightLayout = tab.getLayout("Back Right", BuiltInLayouts.kList)
             .withSize(2, 4)
             .withPosition(4, 0);
-        ShuffleboardLayout backLeftLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
+        ShuffleboardLayout backLeftLayout = tab.getLayout("Back Left", BuiltInLayouts.kList)
             .withSize(2, 4)
             .withPosition(6, 0);
         

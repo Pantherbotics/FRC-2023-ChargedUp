@@ -119,7 +119,6 @@ public class SwerveModuleOld {
         double errorAngle = getTurnAngle().getDegrees() - optimizedState.angle.getDegrees();
         turnMotor.set(TalonSRXControlMode.Position, turnMotor.getSelectedSensorPosition() + errorAngle / ModuleConstants.kTurnPositionCoefficient);
 
-        System.out.println("pog");
         drivePID.setReference(optimizedState.speedMetersPerSecond / ModuleConstants.kDriveVelocityCoefficient, ControlType.kVelocity);
     }
 

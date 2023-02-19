@@ -31,9 +31,9 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    private final PIDTuner[] tuners = new PIDTuner[] { wrist };
-    private int tunerIndex = 0;
-    private TuningMode tuningMode = TuningMode.FocusP;
+    // private final PIDTuner[] tuners = new PIDTuner[] {  };
+    // private int tunerIndex = 0;
+    // private TuningMode tuningMode = TuningMode.FocusP;
 
     // private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
@@ -51,21 +51,13 @@ public class RobotContainer {
     private final JoystickButton primaryJoystickBButton = new JoystickButton(primaryJoystick, 2); // B Button
     private final JoystickButton primaryJoystickXButton = new JoystickButton(primaryJoystick, 3); // X Button
     private final JoystickButton primaryJoystickYButton = new JoystickButton(primaryJoystick, 4); // Y Button
-    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left
-                                                                                                           // Bumper
-                                                                                                           // Button
-    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right
-                                                                                                            // Bumper
-                                                                                                            // Button
+    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left                                                                                                           // Bumper                                                                                                           // Button
+    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right                                                                                                            // Bumper                                                                                                            // Button
     private final JoystickButton primaryJoystickBackButton = new JoystickButton(primaryJoystick, 7); // Back Button
     private final JoystickButton primaryJoystickStartButton = new JoystickButton(primaryJoystick, 8); // Start Button
-    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left
-                                                                                                             // Stick
-                                                                                                             // Button
+    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left                                                                                                             // Stick                                                                                                             // Button
     private final JoystickButton primaryJoystickRightJoystickButton = new JoystickButton(primaryJoystick, 10); // Right
-                                                                                                               // Stick
-                                                                                                               // Button
-
+                                                                                                               // Stick                                                                                                               // Button
     private final POVButton primaryJoystickPOVNorth = new POVButton(primaryJoystick, 0); // North
     private final POVButton primaryJoystickPOVEast = new POVButton(primaryJoystick, 90); // East
     private final POVButton primaryJoystickPOVSouth = new POVButton(primaryJoystick, 180); // South
@@ -76,22 +68,14 @@ public class RobotContainer {
     private final JoystickButton secondaryJoystickBButton = new JoystickButton(secondaryJoystick, 2); // X Button
     private final JoystickButton secondaryJoystickXButton = new JoystickButton(secondaryJoystick, 3); // Circle Button
     private final JoystickButton secondaryJoystickYButton = new JoystickButton(secondaryJoystick, 4); // Triangle Button
-    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right
-                                                                                                               // Bumper
-                                                                                                               // Button
+    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right                                                                                                               // Bumper                                                                            // Button
     private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left
-                                                                                                                // Bumper
-                                                                                                                // Button
+                                                                                                                    // Bumper                                                                                                                // Button
     private final JoystickButton secondaryJoystickBackButton = new JoystickButton(secondaryJoystick, 7); // Share Button
-    private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Options
-                                                                                                          // Button
-    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left
-                                                                                                                 // Joystick
-                                                                                                                 // Button
-    private final JoystickButton secondaryJoystickRightJoystickButton = new JoystickButton(secondaryJoystick, 10); // Right
-                                                                                                                   // Joystick
+    private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Options                                                                                                          // Button
+    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left                                                                                                                 // Joystick                                                                                                                // Button
+    private final JoystickButton secondaryJoystickRightJoystickButton = new JoystickButton(secondaryJoystick, 10); // Right                                                                                                                   // Joystick
                                                                                                                    // Button
-
     private final POVButton secondaryJoystickPOVNorth = new POVButton(secondaryJoystick, 0); // North
     private final POVButton secondaryJoystickPOVEast = new POVButton(secondaryJoystick, 90); // East
     private final POVButton secondaryJoystickPOVSouth = new POVButton(secondaryJoystick, 180); // South
@@ -141,39 +125,10 @@ public class RobotContainer {
         // ));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWrist(
-                wrist,
-                primaryJoystick));
+        wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
 
-        primaryJoystickLeftBumperButton.whileTrue(new InstantCommand(() -> incrementTuningMode()));
-        primaryJoystickRightBumperButton.whileTrue(new InstantCommand(() -> incrementTuner()));
-
-        primaryJoystickAButton.whileTrue(new InstantCommand(() -> {
-            switch (tuningMode) {
-                case FocusP:
-                    getCurrentTuner().alterP(-0.05);
-                    break;
-                case FocusI:
-                    getCurrentTuner().alterI(-0.05);
-                    break;
-                case FocusD:
-                    getCurrentTuner().alterD(-0.05);
-                    break;
-            }
-        }));
-        primaryJoystickBButton.whileTrue(new InstantCommand(() -> {
-            switch (tuningMode) {
-                case FocusP:
-                    getCurrentTuner().alterP(0.05);
-                    break;
-                case FocusI:
-                    getCurrentTuner().alterI(0.05);
-                    break;
-                case FocusD:
-                    getCurrentTuner().alterD(0.05);
-                    break;
-            }
-        }));
+        primaryJoystickXButton.onTrue(new InstantCommand(() -> wrist.isOpenLoop = true));
+        primaryJoystickYButton.onTrue(new InstantCommand(() -> wrist.isOpenLoop = false));
 
         // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
         // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
@@ -186,33 +141,10 @@ public class RobotContainer {
     }
 
     public void updateSmartDashboard() {
-        SmartDashboard.putString("Current Tuning System", getCurrentTuner().getIdentifier());
-        SmartDashboard.putString("Current Tuning Mode", ("TUNING MODE: " + tuningMode.name()));
+        
     }
 
     public Command getAutoCommand() {
         return autoChooser.getSelected();
-    }
-
-    private PIDTuner getCurrentTuner() {
-        return tuners[tunerIndex];
-    }
-
-    private void incrementTuner() {
-        if (tunerIndex == tuners.length - 1) {
-            tunerIndex = 0;
-        } else {
-            tunerIndex++;
-        }
-    }
-
-    private void incrementTuningMode() {
-        if (tuningMode == TuningMode.FocusP) {
-            tuningMode = TuningMode.FocusI;
-        } else if (tuningMode == TuningMode.FocusI) {
-            tuningMode = TuningMode.FocusD;
-        } else {
-            tuningMode = TuningMode.FocusP;
-        }
     }
 }
