@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
 
@@ -23,7 +24,7 @@ public class Wrist extends SubsystemBase {
 
     public Wrist() {
         // flex motor
-        flexMotor = new CANSparkMax(8, MotorType.kBrushless);
+        flexMotor = new CANSparkMax(ArmConstants.kFlexMotorPort, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
         flexMotor.setSoftLimit(SoftLimitDirection.kForward, -1);
@@ -49,7 +50,7 @@ public class Wrist extends SubsystemBase {
         flexMotor.burnFlash();
 
         // rotate motor
-        rotateMotor = new CANSparkMax(7, MotorType.kBrushless);
+        rotateMotor = new CANSparkMax(ArmConstants.kRotateMotorPort, MotorType.kBrushless);
         rotateMotor.restoreFactoryDefaults();
         rotateMotor.setIdleMode(IdleMode.kCoast);
 
@@ -83,9 +84,9 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flexClosedLoop(double speed) {
-        speed *= 2;
+        speed *= Constants.neoMaxRPM;
         SmartDashboard.putNumber("Flex Speed", speed);
-        flexPID.setReference(speed, ControlType.kVoltage);
+        flexPID.setReference(speed, ControlType.kVelocity);
     }
 
     public void flexOpenLoop(double speed) {
@@ -97,7 +98,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotateClosedLoop(double speed) {
-        speed = speed * 5700;
+        speed *= Constants.neoMaxRPM;
         SmartDashboard.putNumber("Rotate Speed", speed);
         rotatePID.setReference(speed, ControlType.kVelocity);
     }

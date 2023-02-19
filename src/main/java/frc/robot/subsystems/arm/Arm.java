@@ -15,8 +15,6 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxLimitSwitch.Type;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PIDTuner;
@@ -43,8 +41,6 @@ public class Arm extends SubsystemBase implements PIDTuner {
         pivotLeader.setSoftLimit(SoftLimitDirection.kReverse, 0);
         pivotLeader.enableSoftLimit(SoftLimitDirection.kForward, false);
         pivotLeader.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
-        pivotLeader.getForwardLimitSwitch(Type.kNormallyClosed).enableLimitSwitch(false);
-        pivotLeader.getReverseLimitSwitch(Type.kNormallyClosed).enableLimitSwitch(false);
 
         // pivot follower
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
@@ -60,7 +56,7 @@ public class Arm extends SubsystemBase implements PIDTuner {
 
         // pivot pid
         pivotPID = pivotLeader.getPIDController();
-        pivotPID.setP(0);
+        pivotPID.setP(0.4);
         pivotPID.setI(0);
         pivotPID.setD(0);
         pivotPID.setIZone(0);
@@ -83,7 +79,7 @@ public class Arm extends SubsystemBase implements PIDTuner {
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.slot0.kP = 0;
+        motorConfig.slot0.kP = 0.3;
         motorConfig.slot0.kI = 0;
         motorConfig.slot0.kD = 0;
         motorConfig.slot0.kF = 0;
@@ -102,7 +98,6 @@ public class Arm extends SubsystemBase implements PIDTuner {
 
     public void stopPivot() {
         pivotLeader.set(0);
-        pivotFollower.set(0);
     }
 
     public void extend(boolean reversed) {

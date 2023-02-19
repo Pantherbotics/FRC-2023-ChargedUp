@@ -74,9 +74,21 @@ public class Constants {
     }
     
     public static final class ArmConstants {
+        //arm
         public static final double kPivotMotorGearRatio = 5.0 * 4 * 10;
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
+
+        public static final int kPivotLeaderMotorPort = 5;
+        public static final int kPivotFollowerMotorPort = 6;
+
+        public static final int kPivotCANCoderPort = 0;
+        
+        public static final int kExtensionMotorPort = 5;
+
+        //wrist
+        public static final int kFlexMotorPort = 8;
+        public static final int kRotateMotorPort = 7;
 
         public static final double kPFlex = 0.01;
         public static final double kIFlex = 0.0;
@@ -89,13 +101,6 @@ public class Constants {
         public static final double kDRotate = 0.00;
         public static final double kIZoneRotate = 0;
         public static final double kFFRotate = 0;
-
-        public static final int kPivotLeaderMotorPort = 5;
-        public static final int kPivotFollowerMotorPort = 6;
-
-        public static final int kPivotCANCoderPort = 0;
-        
-        public static final int kExtensionMotorPort = 5;
 
         public static final int kCTREPCMid = 9;
     }
