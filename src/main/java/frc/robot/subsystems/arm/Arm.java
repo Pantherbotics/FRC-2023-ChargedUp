@@ -101,7 +101,7 @@ public class Arm extends SubsystemBase implements PIDTuner {
     }
 
     public void extend(boolean reversed) {
-        extensionMotor.set(ControlMode.Position, reversed ? -0.3 : 0.3);
+        extensionMotor.set(ControlMode.Position, (reversed ? -1 : 1) * 1 * 2048);
     }
 
     public void stopExtension() {
