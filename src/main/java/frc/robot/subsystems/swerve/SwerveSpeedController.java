@@ -78,7 +78,7 @@ public class SwerveSpeedController {
      * Set the idle mode of the module to either Brake or Coast
      * @param brake True for brake, false for Coast
      */
-    public void setIdleMode(boolean brake) {
+    public void setBrake(boolean brake) {
         motor.setIdleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
     }
 }

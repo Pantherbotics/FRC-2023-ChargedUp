@@ -80,8 +80,8 @@ public class SwerveModule {
      * Sets the turn and drive motor to either Brake or Coast
      * @param brake True for Brake, false for Coast
      */
-    public void setIsBrake(boolean brake) {
-        driveController.setIdleMode(brake);
-        turnController.setNeutralMode(brake);
+    public void setBrake(boolean brake) {
+        driveController.setBrake(brake);
+        turnController.setBrake(brake);
     }
 }

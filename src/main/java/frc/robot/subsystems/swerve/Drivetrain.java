@@ -96,9 +96,9 @@ public class Drivetrain extends SubsystemBase {
 
         //Put the motors in brake mode when enabled, coast mode when disabled
         new Trigger(RobotState::isEnabled).onTrue(new StartEndCommand(() -> {
-            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setIsBrake(true));
+            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setBrake(true));
         }, () -> {
-            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setIsBrake(false));
+            IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setBrake(false));
         }));
     }
 

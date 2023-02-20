@@ -7,6 +7,8 @@ public class RunExtendArm extends CommandBase {
     private Arm arm;
     private boolean inverted;
 
+    private double setpoint;
+
     public RunExtendArm(Arm arm, boolean inverted) {
         this.arm = arm;
         this.inverted = inverted;

@@ -28,7 +28,7 @@ public class RunWrist extends CommandBase {
         if(wrist.isOpenLoop)
             wrist.flexOpenLoop(yRightValue);
         else
-            wrist.flexClosedLoop(yRightValue);
+            wrist.setFlexPosition(yRightValue);
         
         wrist.rotateOpenLoop(xLeftValue);
     }

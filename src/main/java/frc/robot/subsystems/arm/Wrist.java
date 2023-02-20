@@ -1,7 +1,6 @@
 package frc.robot.subsystems.arm;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
@@ -9,16 +8,18 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
 
 public class Wrist extends SubsystemBase {
     private final CANSparkMax flexMotor, rotateMotor;
     private final RelativeEncoder flexEncoder, rotateEncoder;
     private final SparkMaxPIDController flexPID, rotatePID;
+
+    private Rotation2d flexAngle, rotateAngle; //these should be zero at start
 
     public boolean isOpenLoop = true;
 
@@ -29,8 +30,8 @@ public class Wrist extends SubsystemBase {
         flexMotor.setIdleMode(IdleMode.kCoast);
         flexMotor.setSoftLimit(SoftLimitDirection.kForward, -1);
         flexMotor.setSoftLimit(SoftLimitDirection.kReverse, 260);
-        flexMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-        flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        flexMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
+        flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
@@ -49,6 +50,8 @@ public class Wrist extends SubsystemBase {
 
         flexMotor.burnFlash();
 
+        flexAngle = Rotation2d.fromDegrees(getFlexAngle());
+
         // rotate motor
         rotateMotor = new CANSparkMax(ArmConstants.kRotateMotorPort, MotorType.kBrushless);
         rotateMotor.restoreFactoryDefaults();
@@ -58,6 +61,7 @@ public class Wrist extends SubsystemBase {
         rotateEncoder = rotateMotor.getEncoder();
         rotateEncoder.setPositionConversionFactor(360);
         rotateEncoder.setVelocityConversionFactor(6);
+        rotateEncoder.setPosition(0);
 
         // rotate pid
         rotatePID = rotateMotor.getPIDController();
@@ -69,6 +73,8 @@ public class Wrist extends SubsystemBase {
         rotatePID.setOutputRange(-1, 1);
 
         rotateMotor.burnFlash();
+
+        rotateAngle = Rotation2d.fromDegrees(getRotateAngle());
 
         // SmartDashboard.putNumber("Flex kP", flexPID.getP());
         // SmartDashboard.putNumber("Flex kI", flexPID.getI());
@@ -83,31 +89,27 @@ public class Wrist extends SubsystemBase {
         // SmartDashboard.putNumber("Rotate kFF", rotatePID.getFF());
     }
 
-    public void flexClosedLoop(double speed) {
-        speed *= Constants.neoMaxRPM;
-        SmartDashboard.putNumber("Flex Speed", speed);
-        flexPID.setReference(speed, ControlType.kVelocity);
+    public void setFlexPosition(double position) {
+        flexPID.setReference(position, ControlType.kPosition);
     }
 
     public void flexOpenLoop(double speed) {
         flexMotor.set(speed);
     }
 
-    public double getFlexPosition() {
+    public double getFlexAngle() {
         return flexEncoder.getPosition();
     }
 
-    public void rotateClosedLoop(double speed) {
-        speed *= Constants.neoMaxRPM;
-        SmartDashboard.putNumber("Rotate Speed", speed);
-        rotatePID.setReference(speed, ControlType.kVelocity);
+    public void setRotatePosition(double speed) {
+        rotatePID.setReference(speed, ControlType.kPosition);
     }
 
     public void rotateOpenLoop(double speed) {
         rotateMotor.set(speed);
     }
 
-    public double getRotatePosition() {
+    public double getRotateAngle() {
         return rotateEncoder.getPosition();
     }
 
@@ -144,7 +146,7 @@ public class Wrist extends SubsystemBase {
 
         SmartDashboard.putBoolean("Open Loop", isOpenLoop);
 
-        SmartDashboard.putNumber("Flex Position", getFlexPosition());
-        SmartDashboard.putNumber("Rotate Position", getRotatePosition());
+        SmartDashboard.putNumber("Flex Position", getFlexAngle());
+        SmartDashboard.putNumber("Rotate Position", getRotateAngle());
     }
 }

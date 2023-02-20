@@ -78,7 +78,7 @@ public class SwerveSteerController {
      * Set the idle mode of the module to either Brake or Coast
      * @param brake True for brake, false for Coast
      */
-    public void setNeutralMode(boolean brake) {
+    public void setBrake(boolean brake) {
         motor.setNeutralMode(brake ? NeutralMode.Brake : NeutralMode.Coast);
     }
 }
