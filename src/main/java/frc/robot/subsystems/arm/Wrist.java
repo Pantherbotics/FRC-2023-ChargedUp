@@ -89,8 +89,8 @@ public class Wrist extends SubsystemBase {
         // SmartDashboard.putNumber("Rotate kFF", rotatePID.getFF());
     }
 
-    public void setFlexPosition(double position) {
-        flexPID.setReference(position, ControlType.kPosition);
+    public void setFlexAngle(double angle) {
+        flexPID.setReference(angle, ControlType.kPosition);
     }
 
     public void flexOpenLoop(double speed) {
@@ -101,8 +101,8 @@ public class Wrist extends SubsystemBase {
         return flexEncoder.getPosition();
     }
 
-    public void setRotatePosition(double speed) {
-        rotatePID.setReference(speed, ControlType.kPosition);
+    public void setRotateAngle(double angle) {
+        rotatePID.setReference(angle, ControlType.kPosition);
     }
 
     public void rotateOpenLoop(double speed) {
