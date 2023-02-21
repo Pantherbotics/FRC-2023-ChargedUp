@@ -31,10 +31,6 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    // private final PIDTuner[] tuners = new PIDTuner[] {  };
-    // private int tunerIndex = 0;
-    // private TuningMode tuningMode = TuningMode.FocusP;
-
     // private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
     // Sendable choosers
@@ -127,17 +123,17 @@ public class RobotContainer {
         // wrist manual control
         wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
 
-        primaryJoystickXButton.onTrue(new InstantCommand(() -> wrist.isOpenLoop = true));
-        primaryJoystickYButton.onTrue(new InstantCommand(() -> wrist.isOpenLoop = false));
+        // pivot manual control
+        primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
+        primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
-        // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
+        // extension manual control 
+        primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
+        primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
-        // primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
-        // primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
-
-        // primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        // primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
+        // claw manual control
+        primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
+        primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
     }
 
     public void updateSmartDashboard() {

@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 
 public class Wrist extends SubsystemBase {
@@ -21,7 +20,7 @@ public class Wrist extends SubsystemBase {
 
     private Rotation2d flexAngle, rotateAngle; //these should be zero at start
 
-    public boolean isOpenLoop = true;
+    public boolean isOpenLoop = false;
 
     public Wrist() {
         // flex motor
@@ -89,8 +88,8 @@ public class Wrist extends SubsystemBase {
         // SmartDashboard.putNumber("Rotate kFF", rotatePID.getFF());
     }
 
-    public void setFlexAngle(double angle) {
-        flexPID.setReference(angle, ControlType.kPosition);
+    public void setFlexAngle(double output) {
+        flexPID.setReference(output * 5, ControlType.kVoltage);
     }
 
     public void flexOpenLoop(double speed) {
@@ -101,8 +100,8 @@ public class Wrist extends SubsystemBase {
         return flexEncoder.getPosition();
     }
 
-    public void setRotateAngle(double angle) {
-        rotatePID.setReference(angle, ControlType.kPosition);
+    public void setRotateAngle(double output) {
+        rotatePID.setReference(output * 3, ControlType.kVoltage);
     }
 
     public void rotateOpenLoop(double speed) {

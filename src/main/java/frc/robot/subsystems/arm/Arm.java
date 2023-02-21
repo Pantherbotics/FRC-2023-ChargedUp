@@ -13,24 +13,27 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.PIDTuner;
 import frc.robot.Constants.ArmConstants;
 
-public class Arm extends SubsystemBase implements PIDTuner {
+public class Arm extends SubsystemBase {
     private final CANSparkMax pivotLeader, pivotFollower;
     private final RelativeEncoder pivotEncoder;
     private final SparkMaxPIDController pivotPID;
-    private double localP, localI, localD;
 
     // cancoder for the pivot
     private final CANCoder cancoder;
 
+    private double pivotSetpoint;
+
     // extension
     private final TalonFX extensionMotor;
+
+    private double extensionSetpoint;
 
     public Arm() {
         // pivot leader
@@ -40,19 +43,19 @@ public class Arm extends SubsystemBase implements PIDTuner {
         pivotLeader.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotLeader.setSoftLimit(SoftLimitDirection.kReverse, 0);
         pivotLeader.enableSoftLimit(SoftLimitDirection.kForward, false);
-        pivotLeader.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
+        pivotLeader.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
         // pivot follower
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
         pivotFollower.setIdleMode(IdleMode.kBrake);
-        pivotFollower.follow(pivotLeader);
-        pivotFollower.burnFlash();
+        //pivotFollower.follow(pivotLeader);
 
         // pivot encoder
         pivotEncoder = pivotLeader.getEncoder();
         pivotEncoder.setPositionConversionFactor(ArmConstants.kPivotEncoderRot2Degrees);
         pivotEncoder.setVelocityConversionFactor(ArmConstants.kPivotEncoderRPM2DegreesPerSec);
+        pivotEncoder.setPosition(0);
 
         // pivot pid
         pivotPID = pivotLeader.getPIDController();
@@ -61,13 +64,11 @@ public class Arm extends SubsystemBase implements PIDTuner {
         pivotPID.setD(0);
         pivotPID.setIZone(0);
         pivotPID.setFF(0);
-        localP = 0;
-        localI = 0;
-        localD = 0;
 
-        SmartDashboard.putNumber("Pivot P Value", pivotPID.getP());
-        SmartDashboard.putNumber("Pivot I Value", pivotPID.getI());
-        SmartDashboard.putNumber("Pivot D Value", pivotPID.getD());
+        pivotLeader.burnFlash();
+        pivotFollower.burnFlash();
+
+        pivotSetpoint = 0;
 
         // cancoder
         CANCoderConfiguration config = new CANCoderConfiguration();
@@ -83,17 +84,27 @@ public class Arm extends SubsystemBase implements PIDTuner {
         motorConfig.slot0.kI = 0;
         motorConfig.slot0.kD = 0;
         motorConfig.slot0.kF = 0;
+        motorConfig.forwardSoftLimitThreshold = 1000000;
+        motorConfig.reverseSoftLimitThreshold = 0;
+        motorConfig.forwardSoftLimitEnable = true;
+        motorConfig.reverseSoftLimitEnable = true;
 
         extensionMotor = new TalonFX(5);
         extensionMotor.configAllSettings(motorConfig);
         extensionMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
         extensionMotor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
         extensionMotor.setNeutralMode(NeutralMode.Brake);
-        extensionMotor.setInverted(TalonFXInvertType.Clockwise);
+        extensionMotor.setInverted(TalonFXInvertType.CounterClockwise);
+        
+        extensionSetpoint = 0;
     }
 
     public void pivot(boolean reversed) {
-        pivotLeader.set(reversed ? -0.2 : 0.2);
+        pivotSetpoint += reversed ? -1 : 1;
+    }
+
+    public double getPivotAngle() {
+        return pivotEncoder.getPosition();
     }
 
     public void stopPivot() {
@@ -101,7 +112,15 @@ public class Arm extends SubsystemBase implements PIDTuner {
     }
 
     public void extend(boolean reversed) {
-        extensionMotor.set(ControlMode.Position, (reversed ? -1 : 1) * 1 * 2048);
+        extensionSetpoint += 2048.0 / 4 * (reversed ? -1 : 1);
+        if(extensionSetpoint < 0) extensionSetpoint = 0;
+    }
+
+    /**
+     * @return the position of the extension motor in meters
+     */
+    public double getExtendPosition() {
+        return extensionMotor.getSelectedSensorPosition() * 4.0 / 2048;
     }
 
     public void stopExtension() {
@@ -109,25 +128,15 @@ public class Arm extends SubsystemBase implements PIDTuner {
     }
 
     @Override
-    public void alterP(double val) {
-        localP += val;
-        pivotPID.setP(localP);
-    }
+    public void periodic() {
+        //pivot
+        pivotPID.setReference(pivotSetpoint, ControlType.kPosition);
+        SmartDashboard.putNumber("Pivot Setpoint", pivotSetpoint);
+        SmartDashboard.putNumber("Pivot Angle", getPivotAngle());
 
-    @Override
-    public void alterI(double val) {
-        localI += val;
-        pivotPID.setI(localI);
-    }
-
-    @Override
-    public void alterD(double val) {
-        localD += val;
-        pivotPID.setD(localD);
-    }
-
-    @Override
-    public String getIdentifier() {
-        return "ARM PIVOT PID TUNER";
+        //extension
+        extensionMotor.set(ControlMode.Position, extensionSetpoint);
+        SmartDashboard.putNumber("Extension Setpoint", extensionSetpoint);
+        SmartDashboard.putNumber("Extension Position", getExtendPosition());
     }
 }

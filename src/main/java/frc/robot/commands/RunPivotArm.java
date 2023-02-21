@@ -1,10 +1,6 @@
 package frc.robot.commands;
 
-import com.revrobotics.CANSparkMax.IdleMode;
-
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.arm.Arm;
 
 public class RunPivotArm extends CommandBase {
@@ -19,8 +15,7 @@ public class RunPivotArm extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-    }
+    public void initialize() {}
   
     @Override
     public void execute() {
@@ -29,9 +24,7 @@ public class RunPivotArm extends CommandBase {
   
     //Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {
-        arm.stopPivot();
-    }
+    public void end(boolean interrupted) {}
   
     // Returns true when the command should end.
     @Override

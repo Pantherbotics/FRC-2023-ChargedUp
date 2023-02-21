@@ -90,13 +90,13 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
         public static final int kRotateMotorPort = 7;
 
-        public static final double kPFlex = 0.01;
+        public static final double kPFlex = 0.005;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.00;
         public static final double kIZoneFlex = 0;
         public static final double kFFFlex = 0;
 
-        public static final double kPRotate = 0.7;
+        public static final double kPRotate = 0.02;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.00;
         public static final double kIZoneRotate = 0;
