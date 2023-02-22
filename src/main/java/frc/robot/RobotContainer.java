@@ -27,11 +27,11 @@ public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
     // private final Limelight limelight = new Limelight();
-    private final Arm arm = new Arm();
+    private final Arm arm = new Arm(); //initialize the arm first cuz the wrist and claw use the arm tab in shuffleboard
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    // private final AutoPaths autoPaths = new AutoPaths(drivetrain);
+    private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
     // Sendable choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
@@ -83,36 +83,8 @@ public class RobotContainer {
         updateSmartDashboard();
     }
 
-    private void configSendables() {
-        // speed chooser
-        speedChooser.setDefaultOption("Slow", 0.25);
-        speedChooser.addOption("Normal", 0.65);
-        speedChooser.addOption("Demon", 1.0);
-        SmartDashboard.putData("Speed", speedChooser);
-
-        // drive mode chooser
-        driveModeChooser.setDefaultOption("Robot Oriented", 's');
-        driveModeChooser.addOption("Field Oriented", 'f');
-        driveModeChooser.addOption("Boat", 'b');
-        driveModeChooser.addOption("Car", 'c');
-        driveModeChooser.addOption("West Coast", 'w');
-        driveModeChooser.addOption("Tank", 't');
-        SmartDashboard.putData("Drive Mode", driveModeChooser);
-
-        // auto chooser
-        /*
-         * autoChooser.setDefaultOption("None", null);
-         * for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
-         * {
-         * if(!path.getKey().equals("None"))
-         * autoChooser.addOption(path.getKey(), path.getValue());
-         * }
-         * SmartDashboard.putData("Auto", autoChooser);
-         */
-    }
-
     private void configButtonBindings() {
-        // the drivetrain obviously needs to drive by default
+        // drivetrain manual control
         // drivetrain.setDefaultCommand(new RunSwerveJoystick(
         // drivetrain,
         // primaryJoystick,
@@ -134,6 +106,33 @@ public class RobotContainer {
         // claw manual control
         primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
         primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+    }
+    
+    private void configSendables() {
+        // speed chooser
+        speedChooser.setDefaultOption("Slow", 0.25);
+        speedChooser.addOption("Normal", 0.65);
+        speedChooser.addOption("Demon", 1.0);
+        SmartDashboard.putData("Speed", speedChooser);
+
+        // drive mode chooser
+        driveModeChooser.setDefaultOption("Robot Oriented", 's');
+        driveModeChooser.addOption("Field Oriented", 'f');
+        driveModeChooser.addOption("Boat", 'b');
+        driveModeChooser.addOption("Car", 'c');
+        driveModeChooser.addOption("West Coast", 'w');
+        driveModeChooser.addOption("Tank", 't');
+        SmartDashboard.putData("Drive Mode", driveModeChooser);
+
+        // auto chooser
+         autoChooser.setDefaultOption("None", null);
+        for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
+        {
+            if(!path.getKey().equals("None")) 
+                autoChooser.addOption(path.getKey(), path.getValue());
+        }
+        SmartDashboard.putData("Auto", autoChooser);
+         
     }
 
     public void updateSmartDashboard() {

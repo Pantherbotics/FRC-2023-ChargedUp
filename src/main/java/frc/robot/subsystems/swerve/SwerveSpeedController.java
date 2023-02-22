@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveSpeedController {
@@ -16,11 +15,9 @@ public class SwerveSpeedController {
     private final SparkMaxPIDController pid;
 
     /**
-     * 
      * @param motorPort The port number of the turn motor
-     * @param container
      */
-    public SwerveSpeedController(int motorPort, ShuffleboardContainer container) {
+    public SwerveSpeedController(int motorPort) {
         //motor
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         motor.restoreFactoryDefaults();
@@ -41,9 +38,6 @@ public class SwerveSpeedController {
         pid.setOutputRange(-1, 1);
 
         motor.burnFlash();
-        
-        //container.addNumber("Current Swerve Position", () -> getPosition());
-        //container.addNumber("Current Swerve Velocity", () -> getVelocity());
     }
 
     /**

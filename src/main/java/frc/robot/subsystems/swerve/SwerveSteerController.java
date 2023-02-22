@@ -9,7 +9,6 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveSteerController {
@@ -17,13 +16,11 @@ public class SwerveSteerController {
     private final CANCoder cancoder;
 
     /**
-     * 
      * @param motorPort The port number of the drive motor
      * @param cancoderPort The port number of the cancoder
      * @param cancoderOffset The cancoder offset in degrees
-     * @param container 
      */
-    public SwerveSteerController(int motorPort, int cancoderPort, double cancoderOffset, ShuffleboardContainer container) {
+    public SwerveSteerController(int motorPort, int cancoderPort, double cancoderOffset) {
         //cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
         cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
@@ -46,8 +43,6 @@ public class SwerveSteerController {
         motor.configAllSettings(motorConfig);
         motor.configRemoteFeedbackFilter(cancoder, 0);
         motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
-
-        //container.addNumber("Current Angle", () -> getAngle());
     }
 
     /**

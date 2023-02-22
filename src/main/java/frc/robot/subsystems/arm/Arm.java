@@ -16,6 +16,13 @@ import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -49,7 +56,7 @@ public class Arm extends SubsystemBase {
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
         pivotFollower.setIdleMode(IdleMode.kBrake);
-        //pivotFollower.follow(pivotLeader);
+        pivotFollower.follow(pivotLeader);
 
         // pivot encoder
         pivotEncoder = pivotLeader.getEncoder();
@@ -68,7 +75,7 @@ public class Arm extends SubsystemBase {
         pivotLeader.burnFlash();
         pivotFollower.burnFlash();
 
-        pivotSetpoint = 0;
+        pivotSetpoint = getPivotAngle();
 
         // cancoder
         CANCoderConfiguration config = new CANCoderConfiguration();
@@ -96,11 +103,27 @@ public class Arm extends SubsystemBase {
         extensionMotor.setNeutralMode(NeutralMode.Brake);
         extensionMotor.setInverted(TalonFXInvertType.CounterClockwise);
         
-        extensionSetpoint = 0;
+        extensionSetpoint = getExtensionPosition();
+
+        //shuffleboard shit
+        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+        ShuffleboardLayout pivotLayout = tab.getLayout("Pivot", BuiltInLayouts.kList)
+            .withSize(2, 2)
+            .withPosition(0, 0);
+        ShuffleboardLayout extensionLayout = tab.getLayout("Extension", BuiltInLayouts.kList)
+            .withSize(2, 2)
+            .withPosition(2, 0);
+
+        pivotLayout.addNumber("Pivot Setpoint (deg)", () -> pivotSetpoint);
+        pivotLayout.addNumber("Pivot Angle (deg)", () -> getPivotAngle());
+
+        extensionLayout.addNumber("Extension Setpoint (m)", () -> extensionSetpoint);
+        extensionLayout.addNumber("Extension Position (m)", () -> getExtensionPosition());
     }
 
     public void pivot(boolean reversed) {
-        pivotSetpoint += reversed ? -1 : 1;
+        pivotPID.setReference(3 * (reversed ? -1 : 1), ControlType.kVoltage);
+        //pivotSetpoint += reversed ? -1 : 1;
     }
 
     public double getPivotAngle() {
@@ -108,19 +131,19 @@ public class Arm extends SubsystemBase {
     }
 
     public void stopPivot() {
-        pivotLeader.set(0);
+        pivotPID.setReference(0, ControlType.kVelocity);
     }
 
     public void extend(boolean reversed) {
-        extensionSetpoint += 2048.0 / 4 * (reversed ? -1 : 1);
+        extensionSetpoint += 1 / (2048.0 * 4) * (reversed ? -1 : 1);
         if(extensionSetpoint < 0) extensionSetpoint = 0;
     }
 
     /**
      * @return the position of the extension motor in meters
      */
-    public double getExtendPosition() {
-        return extensionMotor.getSelectedSensorPosition() * 4.0 / 2048;
+    public double getExtensionPosition() {
+        return extensionMotor.getSelectedSensorPosition() / (2048.0 * 4.0);
     }
 
     public void stopExtension() {
@@ -130,13 +153,9 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         //pivot
-        pivotPID.setReference(pivotSetpoint, ControlType.kPosition);
-        SmartDashboard.putNumber("Pivot Setpoint", pivotSetpoint);
-        SmartDashboard.putNumber("Pivot Angle", getPivotAngle());
+        //pivotPID.setReference(pivotSetpoint, ControlType.kPosition);
 
         //extension
-        extensionMotor.set(ControlMode.Position, extensionSetpoint);
-        SmartDashboard.putNumber("Extension Setpoint", extensionSetpoint);
-        SmartDashboard.putNumber("Extension Position", getExtendPosition());
+        extensionMotor.set(ControlMode.Position, extensionSetpoint * 2048.0 * 4.0);
     }
 }

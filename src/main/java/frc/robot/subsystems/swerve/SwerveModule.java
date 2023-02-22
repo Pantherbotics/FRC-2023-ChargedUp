@@ -3,14 +3,20 @@ package frc.robot.subsystems.swerve;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 
 public class SwerveModule {
     private final SwerveSpeedController driveController;
     private final SwerveSteerController turnController;
 
-    public SwerveModule(SwerveSpeedController driveController, SwerveSteerController turnController) {
+    public SwerveModule(SwerveSpeedController driveController, SwerveSteerController turnController, ShuffleboardLayout layout) {
         this.driveController = driveController;
         this.turnController = turnController;
+
+        //shuffleboard shit
+        layout.addNumber("Drive Position (m)", () -> driveController.getPosition());
+        layout.addNumber("Drive Velocity (mps)", () -> driveController.getVelocity());
+        layout.addNumber("Turn Angle (deg)", () -> turnController.getAngle());
     }
 
     /**
@@ -21,7 +27,6 @@ public class SwerveModule {
     }
 
     /**
-     * 
      * @return The current position of the module in meters
      */
     public double getDrivePosition() {
@@ -29,7 +34,6 @@ public class SwerveModule {
     }
 
     /**
-     * 
      * @return The current angle on the module as a Rotation2d
      */
     public Rotation2d getTurnAngle() {
@@ -37,7 +41,6 @@ public class SwerveModule {
     }
 
     /**
-     * 
      * @return The current position the module is in
      */
     public SwerveModulePosition getPosition() {
@@ -45,7 +48,6 @@ public class SwerveModule {
     }
 
     /**
-     * 
      * @return The current state the module is in
      */
     public SwerveModuleState getState() {
@@ -53,7 +55,6 @@ public class SwerveModule {
     }
 
     /**
-     * 
      * @param state The desired state to set the module to
      */
     public void setDesiredState(SwerveModuleState state) {

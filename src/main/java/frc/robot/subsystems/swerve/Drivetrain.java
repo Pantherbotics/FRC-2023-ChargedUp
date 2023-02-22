@@ -4,12 +4,8 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax.IdleMode;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -17,7 +13,6 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -33,48 +28,63 @@ public class Drivetrain extends SubsystemBase {
     private final AHRS gyro;
     private final SwerveDriveOdometry odometer;
     
-
     public Drivetrain() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-        ShuffleboardLayout frontLeftLayout = tab.getLayout("Front Left", BuiltInLayouts.kList)
-            .withSize(2, 4)
+        ShuffleboardLayout frontLeftLayout = tab.getLayout("Front Left [1]", BuiltInLayouts.kList)
+            .withSize(2, 2)
             .withPosition(0, 0);
-        ShuffleboardLayout frontRightLayout = tab.getLayout("Front Right", BuiltInLayouts.kList)
-            .withSize(2, 4)
+        ShuffleboardLayout frontRightLayout = tab.getLayout("Front Right [2]", BuiltInLayouts.kList)
+            .withSize(2, 2)
             .withPosition(2, 0);
-        ShuffleboardLayout backRightLayout = tab.getLayout("Back Right", BuiltInLayouts.kList)
-            .withSize(2, 4)
+        ShuffleboardLayout backRightLayout = tab.getLayout("Back Right [3]", BuiltInLayouts.kList)
+            .withSize(2, 2)
             .withPosition(4, 0);
-        ShuffleboardLayout backLeftLayout = tab.getLayout("Back Left", BuiltInLayouts.kList)
-            .withSize(2, 4)
+        ShuffleboardLayout backLeftLayout = tab.getLayout("Back Left [4]", BuiltInLayouts.kList)
+            .withSize(2, 2)
             .withPosition(6, 0);
         
-        frontLeft = createSwerveModule( //1
-            ModuleConstants.kFrontLeftDriveMotorPort,
-            ModuleConstants.kFrontLeftTurnMotorPort,
-            ModuleConstants.kFrontLeftCANCoderPort,
-            ModuleConstants.kFrontLeftCANCoderOffsetDeg,
+        frontLeft = new SwerveModule( //1
+            new SwerveSpeedController(
+                ModuleConstants.kFrontLeftDriveMotorPort
+            ),
+            new SwerveSteerController(
+                ModuleConstants.kFrontLeftTurnMotorPort,
+                ModuleConstants.kFrontLeftCANCoderPort, 
+                ModuleConstants.kFrontLeftCANCoderOffsetDeg
+            ),
             frontLeftLayout        
         );
-        frontRight = createSwerveModule( //2
-            ModuleConstants.kFrontRightDriveMotorPort,
-            ModuleConstants.kFrontRightTurnMotorPort, 
-            ModuleConstants.kFrontRightCANCoderPort,
-            ModuleConstants.kFrontRightCANCoderOffsetDeg,
+        frontRight = new SwerveModule( //2
+            new SwerveSpeedController(
+                ModuleConstants.kFrontRightDriveMotorPort
+            ),
+            new SwerveSteerController(
+                ModuleConstants.kFrontRightTurnMotorPort, 
+                ModuleConstants.kFrontRightCANCoderPort,
+                ModuleConstants.kFrontRightCANCoderOffsetDeg
+            ),
             frontRightLayout
         );
-        backRight = createSwerveModule( //3
-            ModuleConstants.kBackRightDriveMotorPort,
-            ModuleConstants.kBackRightTurnMotorPort, 
-            ModuleConstants.kBackRightCANCoderPort,
-            ModuleConstants.kBackRightCANCoderOffsetDeg,
+        backRight = new SwerveModule( //3
+            new SwerveSpeedController(
+                ModuleConstants.kBackRightDriveMotorPort
+            ),
+            new SwerveSteerController(
+                ModuleConstants.kBackRightTurnMotorPort, 
+                ModuleConstants.kBackRightCANCoderPort,
+                ModuleConstants.kBackRightCANCoderOffsetDeg
+            ),
             backRightLayout
         );
-        backLeft = createSwerveModule( //4
-            ModuleConstants.kBackLeftDriveMotorPort,
-            ModuleConstants.kBackLeftTurnMotorPort, 
-            ModuleConstants.kBackLeftCANCoderPort,
-            ModuleConstants.kBackLeftCANCoderOffsetDeg,
+        backLeft = new SwerveModule( //4
+            new SwerveSpeedController(
+                ModuleConstants.kBackLeftDriveMotorPort
+            ),
+            new SwerveSteerController(
+                ModuleConstants.kBackLeftTurnMotorPort, 
+                ModuleConstants.kBackLeftCANCoderPort,
+                ModuleConstants.kBackLeftCANCoderOffsetDeg
+            ),
             backLeftLayout
         );
         swerveModules = new SwerveModule[] { frontLeft, frontRight, backRight, backLeft };
@@ -91,7 +101,9 @@ public class Drivetrain extends SubsystemBase {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                System.out.println("lmao");
+            }
         }).start();
 
         //Put the motors in brake mode when enabled, coast mode when disabled
@@ -100,14 +112,7 @@ public class Drivetrain extends SubsystemBase {
         }, () -> {
             IntStream.range(0, swerveModules.length).forEach(i -> swerveModules[i].setBrake(false));
         }));
-    }
-
-    private SwerveModule createSwerveModule(int driveMotorPort, int turnMotorPort, int cancoderPort, double cancoderOffset, ShuffleboardContainer container) {
-        return new SwerveModule(
-            new SwerveSpeedController(driveMotorPort, container),
-            new SwerveSteerController(turnMotorPort, cancoderPort, cancoderOffset, container)
-        );
-    } 
+    }  
 
     //Zero the heading of the gyro (Sets to 0)
     public void zeroHeading() {
