@@ -57,7 +57,6 @@ public class SwerveSteerController {
     }
 
     /**
-     * 
      * @param targetAngle The desired angle to set the module to in degrees
      */
     public void setAngle(double targetAngle) {

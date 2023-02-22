@@ -9,21 +9,19 @@ public class SwerveModule {
     private final SwerveSpeedController driveController;
     private final SwerveSteerController turnController;
 
+    /**
+     * @param driveController
+     * @param turnController
+     * @param layout
+     */
     public SwerveModule(SwerveSpeedController driveController, SwerveSteerController turnController, ShuffleboardLayout layout) {
         this.driveController = driveController;
         this.turnController = turnController;
 
         //shuffleboard shit
-        layout.addNumber("Drive Position (m)", () -> driveController.getPosition());
-        layout.addNumber("Drive Velocity (mps)", () -> driveController.getVelocity());
-        layout.addNumber("Turn Angle (deg)", () -> turnController.getAngle());
-    }
-
-    /**
-     * @return The current velocity of the module in meters per second
-     */
-    public double getDriveVelocity() {
-        return driveController.getVelocity();
+        layout.addNumber("Drive Position (m)", () -> getDrivePosition());
+        layout.addNumber("Drive Velocity (mps)", () -> getDriveVelocity());
+        layout.addNumber("Turn Angle (deg)", () -> getTurnAngle().getDegrees());
     }
 
     /**
@@ -31,6 +29,13 @@ public class SwerveModule {
      */
     public double getDrivePosition() {
         return driveController.getPosition();
+    }
+
+    /**
+     * @return The current velocity of the module in meters per second
+     */
+    public double getDriveVelocity() {
+        return driveController.getVelocity();
     }
 
     /**
