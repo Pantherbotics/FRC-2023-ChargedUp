@@ -9,7 +9,7 @@ public class RunWrist extends CommandBase {
     private Wrist wrist;
     private Joystick joystick;
 
-    public static final double kMaxAngularSpeedDegreesPerSecond = 180.0; 
+    public static final double kMaxAngularSpeedDegreesPerSecond = 90.0; 
 
     public RunWrist(Wrist wrist, Joystick joystick) {
         this.wrist = wrist;
@@ -27,8 +27,14 @@ public class RunWrist extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
 
-        wrist.setFlexAngle(kMaxAngularSpeedDegreesPerSecond * yRightValue);
-        wrist.setRotateAngle(kMaxAngularSpeedDegreesPerSecond * xLeftValue);
+        double xSpeed = xLeftValue * 0.65;
+        double ySpeed = yRightValue * 0.65;
+
+        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
+        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
+
+        wrist.setFlexAngle(ySpeed * kMaxAngularSpeedDegreesPerSecond);
+        wrist.setRotateAngle(xSpeed * kMaxAngularSpeedDegreesPerSecond);
     }
   
     //Called once the command ends or is interrupted.

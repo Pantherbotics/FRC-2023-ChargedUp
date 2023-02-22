@@ -86,10 +86,10 @@ public class RobotContainer {
     private void configButtonBindings() {
         // drivetrain manual control
         // drivetrain.setDefaultCommand(new RunSwerveJoystick(
-        // drivetrain,
-        // primaryJoystick,
-        // speedChooser::getSelected,
-        // driveModeChooser::getSelected
+        //     drivetrain,
+        //     primaryJoystick,
+        //     speedChooser::getSelected,
+        //     driveModeChooser::getSelected
         // ));
 
         // wrist manual control

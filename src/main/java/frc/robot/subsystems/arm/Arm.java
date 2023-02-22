@@ -46,7 +46,7 @@ public class Arm extends SubsystemBase {
         // pivot leader
         pivotLeader = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
         pivotLeader.restoreFactoryDefaults();
-        pivotLeader.setIdleMode(IdleMode.kBrake);
+        pivotLeader.setIdleMode(IdleMode.kCoast);
         pivotLeader.setSoftLimit(SoftLimitDirection.kForward, 0);
         pivotLeader.setSoftLimit(SoftLimitDirection.kReverse, 0);
         pivotLeader.enableSoftLimit(SoftLimitDirection.kForward, false);
@@ -55,7 +55,7 @@ public class Arm extends SubsystemBase {
         // pivot follower
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
-        pivotFollower.setIdleMode(IdleMode.kBrake);
+        pivotFollower.setIdleMode(IdleMode.kCoast);
         pivotFollower.follow(pivotLeader);
 
         // pivot encoder
@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase {
         pivotLeader.burnFlash();
         pivotFollower.burnFlash();
 
-        pivotSetpoint = getPivotAngle();
+        pivotSetpoint = 0;
 
         // cancoder
         CANCoderConfiguration config = new CANCoderConfiguration();
@@ -103,7 +103,7 @@ public class Arm extends SubsystemBase {
         extensionMotor.setNeutralMode(NeutralMode.Brake);
         extensionMotor.setInverted(TalonFXInvertType.CounterClockwise);
         
-        extensionSetpoint = getExtensionPosition();
+        extensionSetpoint = 0;
 
         //shuffleboard shit
         ShuffleboardTab tab = Shuffleboard.getTab("Arm");
@@ -122,7 +122,8 @@ public class Arm extends SubsystemBase {
     }
 
     public void pivot(boolean reversed) {
-        pivotPID.setReference(3 * (reversed ? -1 : 1), ControlType.kVoltage);
+        pivotLeader.set(reversed ? -1 : 1);
+        //pivotPID.setReference(1 * (reversed ? -1 : 1), ControlType.kVoltage);
         //pivotSetpoint += reversed ? -1 : 1;
     }
 
