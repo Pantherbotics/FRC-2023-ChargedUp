@@ -71,12 +71,10 @@ public class RunSwerveJoystick extends CommandBase {
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
         double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
-        System.out.println("(" + xLeftValue + ", " + yLeftValue + ")");
 
         double xSpeed = Math.copySign(Math.pow(yLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
         double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), xLeftValue) * speedChooser.get();
         double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
-        System.out.println(xSpeed + ", " + ySpeed + ", " + turningSpeed);
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;

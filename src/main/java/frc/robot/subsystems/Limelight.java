@@ -26,7 +26,6 @@ public class Limelight {
     }
 
     public class Target {
-        public boolean exists;
         public double pitch;
         public double yaw;
         public double area;

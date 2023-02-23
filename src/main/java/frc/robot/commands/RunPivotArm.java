@@ -5,32 +5,25 @@ import frc.robot.subsystems.arm.Arm;
 
 public class RunPivotArm extends CommandBase {
     private Arm arm;
-    private boolean inverted;
-
-    public RunPivotArm(Arm arm, boolean inverted) {
+    private boolean reversed;
+    
+    public RunPivotArm(Arm arm, boolean reversed) {
         this.arm = arm;
-        this.inverted = inverted;
-        
+        this.reversed = reversed;
+
         addRequirements(arm);
     }
 
     @Override
-    public void initialize() {}
-  
-    @Override
     public void execute() {
-        arm.pivot(inverted);
+        if(arm.pivotOpenLoop)
+            arm.pivotOpenLoop(.1 * (reversed ? -1 : 1)); 
+        else
+            arm.pivotClosedLoop(1 * (reversed ? -1 : 1));
     }
-  
-    //Called once the command ends or is interrupted.
+
     @Override
     public void end(boolean interrupted) {
         arm.stopPivot();
-    }
-  
-    // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        return false;
     }
 }

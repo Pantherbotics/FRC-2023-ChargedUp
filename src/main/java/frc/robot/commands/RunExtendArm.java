@@ -5,11 +5,11 @@ import frc.robot.subsystems.arm.Arm;
 
 public class RunExtendArm extends CommandBase {
     private Arm arm;
-    private boolean inverted;
+    private boolean reversed;
 
-    public RunExtendArm(Arm arm, boolean inverted) {
+    public RunExtendArm(Arm arm, boolean reversed) {
         this.arm = arm;
-        this.inverted = inverted;
+        this.reversed = reversed;
 
         addRequirements(arm);
     }
@@ -19,12 +19,14 @@ public class RunExtendArm extends CommandBase {
   
     @Override
     public void execute() {
-        arm.extend(inverted);
+        arm.extend(1 * (reversed ? -1 : 1));
     }
   
     //Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        arm.stopExtension();
+    }
   
     // Returns true when the command should end.
     @Override

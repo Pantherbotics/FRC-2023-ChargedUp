@@ -84,8 +84,8 @@ public class Wrist extends SubsystemBase {
             .withSize(1, 1)
             .withPosition(4, 1);
         
-        flexLayout.addNumber("Flex Angle (deg)", () -> getFlexAngle());
-        rotateLayout.addNumber("Rotate Angle (deg)", () -> getRotateAngle());
+        flexLayout.addNumber("Angle (deg)", () -> getFlexAngle());
+        rotateLayout.addNumber("Angle (deg)", () -> getRotateAngle());
     }
 
     public void flexOpenLoop(double speed) {
@@ -122,10 +122,7 @@ public class Wrist extends SubsystemBase {
     @Override
     public void periodic() {
         // the setpoints are in degrees
-        //flex
         flexPID.setReference(flexSetpoint, ControlType.kPosition);
-        //rotate
-        SmartDashboard.putNumber("Rotate Setpoint", rotateSetpoint);
         rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
     }
 }
