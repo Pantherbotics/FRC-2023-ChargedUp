@@ -30,7 +30,7 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     // private final Limelight limelight = new Limelight();
     private final Arm arm = new Arm(); //initialize the arm first cuz the wrist and claw use the arm tab in shuffleboard
-    //private final Wrist wrist = new Wrist();
+    private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
@@ -83,34 +83,31 @@ public class RobotContainer {
         configButtonBindings();
         updateSmartDashboard();
     }
-    double angle = 0;
+
     private void configButtonBindings() {
-        primaryJoystickAButton.whileTrue(new RunSpinTurn(drivetrain));
+        // primaryJoystickAButton.whileTrue(new RunSpinTurn(drivetrain));
         // drivetrain manual control
-        // drivetrain.setDefaultCommand(new RunSwerveJoystick(
-        //     drivetrain,
-        //     primaryJoystick,
-        //     speedChooser.getSelected(),
-        //     driveModeChooser.getSelected()
-        // ));
+        drivetrain.setDefaultCommand(new RunSwerveJoystick(
+            drivetrain,
+            primaryJoystick,
+            speedChooser.getSelected(),
+            driveModeChooser.getSelected()
+        ));
 
         // wrist manual control
-        // wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
+        wrist.setDefaultCommand(new RunWrist(wrist, secondaryJoystick));
 
-        // // pivot manual control
-        // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
+        // pivot manual control
+        secondaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
+        secondaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
-        // // extension manual control 
-        // primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        // primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
+        // extension manual control 
+        secondaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
+        secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
-        // primaryJoystickStartButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = true));
-        // primaryJoystickBackButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = false));
-
-        // // claw manual control
-        // primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
-        // primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+        // claw manual control
+        secondaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
+        secondaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
     }
     
     private void configSendables() {

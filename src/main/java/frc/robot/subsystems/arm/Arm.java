@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -33,7 +32,7 @@ public class Arm extends SubsystemBase {
     private final CANCoder pivotCancoder;
     private final PIDController pivotPID;
 
-    public boolean pivotOpenLoop = true;
+    public boolean pivotOpenLoop = false;
 
     // extension
     private final TalonFX extensionMotor;

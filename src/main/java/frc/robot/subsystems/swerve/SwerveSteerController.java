@@ -10,7 +10,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveSteerController {
@@ -46,11 +45,7 @@ public class SwerveSteerController {
         motor.configRemoteFeedbackFilter(cancoder, 0);
         motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
     }
-
-    public double getRawCancoderUnits() {
-        return motor.getSelectedSensorPosition();
-    }
-
+    
     /**
      * Returns the angle in degrees from 0 to 360 degrees
      * @return the position in degrees
@@ -68,8 +63,6 @@ public class SwerveSteerController {
     public void setAngle(double targetAngle) {
         double delta = (targetAngle - getAngle()) / ModuleConstants.kTurnPositionCoefficient;
         double position = motor.getSelectedSensorPosition() + delta;
-        SmartDashboard.putNumber("Turn delta position", delta);
-        SmartDashboard.putNumber("Turn desired position", position);
         motor.set(ControlMode.Position, position);
     }
 
