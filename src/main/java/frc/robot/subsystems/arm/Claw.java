@@ -21,7 +21,7 @@ public class Claw extends SubsystemBase {
             .withSize(1, 1)
             .withPosition(5, 0);
 
-        clawLayout.addBoolean("Open?", () -> solenoidA.isFwdSolenoidDisabled());
+        clawLayout.addBoolean("Open?", () -> solenoidA.isRevSolenoidDisabled());
     }
 
     public void run(boolean state){

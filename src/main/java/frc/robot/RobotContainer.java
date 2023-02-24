@@ -13,6 +13,7 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetClaw;
+import frc.robot.commands.RunSpinTurn;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
 
 public class RobotContainer {
@@ -28,14 +30,14 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     // private final Limelight limelight = new Limelight();
     private final Arm arm = new Arm(); //initialize the arm first cuz the wrist and claw use the arm tab in shuffleboard
-    private final Wrist wrist = new Wrist();
+    //private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
     // Sendable choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
-    private final SendableChooser<Character> driveModeChooser = new SendableChooser<Character>();
+    private final SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
     // Joysticks
@@ -81,33 +83,34 @@ public class RobotContainer {
         configButtonBindings();
         updateSmartDashboard();
     }
-
+    double angle = 0;
     private void configButtonBindings() {
+        primaryJoystickAButton.whileTrue(new RunSpinTurn(drivetrain));
         // drivetrain manual control
         // drivetrain.setDefaultCommand(new RunSwerveJoystick(
         //     drivetrain,
         //     primaryJoystick,
-        //     speedChooser::getSelected,
-        //     driveModeChooser::getSelected
+        //     speedChooser.getSelected(),
+        //     driveModeChooser.getSelected()
         // ));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
+        // wrist.setDefaultCommand(new RunWrist(wrist, primaryJoystick));
 
-        // pivot manual control
-        primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
+        // // pivot manual control
+        // primaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
+        // primaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
 
-        // extension manual control 
-        primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
+        // // extension manual control 
+        // primaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
+        // primaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
-        primaryJoystickStartButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = true));
-        primaryJoystickBackButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = false));
+        // primaryJoystickStartButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = true));
+        // primaryJoystickBackButton.onTrue(new InstantCommand(() -> arm.pivotOpenLoop = false));
 
-        // claw manual control
-        primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
-        primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+        // // claw manual control
+        // primaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
+        // primaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
     }
     
     private void configSendables() {
@@ -118,12 +121,12 @@ public class RobotContainer {
         SmartDashboard.putData("Speed", speedChooser);
 
         // drive mode chooser
-        driveModeChooser.setDefaultOption("Robot Oriented", 's');
-        driveModeChooser.addOption("Field Oriented", 'f');
-        driveModeChooser.addOption("Boat", 'b');
-        driveModeChooser.addOption("Car", 'c');
-        driveModeChooser.addOption("West Coast", 'w');
-        driveModeChooser.addOption("Tank", 't');
+        driveModeChooser.setDefaultOption("Robot Oriented", DriveMode.SWERVE);
+        driveModeChooser.addOption("Field Oriented", DriveMode.FIELD_ORIENTED_SWERVE);
+        driveModeChooser.addOption("Boat", DriveMode.BOAT);
+        driveModeChooser.addOption("Car", DriveMode.CAR);
+        driveModeChooser.addOption("West Coast", DriveMode.WEST_COAST);
+        driveModeChooser.addOption("Tank", DriveMode.TANK);
         SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         // auto chooser

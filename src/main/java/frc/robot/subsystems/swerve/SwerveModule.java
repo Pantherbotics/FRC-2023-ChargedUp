@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
     private final SwerveSpeedController driveController;
@@ -22,6 +23,7 @@ public class SwerveModule {
         layout.addNumber("Drive Position (m)", () -> getDrivePosition());
         layout.addNumber("Drive Velocity (mps)", () -> getDriveVelocity());
         layout.addNumber("Turn Angle (deg)", () -> getTurnAngle().getDegrees());
+        layout.addNumber("Turn Angle (raw)", () -> turnController.getRawCancoderUnits());
     }
 
     /**
@@ -64,14 +66,14 @@ public class SwerveModule {
      */
     public void setDesiredState(SwerveModuleState state) {
         //Ignore small states like when we let go of left stick so  wheels don't default to 0 degrees
-        if(Math.abs(state.speedMetersPerSecond) < 0.001) {
-            stop();
-            return;
-        }
+        // if(Math.abs(state.speedMetersPerSecond) < 0.001) {
+        //     stop();
+        //     return;
+        // }
 
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getTurnAngle());
-        driveController.setVelocity(optimizedState.speedMetersPerSecond);
-        turnController.setAngle(optimizedState.angle.getDegrees());
+        //state = SwerveModuleState.optimize(state, getTurnAngle());
+        driveController.setVelocity(state.speedMetersPerSecond);
+        turnController.setAngle(state.angle.getDegrees());
     }
 
     /**

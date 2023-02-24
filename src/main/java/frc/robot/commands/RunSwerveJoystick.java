@@ -1,29 +1,30 @@
 package frc.robot.commands;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
-    private final Supplier<Double> speedChooser;
-    private final Supplier<Character> driveModeChooser;
+    private final double speed;
+    private final DriveMode driveMode;
+
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
     
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<Character> driveModeChooser) {
+    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, double speed, DriveMode driveMode) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
-        this.speedChooser = speedChooser;
-        this.driveModeChooser = driveModeChooser;
+        this.speed = speed;
+        this.driveMode = driveMode;
 
         //These limiters help to smooth out the joystick input by limiting the acceleration during sudden changes
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
@@ -34,24 +35,22 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-
-    }
+    public void initialize() {}
 
     @Override
     public void execute() {
-        switch(driveModeChooser.get()) {
-            case 's': //swerve
+        switch(driveMode) {
+            case SWERVE: //swerve
                 runSwerve(false);
-            case 'f': //field oriented swerve
+            case FIELD_ORIENTED_SWERVE: //field oriented swerve
                 runSwerve(true);
-            case 'b': //boat
+            case BOAT: //boat
                 runBoat();
-            case 'c': //car
+            case CAR: //car
                 runCar();
-            case 'w': //west coast
+            case WEST_COAST: //west coast
                 runWestCoast();
-            case 't': //tank
+            case TANK: //tank
                 runTank();
             default:
                 break;
@@ -71,10 +70,11 @@ public class RunSwerveJoystick extends CommandBase {
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
         double yLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        double xRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
-        double xSpeed = Math.copySign(Math.pow(yLeftValue, OIConstants.kDriverExp), yLeftValue) * speedChooser.get();
-        double ySpeed = Math.copySign(Math.pow(xLeftValue, OIConstants.kDriverExp), xLeftValue) * speedChooser.get();
-        double turningSpeed = -joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID) * (speedChooser.get() / 2.0);
+        double xSpeed = Math.signum(yLeftValue) * Math.pow(yLeftValue, OIConstants.kDriverExp) * speed;
+        double ySpeed = Math.signum(xLeftValue) * Math.pow(xLeftValue, OIConstants.kDriverExp) * speed;
+        double turningSpeed = -xRightValue * speed * 0.5;
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;

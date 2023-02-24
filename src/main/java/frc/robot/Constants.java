@@ -90,7 +90,7 @@ public class Constants {
         public static final int kPivotCANCoderPort = 9;
 
         //extension
-        public static final double kPExtension = 0.05;
+        public static final double kPExtension = 0.08;
         public static final double kIExtension = 0.0;
         public static final double kDExtension = 0.0;
         public static final double kFExtension = 0.0;
