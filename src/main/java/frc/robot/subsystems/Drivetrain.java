@@ -44,7 +44,7 @@ public class Drivetrain extends SubsystemBase {
         // Positive is CCW, Negative is CW
         leftFront = new SwerveModule(1, Constants.DriveConstants.swerveModule1Offset, false); 
         rightFront = new SwerveModule(2, Constants.DriveConstants.swerveModule2Offset, false); 
-        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule3Offset, true);
+        rightBack = new SwerveModule(3, Constants.DriveConstants.swerveModule3Offset, false);
         leftBack = new SwerveModule(4, Constants.DriveConstants.swerveModule4Offset, false); 
         modules = new SwerveModule[] { leftFront, rightFront, rightBack, leftBack };
 

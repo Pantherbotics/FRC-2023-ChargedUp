@@ -70,7 +70,7 @@ public class Constants {
 
         public static final double swerveModule1Offset = 70.75;
         public static final double swerveModule2Offset = -74.44;
-        public static final double swerveModule3Offset = 0;
+        public static final double swerveModule3Offset = -30.61;
         public static final double swerveModule4Offset = -86.92;
     }
 
