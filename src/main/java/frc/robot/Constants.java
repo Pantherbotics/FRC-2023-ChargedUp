@@ -67,10 +67,10 @@ public class Constants {
         public static final int kBackLeftCANCoderPort = 8;
 
         //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftCANCoderOffsetDeg = 0; 
-        public static final int kFrontRightCANCoderOffsetDeg = 0; 
-        public static final int kBackRightCANCoderOffsetDeg = 0; 
-        public static final int kBackLeftCANCoderOffsetDeg = 0; 
+        public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
+        public static final double kFrontRightCANCoderOffsetDeg = -74.44; 
+        public static final double kBackRightCANCoderOffsetDeg = 60.61; 
+        public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
     }
     
     public static final class ArmConstants {
@@ -101,7 +101,7 @@ public class Constants {
         //flex
         public static final double kPFlex = 0.05;
         public static final double kIFlex = 0.0;
-        public static final double kDFlex = 0.00;
+        public static final double kDFlex = 0.0;
         public static final double kIZoneFlex = 0;
         public static final double kFFFlex = 0;
 

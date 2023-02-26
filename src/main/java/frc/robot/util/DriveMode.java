@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.util;
 
 public enum DriveMode {
     SWERVE,

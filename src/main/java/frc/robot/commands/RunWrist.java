@@ -24,17 +24,17 @@ public class RunWrist extends CommandBase {
     @Override
     public
      void execute() {
-        double xLeftValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
-        double yRightValue = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
+        double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
+        double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue * 0.65;
-        double ySpeed = yRightValue * 0.65;
+        double xSpeed = xLeftValue;
+        double ySpeed = yRightValue;
 
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
 
-        wrist.setFlexAngle(ySpeed * kMaxAngularSpeedDegreesPerSecond);
-        wrist.setRotateAngle(xSpeed * kMaxAngularSpeedDegreesPerSecond);
+        wrist.flexOpenLoop(yRightValue);
+        wrist.rotateOpenLoop(xLeftValue);
     }
   
     //Called once the command ends or is interrupted.

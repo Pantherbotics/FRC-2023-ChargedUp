@@ -122,7 +122,7 @@ public class Wrist extends SubsystemBase {
     @Override
     public void periodic() {
         // the setpoints are in degrees
-        flexPID.setReference(flexSetpoint, ControlType.kPosition);
-        rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
+        // flexPID.setReference(flexSetpoint, ControlType.kPosition);
+        // rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
     }
 }
