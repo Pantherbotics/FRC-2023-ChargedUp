@@ -5,13 +5,8 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -22,15 +17,13 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
     private double flexSetpoint, rotateSetpoint; //these should be zero at start
 
+    public boolean openLoop = false;
+
     public Wrist() {
         // flex motor
         flexMotor = new CANSparkMax(ArmConstants.kFlexMotorPort, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
-        flexMotor.setSoftLimit(SoftLimitDirection.kForward, -1);
-        flexMotor.setSoftLimit(SoftLimitDirection.kReverse, 260);
-        flexMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
-        flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
@@ -46,8 +39,6 @@ public class Wrist extends SubsystemBase {
         flexPID.setIZone(ArmConstants.kIZoneFlex);
         flexPID.setFF(ArmConstants.kFFFlex);
         flexPID.setOutputRange(-1, 1);
-
-        flexMotor.burnFlash();
 
         flexSetpoint = 0;
 
@@ -71,58 +62,55 @@ public class Wrist extends SubsystemBase {
         rotatePID.setFF(ArmConstants.kFFRotate);
         rotatePID.setOutputRange(-1, 1);
 
-        rotateMotor.burnFlash();
-
         rotateSetpoint = 0;
-
-        // shuffleboard stuff
-        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
-        ShuffleboardLayout flexLayout = tab.getLayout("Flex", BuiltInLayouts.kList)
-            .withSize(1, 1)
-            .withPosition(4, 0);
-        ShuffleboardLayout rotateLayout = tab.getLayout("Rotate", BuiltInLayouts.kList)
-            .withSize(1, 1)
-            .withPosition(4, 1);
-        
-        flexLayout.addNumber("Angle (deg)", () -> getFlexAngle());
-        rotateLayout.addNumber("Angle (deg)", () -> getRotateAngle());
     }
 
     public void flexOpenLoop(double speed) {
         flexMotor.set(speed);
     }
 
-    public void setFlexAngle(double speed) {
+    public void flexClosedLoop(double speed) {
         flexSetpoint += speed;
-        //flexPID.setReference(output * 5, ControlType.kVoltage);
     }
 
     public double getFlexAngle() {
         return flexEncoder.getPosition();
     }
 
+    public void stopFlex() {
+        //flexPID.setReference(0, ControlType.kVelocity);
+        flexMotor.stopMotor();
+    }
+
     public void rotateOpenLoop(double speed) {
         rotateMotor.set(speed);
     }
 
-    public void setRotateAngle(double speed) {
+    public void rotateClosedLoop(double speed) {
         rotateSetpoint += speed;
-        //rotatePID.setReference(output * 3, ControlType.kVoltage);
     }
 
     public double getRotateAngle() {
         return rotateEncoder.getPosition();
     }
 
-    public void stop() {
-        flexPID.setReference(0, ControlType.kVelocity);
-        rotatePID.setReference(0, ControlType.kVelocity);
+    public void stopRotate() {
+        //rotatePID.setReference(0, ControlType.kVelocity);
+        rotateMotor.stopMotor();
     }
 
     @Override
     public void periodic() {
-        // the setpoints are in degrees
-        // flexPID.setReference(flexSetpoint, ControlType.kPosition);
-        // rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
+        if(!openLoop)
+        {
+            flexPID.setReference(flexSetpoint, ControlType.kPosition);
+            rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
+        }
+
+        SmartDashboard.putNumber("Flex Setpoint", flexSetpoint);
+        SmartDashboard.putNumber("Flex Position", getFlexAngle());
+
+        SmartDashboard.putNumber("Rotate Setpoint", rotateSetpoint);
+        SmartDashboard.putNumber("Rotate Position", getRotateAngle());
     }
 }

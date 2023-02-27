@@ -19,7 +19,7 @@ public class RunExtendArm extends CommandBase {
   
     @Override
     public void execute() {
-        arm.extend(2048.0 / 12 * (reversed ? -1 : 1));
+        arm.extendClosedLoop(2048.0 / 12 * (reversed ? -1 : 1));
     }
   
     //Called once the command ends or is interrupted.

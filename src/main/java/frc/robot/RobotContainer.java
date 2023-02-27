@@ -28,8 +28,8 @@ import frc.robot.util.DriveMode;
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    // private final Limelight limelight = new Limelight();
-    private final Arm arm = new Arm(); //initialize the arm first cuz the wrist and claw use the arm tab in shuffleboard
+    private final Limelight limelight = new Limelight();
+    private final Arm arm = new Arm(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 

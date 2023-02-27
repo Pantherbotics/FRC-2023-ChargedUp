@@ -158,7 +158,6 @@ public class Drivetrain extends SubsystemBase {
             spark.getEncoder().setPosition(0);
         }
 
-        
         leftFront.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", leftFront.getOffsetAngle()));
         rightFront.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", rightFront.getOffsetAngle()));
         rightBack.setOffsetAngle(SmartDashboard.getNumber("Swerve[3] Offset Degrees", rightBack.getOffsetAngle()));

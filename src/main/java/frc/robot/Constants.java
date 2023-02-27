@@ -76,7 +76,6 @@ public class Constants {
     public static final class ArmConstants {
         //arm
         //pivot
-        public static final double kPivotMotorGearRatio = 5.0 * 4 * 10;
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
@@ -98,21 +97,23 @@ public class Constants {
         public static final int kExtensionMotorPort = 5;
 
         //wrist
+        public static final double kWristMaxAngularSpeedDegreesPerSecond = 120;
+
         //flex
-        public static final double kPFlex = 0.05;
+        public static final double kPFlex = 0.0001;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
-        public static final double kIZoneFlex = 0;
-        public static final double kFFFlex = 0;
+        public static final double kIZoneFlex = 0.0;
+        public static final double kFFFlex = 0.0;
 
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kPRotate = 0.02;
+        public static final double kPRotate = 0.0002;
         public static final double kIRotate = 0.0;
-        public static final double kDRotate = 0.00;
-        public static final double kIZoneRotate = 0;
-        public static final double kFFRotate = 0;
+        public static final double kDRotate = 0.0;
+        public static final double kIZoneRotate = 0.0;
+        public static final double kFFRotate = 0.0;
 
         public static final int kRotateMotorPort = 7;
 

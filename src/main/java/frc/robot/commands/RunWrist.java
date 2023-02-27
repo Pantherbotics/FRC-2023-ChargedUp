@@ -2,14 +2,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.arm.Wrist;
 
 public class RunWrist extends CommandBase {
     private Wrist wrist;
     private Joystick joystick;
-
-    public static final double kMaxAngularSpeedDegreesPerSecond = 90.0; 
 
     public RunWrist(Wrist wrist, Joystick joystick) {
         this.wrist = wrist;
@@ -27,20 +27,29 @@ public class RunWrist extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue;
-        double ySpeed = yRightValue;
+        double xSpeed = xLeftValue * 1;
+        double ySpeed = yRightValue * 1;
 
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
 
-        wrist.flexOpenLoop(yRightValue);
-        wrist.rotateOpenLoop(xLeftValue);
+        xSpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
+        ySpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
+
+        if(wrist.openLoop) {
+            wrist.flexOpenLoop(ySpeed);
+            wrist.rotateOpenLoop(xSpeed);
+        } else {
+            wrist.flexClosedLoop(ySpeed);
+            wrist.rotateClosedLoop(xSpeed);
+        }
     }
   
     //Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        wrist.stop();
+        // wrist.stopFlex();
+        // wrist.stopRotate();
     }
   
     // Returns true when the command should end.
