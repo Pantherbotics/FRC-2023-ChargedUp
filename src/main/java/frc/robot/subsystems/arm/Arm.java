@@ -11,24 +11,15 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
-    private final CANSparkMax pivotLeaderTest, pivotFollowerTest;//pivotLeader, pivotFollower;
+    private final CANSparkMax pivotLeader, pivotFollower;
     private final CANCoder pivotCancoder;
     private final PIDController pivotPID;
 
@@ -38,14 +29,18 @@ public class Arm extends SubsystemBase {
     private final TalonFX extensionMotor;
     private double extensionSetpoint;
 
+    public boolean extendOpenLoop = false;
+
     public Arm() {
-        pivotLeaderTest = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
-        pivotLeaderTest.restoreFactoryDefaults();
+        pivotLeader = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
+        pivotLeader.restoreFactoryDefaults();
+        pivotLeader.setIdleMode(IdleMode.kBrake);
 
-        pivotFollowerTest = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
-        pivotFollowerTest.restoreFactoryDefaults();
+        pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
+        pivotFollower.restoreFactoryDefaults();
+        pivotFollower.setIdleMode(IdleMode.kBrake);
 
-        pivotFollowerTest.follow(pivotLeaderTest, true);
+        pivotFollower.follow(pivotLeader, true);
 
         // cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
@@ -66,10 +61,6 @@ public class Arm extends SubsystemBase {
         motorConfig.slot0.kI = ArmConstants.kIExtension;
         motorConfig.slot0.kD = ArmConstants.kDExtension;
         motorConfig.slot0.kF = ArmConstants.kFExtension;
-        // motorConfig.forwardSoftLimitThreshold = 1000000;
-        // motorConfig.reverseSoftLimitThreshold = 0;
-        // motorConfig.forwardSoftLimitEnable = false;
-        // motorConfig.reverseSoftLimitEnable = false;
 
         extensionMotor = new TalonFX(ArmConstants.kExtensionMotorPort);
         extensionMotor.configAllSettings(motorConfig);
@@ -79,31 +70,14 @@ public class Arm extends SubsystemBase {
         extensionMotor.setInverted(TalonFXInvertType.CounterClockwise);
         
         extensionSetpoint = 0;  
-
-        //shuffleboard shit
-        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
-        ShuffleboardLayout pivotLayout = tab.getLayout("Pivot", BuiltInLayouts.kList)
-            .withSize(2, 2)
-            .withPosition(0, 0);
-        ShuffleboardLayout extensionLayout = tab.getLayout("Extension", BuiltInLayouts.kList)
-            .withSize(2, 2)
-            .withPosition(2, 0);
-
-        pivotLayout.addNumber("Setpoint (deg)", () -> pivotPID.getSetpoint());
-        pivotLayout.addNumber("Angle (deg)", () -> getPivotAngle());
-        pivotLayout.addBoolean("Open Loop?", () -> pivotOpenLoop);
-
-        extensionLayout.addNumber("Setpoint (m)", () -> extensionSetpoint);
-        extensionLayout.addNumber("Position (m)", () -> getExtensionPosition());
     }
 
     public void pivotClosedLoop(double speed) {
-        double newSetpoint = pivotPID.getSetpoint() + speed;
-        pivotPID.setSetpoint(newSetpoint);
+        pivotPID.setSetpoint(pivotPID.getSetpoint() + speed);
     }
 
     public void pivotOpenLoop(double speed) {
-        pivotLeaderTest.set(speed);
+        pivotLeader.set(speed);
     }
 
     public double getPivotAngle() {
@@ -111,13 +85,14 @@ public class Arm extends SubsystemBase {
     }
 
     public void stopPivot() {
-        pivotLeaderTest.stopMotor();
+        pivotLeader.stopMotor();
         //pivotPID.setReference(0, ControlType.kVelocity);
     }
 
-    public void extend(double speed) {
+    public void extendClosedLoop(double speed) {
         extensionSetpoint += speed;
         if(extensionSetpoint < 0) extensionSetpoint = 0;
+        if(extensionSetpoint > 10000000) extensionSetpoint = 10000000;
     }
 
     /**
@@ -134,8 +109,11 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         if(!pivotOpenLoop)
-            pivotLeaderTest.set(pivotPID.calculate(getPivotAngle()));
-        //extensionMotor.set(ControlMode.PercentOutput, .3);
-        extensionMotor.set(ControlMode.Position, extensionSetpoint);
+            pivotLeader.set(pivotPID.calculate(getPivotAngle()));
+        
+        if(!extendOpenLoop)
+            extensionMotor.set(ControlMode.Position, extensionSetpoint);
+
+        
     }
 }

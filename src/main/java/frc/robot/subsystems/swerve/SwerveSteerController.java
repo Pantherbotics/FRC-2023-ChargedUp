@@ -15,18 +15,17 @@ import frc.robot.Constants.ModuleConstants;
 public class SwerveSteerController {
     private final TalonSRX motor;
     private final CANCoder cancoder;
+    private final double cancoderOffset;
 
     /**
      * @param motorPort The port number of the drive motor
      * @param cancoderPort The port number of the cancoder
-     * @param cancoderOffset The cancoder offset in degrees
+     * @param moduleOffset The cancoder offset in degrees
      */
-    public SwerveSteerController(int motorPort, int cancoderPort, double cancoderOffset) {
+    public SwerveSteerController(int motorPort, int cancoderPort, double moduleOffset) {
         //cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
         cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        cancoderConfig.magnetOffsetDegrees = cancoderOffset;
-        cancoderConfig.sensorDirection = false;
         cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
 
         cancoder = new CANCoder(cancoderPort);
@@ -44,14 +43,17 @@ public class SwerveSteerController {
         motor.configAllSettings(motorConfig);
         motor.configRemoteFeedbackFilter(cancoder, 0);
         motor.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.RemoteSensor0, 0, 20);
+
+        cancoderOffset = moduleOffset;
     }
-    
+
     /**
      * Returns the angle in degrees from 0 to 360 degrees
      * @return the position in degrees
      */
     public double getAngle() {
         double angle = motor.getSelectedSensorPosition() * ModuleConstants.kTurnPositionCoefficient;
+        angle += cancoderOffset;
         angle %= 360;
         angle += (angle < 0) ? 360 :  0;
         return angle;
@@ -61,8 +63,11 @@ public class SwerveSteerController {
      * @param targetAngle The desired angle to set the module to in degrees
      */
     public void setAngle(double targetAngle) {
-        double delta = (targetAngle - getAngle()) / ModuleConstants.kTurnPositionCoefficient;
-        double position = motor.getSelectedSensorPosition() + delta;
+        double delta = targetAngle - getAngle();
+        if(delta > 180) delta -= 360; 
+        if(delta < -180) delta += 360;
+
+        double position = motor.getSelectedSensorPosition() + delta / ModuleConstants.kTurnPositionCoefficient;
         motor.set(ControlMode.Position, position);
     }
 

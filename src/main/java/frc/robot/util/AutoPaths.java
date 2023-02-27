@@ -1,4 +1,4 @@
-package frc.robot.auto;
+package frc.robot.util;
 import java.util.HashMap;
 
 import edu.wpi.first.wpilibj2.command.Command;
