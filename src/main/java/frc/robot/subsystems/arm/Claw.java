@@ -3,46 +3,46 @@ package frc.robot.subsystems.arm;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 
 public class Claw extends SubsystemBase {
-    private final DoubleSolenoid solenoidA;
+    private final DoubleSolenoid solenoid;
+    private boolean isOpen;
 
     public Claw() {
-        solenoidA = new DoubleSolenoid(9, PneumaticsModuleType.CTREPCM, 0, 1);
-
-        //Shuffleboard
-        ShuffleboardTab tab = Shuffleboard.getTab("Arm");
-        ShuffleboardLayout clawLayout = tab.getLayout("Claw", BuiltInLayouts.kList)
-            .withSize(1, 1)
-            .withPosition(5, 0);
-
-        clawLayout.addBoolean("Open?", () -> solenoidA.isRevSolenoidDisabled());
+        solenoid = new DoubleSolenoid(ArmConstants.kClawSolenoidPort, PneumaticsModuleType.CTREPCM, 0, 1);
+        isOpen = false;
     }
 
-    public void run(boolean state){
-        solenoidA.set(state ? Value.kForward : Value.kReverse);
+    public void run(boolean state) {
+        solenoid.set(state ? Value.kForward : Value.kReverse);
+        isOpen = state;
     }
 
-    public void stop(){
-        solenoidA.set(Value.kOff);
-    }
-
-    public void toggle(){
-        switch(solenoidA.get()) {
+    public void toggle() {
+        switch(solenoid.get()) {
             case kForward:
-                solenoidA.set(Value.kReverse);
+                solenoid.set(Value.kReverse);
+                isOpen = true;
                 break;
             case kReverse:
-                solenoidA.set(Value.kForward);
+                solenoid.set(Value.kForward);
+                isOpen = false;
                 break;
             default:
-                solenoidA.set(Value.kOff);
+                solenoid.set(Value.kOff);
+                isOpen = false;
                 break;
         }
+    }
+
+    public void stop() {
+        solenoid.set(Value.kOff);
+        isOpen = false;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 }

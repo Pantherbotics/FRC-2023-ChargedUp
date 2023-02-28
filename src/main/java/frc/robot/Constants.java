@@ -51,21 +51,6 @@ public class Constants {
         public static final int kBackRightModuleID = 3;
         public static final int kBackLeftModuleID = 4;
 
-        public static final int kFrontLeftDriveMotorPort = 1;
-        public static final int kFrontRightDriveMotorPort = 2;
-        public static final int kBackRightDriveMotorPort = 3;
-        public static final int kBackLeftDriveMotorPort = 4;
-
-        public static final int kFrontLeftTurnMotorPort = 1;
-        public static final int kFrontRightTurnMotorPort = 2;
-        public static final int kBackRightTurnMotorPort = 3;
-        public static final int kBackLeftTurnMotorPort = 4;
-
-        public static final int kFrontLeftCANCoderPort = 5;
-        public static final int kFrontRightCANCoderPort = 6;
-        public static final int kBackRightCANCoderPort = 7;
-        public static final int kBackLeftCANCoderPort = 8;
-
         //Positive is counterclockwise, Negative is clockwise
         public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
         public static final double kFrontRightCANCoderOffsetDeg = -74.44; 
@@ -103,7 +88,6 @@ public class Constants {
         public static final int kExtensionMotorPort = 5;
 
         //wrist
-
         //flex
         public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
 
@@ -133,7 +117,7 @@ public class Constants {
         public static final int kRotateMotorPort = 7;
 
         //claw 
-        public static final int kCTREPCMid = 9;
+        public static final int kClawSolenoidPort = 9;
     }
 
     //Checked and verified as of May 1st, 2022

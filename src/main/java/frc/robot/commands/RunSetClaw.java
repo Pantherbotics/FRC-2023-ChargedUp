@@ -3,12 +3,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.arm.Claw;
 
-public class RunSetClaw extends CommandBase{
+public class RunSetClaw extends CommandBase {
     private Claw claw;
     private boolean desiredState;
 
-    public RunSetClaw(Claw _claw, boolean forward){
-        this.claw = _claw;
+    public RunSetClaw(Claw claw, boolean forward) {
+        this.claw = claw;
         this.desiredState = forward;
     }
 
@@ -18,13 +18,10 @@ public class RunSetClaw extends CommandBase{
     }
 
     @Override
-    public void execute() {
-    }
+    public void execute() {}
 
     @Override
-    public void end(boolean interrupted) {
-        return;
-    }
+    public void end(boolean interrupted) {}
 
     @Override
     public boolean isFinished() {
