@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-@SuppressWarnings({"SameParameterValue", "unused"})
 public class MathUtils {
 	/**
 	 * Rounds a value to a specified number of place.s
@@ -15,7 +14,6 @@ public class MathUtils {
 	public static double round(double value, int places) {
 		BigDecimal bd = new BigDecimal(Double.toString(value));
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
-
 		return bd.doubleValue();
 	}
 
@@ -37,12 +35,11 @@ public class MathUtils {
 	 * @param y the Y value of a coordinate
 	 */
 	public static double getHeading(double x, double y) {
-		if (x == 0 && y == 0) { return 0; }
-
-		double angle = (360D - ((Math.atan2(y, x)*180D/Math.PI) + 180D)) - 90D;
-		if (angle < 0D) {
-			angle = 270D + (90D - Math.abs(angle));
-		}
+		if(x == 0 && y == 0) return 0;
+		
+		double angle = (360 - ((Math.atan2(y, x)* 180.0 / Math.PI) + 180)) - 90;
+		if(angle < 0) 
+			angle = 270 + (90 - Math.abs(angle));
 		return angle;
 	}
 
@@ -53,16 +50,14 @@ public class MathUtils {
 	 */
 	public static double getHeadingX(double angle) {
 		//Ensure values are [0, 360)
-		while (angle > 360) { angle -= 360; }
-		while (angle < 0) { angle += 360; }
+		angle = restrictAngle(angle);
 
-		if (angle >= 0 && angle <= 90) {
+		if (angle >= 0 && angle <= 90) 
 			return Math.cos(Math.toRadians(90 - angle));
-		}else if (angle >= 90 && angle <= 270) {
+		else if (angle >= 90 && angle <= 270) 
 			return Math.cos(-Math.toRadians(angle - 90));
-		}else if (angle >= 270 && angle <= 360) {
+		else if (angle >= 270 && angle <= 360) 
 			return -Math.cos(Math.toRadians(270 - angle));
-		}
 		return 0;
 	}
 
@@ -73,16 +68,14 @@ public class MathUtils {
 	 */
 	public static double getHeadingY(double angle) {
 		//Ensure values are [0, 360)
-		while (angle > 360) { angle -= 360; }
-		while (angle < 0) { angle += 360; }
+		angle = restrictAngle(angle);
 
-		if (angle >= 0 && angle <= 90) {
+		if(angle >= 0 && angle <= 90) 
 			return Math.sin(Math.toRadians(90 - angle));
-		}else if (angle >= 90 && angle <= 270) {
+		else if(angle >= 90 && angle <= 270) 
 			return Math.sin(-Math.toRadians(angle - 90));
-		}else if (angle >= 270 && angle <= 360) {
+		else if(angle >= 270 && angle <= 360) 
 			return -Math.sin(Math.toRadians(270 - angle));
-		}
 		return 0;
 	}
 
@@ -93,27 +86,23 @@ public class MathUtils {
 	 * @return the shifted value
 	 */
 	public static double approachZero(double value, double shift) {
-		if (value >= 0) {
-			return Math.max(0, value - shift);
-		}else if (value < 0) {
-			return Math.min(0, value + shift);
-		}
-		return 0;
+		return value >= 0 ? 
+			Math.max(0, value - shift) :
+			Math.min(0, value + shift);
 	}
 
 	/**
-	 * Returns a speed value from [-1, 1] based on joystick X and Y inputs
-	 * More critically it's snapped to the unit circle so X=1 Y=1 won't be sqrt(2)
-	 * @param X the X of a coordinate [-1, 1]
-	 * @param Y the Y of a coordinate [-1, 1]
+	 * Returns a speed value from [-1, 1] based on joystick x and y inputs
+	 * More critically it's snapped to the unit circle so x = 1 y = 1 won't be sqrt2
+	 * @param x the X of a coordinate [-1, 1]
+	 * @param y the Y of a coordinate [-1, 1]
 	 */
-	public static double getJoystickSpeed(double X, double Y) {
-
-		double angle = Math.atan2(X, Y);
-		double maxMagnitude = Math.abs(X) > Math.abs(Y)
-				? 1 / Math.sin(angle)
-				: 1 / Math.cos(angle);
-		return Math.abs(Math.sqrt(X*X + Y*Y) / maxMagnitude);
+	public static double getJoystickSpeed(double x, double y) {
+		double angle = Math.atan2(x, y);
+		double magnitude = Math.abs(x) > Math.abs(y) ? 
+			1 / Math.sin(angle) : 
+			1 / Math.cos(angle);
+		return Math.abs(Math.sqrt(x * x + y * y) / magnitude);
 	}
 
 	/**
@@ -121,8 +110,8 @@ public class MathUtils {
 	 * @param angle the angle in degrees to restrict
 	 */
 	public static double restrictAngle(double angle) {
-		while (angle > 360) { angle -= 360; }
-		while (angle < 0) { angle += 360; }
+		while(angle > 360) angle -= 360;
+		while(angle < 0) angle += 360;
 		return angle;
 	}
 
@@ -131,8 +120,8 @@ public class MathUtils {
 	 * @param angle the angle in degrees to bound
 	 */
 	public static double boundHalfDegrees(double angle) {
-		while (angle >= 180.0) angle -= 360.0;
-		while (angle < -180.0) angle += 360.0;
+		while(angle >= 180.0) angle -= 360.0;
+		while(angle < -180.0) angle += 360.0;
 		return angle;
 	}
 
@@ -142,10 +131,6 @@ public class MathUtils {
 	 * @return A to the power of B maintaining the sign of A
 	 */
 	public static double powAxis(double a, double b) {
-		if (a >= 0) {
-			return Math.pow(a, b);
-		}else {
-			return -Math.pow(-a, b);
-		}
+		return Math.signum(a) * Math.pow(a, b);
 	}
 }

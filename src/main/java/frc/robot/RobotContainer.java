@@ -21,9 +21,8 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.util.AutoPaths;
-import frc.robot.util.DriveMode;
 
 public class RobotContainer {
     // Subsystems
