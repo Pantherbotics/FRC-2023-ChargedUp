@@ -27,14 +27,14 @@ public class RunWrist extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue * 1;
+        double xSpeed = xLeftValue * 0.2;
         double ySpeed = yRightValue * 1;
 
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
 
-        xSpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
-        ySpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
+        xSpeed *= ArmConstants.kFlexMaxAngularSpeedDegreesPerSecond;
+        ySpeed *= ArmConstants.kRotateMaxAngularSpeedDegreesPerSecond;
 
         if(wrist.openLoop) {
             wrist.flexOpenLoop(ySpeed);

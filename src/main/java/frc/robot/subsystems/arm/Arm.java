@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -72,12 +73,21 @@ public class Arm extends SubsystemBase {
         extensionSetpoint = 0;  
     }
 
-    public void pivotClosedLoop(double speed) {
-        pivotPID.setSetpoint(pivotPID.getSetpoint() + speed);
-    }
-
     public void pivotOpenLoop(double speed) {
         pivotLeader.set(speed);
+    }
+
+    public void pivotClosedLoop(double speed) {
+        setPivotPosition(pivotPID.getSetpoint() + speed);
+    }
+
+    public void setPivotPosition(double position) {
+        if(withinPivotBounds(position))
+            pivotPID.setSetpoint(position);
+    }
+
+    public boolean withinPivotBounds(double position) {
+        return true;
     }
 
     public double getPivotAngle() {
@@ -90,9 +100,17 @@ public class Arm extends SubsystemBase {
     }
 
     public void extendClosedLoop(double speed) {
-        extensionSetpoint += speed;
-        if(extensionSetpoint < 0) extensionSetpoint = 0;
-        if(extensionSetpoint > 10000000) extensionSetpoint = 10000000;
+        setExtendPosition(extensionSetpoint + speed);
+    }
+
+    public void setExtendPosition(double position) {
+        if(withinExtendBounds(position))
+            extensionSetpoint = position;
+    }
+
+    public boolean withinExtendBounds(double position) {
+        return position >= ArmConstants.kExtendLowerBound && 
+               position <= ArmConstants.kExtendUpperBound;
     }
 
     /**
@@ -114,6 +132,10 @@ public class Arm extends SubsystemBase {
         if(!extendOpenLoop)
             extensionMotor.set(ControlMode.Position, extensionSetpoint);
 
-        
+        SmartDashboard.putNumber("Pivot Setpoint", pivotPID.getSetpoint());
+        SmartDashboard.putNumber("Pivot Position", getPivotAngle());
+
+        SmartDashboard.putNumber("Extension Setpoint", extensionSetpoint);
+        SmartDashboard.putNumber("Extension Position", getExtensionPosition());
     }
 }

@@ -70,11 +70,21 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flexClosedLoop(double speed) {
-        flexSetpoint += speed;
+        setFlexPosition(flexSetpoint + speed);
+    }
+
+    public void setFlexPosition(double position) {
+        if(withinFlexBounds(position))
+            flexSetpoint = position;
     }
 
     public double getFlexAngle() {
         return flexEncoder.getPosition();
+    }
+
+    public boolean withinFlexBounds(double position) {
+        return position >= ArmConstants.kFlexLowerBound && 
+               position <= ArmConstants.kFlexUpperBound;
     }
 
     public void stopFlex() {
@@ -87,7 +97,17 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotateClosedLoop(double speed) {
-        rotateSetpoint += speed;
+        setRotatePosition(rotateSetpoint + speed);
+    }
+
+    public void setRotatePosition(double position) {
+        if(withinRotateBounds(position))
+            rotateSetpoint = position;
+    }
+
+    public boolean withinRotateBounds(double position) {
+        return position >= ArmConstants.kRotateLowerBound && 
+               position <= ArmConstants.kRotateUpperBound;
     }
 
     public double getRotateAngle() {

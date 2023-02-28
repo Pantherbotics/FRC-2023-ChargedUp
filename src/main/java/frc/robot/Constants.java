@@ -79,6 +79,9 @@ public class Constants {
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
+        public static final double kPivotUpperBound = 0;
+        public static final double kPivotLowerBound = 0;
+
         public static final double kPPivot = 0.02;
         public static final double kIPivot = 0.0;
         public static final double kDPivot = 0.0;
@@ -89,6 +92,9 @@ public class Constants {
         public static final int kPivotCANCoderPort = 9;
 
         //extension
+        public static final double kExtendUpperBound = 48000;
+        public static final double kExtendLowerBound = 0;
+
         public static final double kPExtension = 0.08;
         public static final double kIExtension = 0.0;
         public static final double kDExtension = 0.0;
@@ -97,9 +103,13 @@ public class Constants {
         public static final int kExtensionMotorPort = 5;
 
         //wrist
-        public static final double kWristMaxAngularSpeedDegreesPerSecond = 120;
 
         //flex
+        public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
+
+        public static final double kFlexLowerBound = -37000;
+        public static final double kFlexUpperBound = 2000;
+
         public static final double kPFlex = 0.0001;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
@@ -109,7 +119,12 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kPRotate = 0.0002;
+        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 360;
+
+        public static final double kRotateLowerBound = -20000;
+        public static final double kRotateUpperBound = 20000;
+
+        public static final double kPRotate = 0.0007;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;

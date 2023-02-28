@@ -19,7 +19,7 @@ public class RunPivotArm extends CommandBase {
         if(arm.pivotOpenLoop)
             arm.pivotOpenLoop(.1 * (reversed ? -1 : 1)); 
         else
-            arm.pivotClosedLoop(.5 * (reversed ? -1 : 1));
+            arm.pivotClosedLoop(.44 * (reversed ? -1 : 1));
     }
 
     @Override
