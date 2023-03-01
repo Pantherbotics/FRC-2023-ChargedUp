@@ -57,12 +57,12 @@ public class Arm extends SubsystemBase {
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.slot0.kP = ArmConstants.kPExtension;
-        motorConfig.slot0.kI = ArmConstants.kIExtension;
-        motorConfig.slot0.kD = ArmConstants.kDExtension;
-        motorConfig.slot0.kF = ArmConstants.kFExtension;
+        motorConfig.slot0.kP = ArmConstants.kPEntend;
+        motorConfig.slot0.kI = ArmConstants.kIExtend;
+        motorConfig.slot0.kD = ArmConstants.kDExtend;
+        motorConfig.slot0.kF = ArmConstants.kFExtend;
 
-        extendMotor = new TalonFX(ArmConstants.kExtensionMotorPort);
+        extendMotor = new TalonFX(ArmConstants.kExtendMotorPort);
         extendMotor.configAllSettings(motorConfig);
         extendMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
         extendMotor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down

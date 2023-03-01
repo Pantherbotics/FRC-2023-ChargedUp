@@ -80,12 +80,12 @@ public class Constants {
         public static final double kExtendUpperBound = 48000;
         public static final double kExtendLowerBound = 0;
 
-        public static final double kPExtension = 0.08;
-        public static final double kIExtension = 0.0;
-        public static final double kDExtension = 0.0;
-        public static final double kFExtension = 0.0;
+        public static final double kPEntend = 0.08;
+        public static final double kIExtend = 0.0;
+        public static final double kDExtend = 0.0;
+        public static final double kFExtend = 0.0;
         
-        public static final int kExtensionMotorPort = 5;
+        public static final int kExtendMotorPort = 5;
 
         //wrist
         //flex
