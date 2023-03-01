@@ -9,25 +9,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
+import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetClaw;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.util.AutoPaths;
+import frc.robot.subsystems.vision.Limelight;
 
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    private final Limelight pog = new Limelight();
-    private final Limelight poggers = new Limelight();
+    private final Limelight reflective = new Limelight("pog");
+    private final Limelight apriltag = new Limelight("poggers");
     private final Arm arm = new Arm(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();

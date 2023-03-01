@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.util.MathUtils;
-import frc.robot.util.Odometer;
 
 public class Drivetrain extends SubsystemBase {
     private final SwerveModule frontLeft, frontRight, backRight, backLeft;
