@@ -6,47 +6,71 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Notifier;
 
 public class Limelight {
-    private NetworkTable limelight;
-    private NetworkTableEntry limelightTX;
-    private NetworkTableEntry limelightTY;
-    private NetworkTableEntry limelightTA;
+    private final NetworkTable limelight;
+    private NetworkTableEntry tx, ty, ta;
+    private double targetYaw, targetPitch, targetArea;
+    private LimelightMode mode;
 
-    private Target target; 
+    public Limelight(String name, LimelightMode limelightMode) {
+        limelight = NetworkTableInstance.getDefault().getTable("limelight-" + name);
+        tx = limelight.getEntry("tx");
+        ty = limelight.getEntry("ty");
+        ta = limelight.getEntry("ta");
 
-    public Limelight(String name) {
-        limelight = NetworkTableInstance.getDefault().getTable("limelight" + name);
-        limelightTX = limelight.getEntry("tx");
-        limelightTY = limelight.getEntry("ty");
-        limelightTA = limelight.getEntry("ta");
+        targetYaw = 0;
+        targetPitch = 0;
+        targetArea = 0;
 
-        target = new Target();
+        mode = limelightMode;
 
-        Notifier updateLoop = new Notifier(this::update);
-        updateLoop.startPeriodic(10.0 / 1000);
-        
+        try(Notifier updateLoop = new Notifier(this::update)) {
+            updateLoop.startPeriodic(1.0 / 100); // 10 ms
+        }
         setLights(1);
     }
 
     private void update() {
-        target.setYaw(limelightTX.getDouble(0));
-        target.setPitch(limelightTY.getDouble(0));
-        target.setArea(limelightTA.getDouble(0));
-    }
-
-    public Target getTarget()
-    {
-        return target;
+        targetYaw = tx.getDouble(0);
+        targetPitch = ty.getDouble(0);
+        targetArea = ta.getDouble(0);
     }
 
     public void setLights(int state) {
         limelight.getEntry("ledMode").setNumber(state);
     }
 
+    public double getDistance() {
+        return 0;
+    }
+
     public boolean hasTarget() {
         return limelight.getEntry("tv").getDouble(0) == 1;
     }
 
-    public double getDistance() {
-        return 0;
+    public double getTargetYaw()
+    {
+        return targetYaw;
     }
+
+    public void setTargetYaw(double yaw) {
+        targetYaw = yaw;
+    } 
+
+    public double getTargetPitch()
+    {
+        return targetPitch;
+    }
+
+    public void setTargetPitch(double pitch) {
+        targetPitch = pitch;
+    } 
+
+    public double getTargetArea()
+    {
+        return targetArea;
+    }
+
+    public void setTargetArea(double area) {
+        targetArea = area;
+    } 
 }

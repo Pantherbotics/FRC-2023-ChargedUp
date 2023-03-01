@@ -22,12 +22,13 @@ import frc.robot.subsystems.arm.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.vision.LimelightMode;
 
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    private final Limelight reflective = new Limelight("pog");
-    private final Limelight apriltag = new Limelight("poggers");
+    private final Limelight reflective = new Limelight("pog", LimelightMode.REFLECTIVE);
+    private final Limelight apriltag = new Limelight("poggers", LimelightMode.APRILTAG);
     private final Arm arm = new Arm(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
@@ -110,7 +111,7 @@ public class RobotContainer {
         // speed chooser
         speedChooser.setDefaultOption("Slow", 0.25);
         speedChooser.addOption("Normal", 0.65);
-        speedChooser.addOption("Demon", 1.0);
+        speedChooser.addOption("Demon", 1.00);
         SmartDashboard.putData("Speed", speedChooser);
 
         // drive mode chooser
@@ -137,6 +138,19 @@ public class RobotContainer {
 
     public void updateSmartDashboard() {
         // drivetrain
+        SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
+
+        SmartDashboard.putNumber("Swerve [1] Speed", drivetrain.getFrontLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [1] Angle", drivetrain.getFrontLeft().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [2] Speed", drivetrain.getFrontRight().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [2] Angle", drivetrain.getFrontRight().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [3] Speed", drivetrain.getBackRight().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [3] Angle", drivetrain.getBackRight().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [4] Angle", drivetrain.getBackLeft().getAngle());
 
         // limelights
 
@@ -144,8 +158,8 @@ public class RobotContainer {
         SmartDashboard.putNumber("Arm Pivot Setpoint", arm.getPivotSetpoint());
         SmartDashboard.putNumber("Arm Pivot Position", arm.getPivotAngle());
 
-        SmartDashboard.putNumber("Extension Setpoint", arm.getExtendSetpoint());
-        SmartDashboard.putNumber("Extension Position", arm.getExtendPosition());
+        SmartDashboard.putNumber("Arm Extend Setpoint", arm.getExtendSetpoint());
+        SmartDashboard.putNumber("Arm Extend Position", arm.getExtendPosition());
 
         // wrist
         SmartDashboard.putNumber("Wrist Flex Setpoint", wrist.getFlexSetpoint());

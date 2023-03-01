@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.util.MathUtils;
 
 import java.util.function.Supplier;
-
-import static frc.robot.util.MathUtils.powAxis;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
@@ -82,15 +82,15 @@ public class RunSwerveJoystick extends CommandBase {
         double xRightAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
         double xSpeed, ySpeed, turningSpeed;
-        double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
+        double targetInfluence = drivetrain.getLimelightYaw() / VisionConstants.kLimeLightV2FOVAngle; // Limelight v2 Yaw ranges [-29.8, 29.8]
 
         if(drivetrain.isLockDriveWhileTargeting()) {
             xSpeed = 0;
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
         } else {
-            xSpeed = -powAxis(yLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
-            ySpeed = -powAxis(xLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
+            xSpeed = -MathUtils.powAxis(yLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
+            ySpeed = -MathUtils.powAxis(xLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
             turningSpeed = -xRightAxis * (speedChooser.get() / 2.0) + targetInfluence;
         }
 

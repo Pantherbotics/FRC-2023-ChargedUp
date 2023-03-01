@@ -120,6 +120,11 @@ public class Constants {
         public static final int kClawSolenoidPort = 9;
     }
 
+    public static final class VisionConstants {
+        public static final double kLimelightV1FOVAngle = 27.0;
+        public static final double kLimeLightV2FOVAngle = 29.8;
+    }
+
     //Checked and verified as of May 1st, 2022
     public static final class DriveConstants {
         // Distance between right and left wheels

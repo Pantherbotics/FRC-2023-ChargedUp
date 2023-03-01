@@ -11,6 +11,8 @@ public class RunVisionTargeting extends CommandBase {
 	public RunVisionTargeting(Drivetrain drivetrain, Limelight limelight) {
 		this.drivetrain = drivetrain;
 		this.limelight = limelight;
+
+		addRequirements(drivetrain);
 	}
 
     @Override
@@ -20,7 +22,7 @@ public class RunVisionTargeting extends CommandBase {
 	@Override
 	public void execute() {
 		if(limelight.hasTarget())
-			drivetrain.setLimelightYaw(limelight.getTarget().getYaw());
+			drivetrain.setLimelightYaw(limelight.getTargetYaw());
 	}
 
 	// Called once the command ends or is interrupted.
