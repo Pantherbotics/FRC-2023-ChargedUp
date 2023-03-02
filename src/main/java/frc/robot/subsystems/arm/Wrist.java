@@ -17,7 +17,7 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
     private double flexSetpoint, rotateSetpoint; //these should be zero at start
 
-    public boolean openLoop = false;
+    public boolean flexOpenLoop = false, rotateOpenLoop = false;
 
     public Wrist() {
         // flex motor
@@ -70,15 +70,28 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flexClosedLoop(double speed) {
-        flexSetpoint += speed;
+        setFlexPosition(flexSetpoint + speed);
+    }
+
+    public void setFlexPosition(double position) {
+        if(withinFlexBounds(position))
+            flexSetpoint = position;
     }
 
     public double getFlexAngle() {
         return flexEncoder.getPosition();
     }
 
+    public double getFlexSetpoint() {
+        return flexSetpoint;
+    }
+
+    private boolean withinFlexBounds(double position) {
+        return position >= ArmConstants.kFlexLowerBound && 
+               position <= ArmConstants.kFlexUpperBound;
+    }
+
     public void stopFlex() {
-        //flexPID.setReference(0, ControlType.kVelocity);
         flexMotor.stopMotor();
     }
 
@@ -87,30 +100,37 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotateClosedLoop(double speed) {
-        rotateSetpoint += speed;
+        setRotatePosition(rotateSetpoint + speed);
+    }
+
+    public void setRotatePosition(double position) {
+        if(withinRotateBounds(position))
+            rotateSetpoint = position;
+    }
+
+    private boolean withinRotateBounds(double position) {
+        return position >= ArmConstants.kRotateLowerBound && 
+               position <= ArmConstants.kRotateUpperBound;
+    }
+
+    public void stopRotate() {
+        rotateMotor.stopMotor();
     }
 
     public double getRotateAngle() {
         return rotateEncoder.getPosition();
     }
 
-    public void stopRotate() {
-        //rotatePID.setReference(0, ControlType.kVelocity);
-        rotateMotor.stopMotor();
+    public double getRotateSetpoint() {
+        return rotateSetpoint;
     }
 
     @Override
     public void periodic() {
-        if(!openLoop)
-        {
+        if(!flexOpenLoop)
             flexPID.setReference(flexSetpoint, ControlType.kPosition);
+            
+        if(!rotateOpenLoop)
             rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
-        }
-
-        SmartDashboard.putNumber("Flex Setpoint", flexSetpoint);
-        SmartDashboard.putNumber("Flex Position", getFlexAngle());
-
-        SmartDashboard.putNumber("Rotate Setpoint", rotateSetpoint);
-        SmartDashboard.putNumber("Rotate Position", getRotateAngle());
     }
 }

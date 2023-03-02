@@ -3,11 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.arm.Claw;
 
-public class RunToggleClaw extends CommandBase{
+public class RunToggleClaw extends CommandBase {
     private Claw claw;
 
-    public RunToggleClaw(Claw _claw){
-        this.claw = _claw;
+    public RunToggleClaw(Claw claw) {
+        this.claw = claw;
     }
     
     @Override
@@ -16,13 +16,10 @@ public class RunToggleClaw extends CommandBase{
     }
 
     @Override
-    public void execute() {
-    }
+    public void execute() {}
 
     @Override
-    public void end(boolean interrupted) {
-        return;
-    }
+    public void end(boolean interrupted) {}
 
     @Override
     public boolean isFinished() {

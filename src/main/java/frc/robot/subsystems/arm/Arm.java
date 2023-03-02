@@ -26,8 +26,8 @@ public class Arm extends SubsystemBase {
     public boolean pivotOpenLoop = false;
 
     // extension
-    private final TalonFX extensionMotor;
-    private double extensionSetpoint;
+    private final TalonFX extendMotor;
+    private double extendSetpoint;
 
     public boolean extendOpenLoop = false;
 
@@ -57,53 +57,118 @@ public class Arm extends SubsystemBase {
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.slot0.kP = ArmConstants.kPExtension;
-        motorConfig.slot0.kI = ArmConstants.kIExtension;
-        motorConfig.slot0.kD = ArmConstants.kDExtension;
-        motorConfig.slot0.kF = ArmConstants.kFExtension;
+        motorConfig.slot0.kP = ArmConstants.kPExtend;
+        motorConfig.slot0.kI = ArmConstants.kIExtend;
+        motorConfig.slot0.kD = ArmConstants.kDExtend;
+        motorConfig.slot0.kF = ArmConstants.kFExtend;
 
-        extensionMotor = new TalonFX(ArmConstants.kExtensionMotorPort);
-        extensionMotor.configAllSettings(motorConfig);
-        extensionMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
-        extensionMotor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
-        extensionMotor.setNeutralMode(NeutralMode.Coast);
-        extensionMotor.setInverted(TalonFXInvertType.CounterClockwise);
+        extendMotor = new TalonFX(ArmConstants.kExtendMotorPort);
+        extendMotor.configAllSettings(motorConfig);
+        extendMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
+        extendMotor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
+        extendMotor.setNeutralMode(NeutralMode.Coast);
+        extendMotor.setInverted(TalonFXInvertType.CounterClockwise);
         
-        extensionSetpoint = 0;  
+        extendSetpoint = 0;  
     }
 
-    public void pivotClosedLoop(double speed) {
-        pivotPID.setSetpoint(pivotPID.getSetpoint() + speed);
-    }
-
+    /**
+     * Pivots the arm open loop
+     * @param speed The desired speed to set the motor to, [-1, 1]
+     */
     public void pivotOpenLoop(double speed) {
         pivotLeader.set(speed);
     }
 
+    /**
+     * Pivots the arm closed loop; adds the speed to the setpoint
+     * @param speed The speed in deg/s
+     */
+    public void pivotClosedLoop(double speed) {
+        setPivotPosition(pivotPID.getSetpoint() + speed);
+    }
+
+    /**
+     * @param position The desired position to set the pivot to
+     */
+    public void setPivotPosition(double position) {
+        if(withinPivotBounds(position))
+            pivotPID.setSetpoint(position);
+    }
+
+    /**
+     * @param position The position to test
+     * @return Whether the position is within the bounds of the pivot
+     */
+    private boolean withinPivotBounds(double position) {
+        return true;
+        //TODO
+    }
+
+    /**
+     * Stops the pivot motor
+     */
+    public void stopPivot() {
+        pivotLeader.stopMotor();
+    }
+
+    /**
+     * @return The pivot angle in deg
+     */
     public double getPivotAngle() {
         return pivotCancoder.getPosition();
     }
 
-    public void stopPivot() {
-        pivotLeader.stopMotor();
-        //pivotPID.setReference(0, ControlType.kVelocity);
-    }
-
-    public void extendClosedLoop(double speed) {
-        extensionSetpoint += speed;
-        if(extensionSetpoint < 0) extensionSetpoint = 0;
-        if(extensionSetpoint > 10000000) extensionSetpoint = 10000000;
+    /**
+     * @return The pivot setpoint in deg
+     */
+    public double getPivotSetpoint() {
+        return pivotPID.getSetpoint();
     }
 
     /**
-     * @return the position of the extension motor in meters
+     * @param speed
      */
-    public double getExtensionPosition() {
-        return extensionMotor.getSelectedSensorPosition();
+    public void extendClosedLoop(double speed) {
+        setExtendPosition(extendSetpoint + speed);
     }
 
+    /**
+     * @param position
+     */
+    public void setExtendPosition(double position) {
+        if(withinExtendBounds(position))
+            extendSetpoint = position;
+    }
+
+    /**
+     * @param position The position to test
+     * @return Whether the position is within the bounds of the extend (assuming the extend started in 0 position) 
+     */
+    private boolean withinExtendBounds(double position) {
+        return position >= ArmConstants.kExtendLowerBound && 
+               position <= ArmConstants.kExtendUpperBound;
+    }
+    
+    /**
+     * Stops the extend motor
+     */
     public void stopExtension() {
-        extensionMotor.set(ControlMode.PercentOutput, 0);
+        extendMotor.set(ControlMode.PercentOutput, 0);
+    }
+
+    /**
+     * @return the position of the extend motor
+     */
+    public double getExtendPosition() {
+        return extendMotor.getSelectedSensorPosition();
+    }
+
+    /**
+     * @return The extend setpoint
+     */
+    public double getExtendSetpoint() {
+        return extendSetpoint;
     }
 
     @Override
@@ -112,8 +177,6 @@ public class Arm extends SubsystemBase {
             pivotLeader.set(pivotPID.calculate(getPivotAngle()));
         
         if(!extendOpenLoop)
-            extensionMotor.set(ControlMode.Position, extensionSetpoint);
-
-        
+            extendMotor.set(ControlMode.Position, extendSetpoint);
     }
 }

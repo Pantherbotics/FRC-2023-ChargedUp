@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -7,15 +7,20 @@ import edu.wpi.first.math.geometry.Translation2d;
  * Keeps track of the robot position relative to the field
  */
 public class Odometer {
-    private double x = 0, y = 0;
+    private double x, y;
+
+    public Odometer() {
+        x = 0;
+        y = 0;
+    }
 
     /**
-     * @param x The delta X to add to the current value
-     * @param y The delta Y to add to the current value
+     * @param x The delta x to add to the current value
+     * @param y The delta y to add to the current value
      */
-    public void update(double x, double y) {
-        this.x += x;
-        this.y += y;
+    public void update(double deltaX, double deltaY) {
+        x += deltaX;
+        y += deltaY;
     }
 
     /**

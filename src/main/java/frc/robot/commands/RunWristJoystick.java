@@ -2,16 +2,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.arm.Wrist;
 
-public class RunWrist extends CommandBase {
+public class RunWristJoystick extends CommandBase {
     private Wrist wrist;
     private Joystick joystick;
 
-    public RunWrist(Wrist wrist, Joystick joystick) {
+    public RunWristJoystick(Wrist wrist, Joystick joystick) {
         this.wrist = wrist;
         this.joystick = joystick;
         
@@ -27,16 +26,16 @@ public class RunWrist extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue * 1;
-        double ySpeed = yRightValue * 1;
+        double xSpeed = xLeftValue * xLeftValue * (xLeftValue < 0 ? -1 : 1);
+        double ySpeed = yRightValue * yRightValue * (xLeftValue < 0 ? -1 : 1);
 
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
+        if(Math.abs(xSpeed) > 1) xSpeed /= Math.abs(xSpeed); 
+        if(Math.abs(ySpeed) > 1) ySpeed /= Math.abs(ySpeed); 
 
-        xSpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
-        ySpeed *= ArmConstants.kWristMaxAngularSpeedDegreesPerSecond;
+        xSpeed *= ArmConstants.kFlexMaxAngularSpeedDegreesPerSecond;
+        ySpeed *= ArmConstants.kRotateMaxAngularSpeedDegreesPerSecond;
 
-        if(wrist.openLoop) {
+        if(wrist.flexOpenLoop) {
             wrist.flexOpenLoop(ySpeed);
             wrist.rotateOpenLoop(xSpeed);
         } else {
@@ -47,10 +46,7 @@ public class RunWrist extends CommandBase {
   
     //Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {
-        // wrist.stopFlex();
-        // wrist.stopRotate();
-    }
+    public void end(boolean interrupted) {}
   
     // Returns true when the command should end.
     @Override

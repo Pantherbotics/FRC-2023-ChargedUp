@@ -51,21 +51,6 @@ public class Constants {
         public static final int kBackRightModuleID = 3;
         public static final int kBackLeftModuleID = 4;
 
-        public static final int kFrontLeftDriveMotorPort = 1;
-        public static final int kFrontRightDriveMotorPort = 2;
-        public static final int kBackRightDriveMotorPort = 3;
-        public static final int kBackLeftDriveMotorPort = 4;
-
-        public static final int kFrontLeftTurnMotorPort = 1;
-        public static final int kFrontRightTurnMotorPort = 2;
-        public static final int kBackRightTurnMotorPort = 3;
-        public static final int kBackLeftTurnMotorPort = 4;
-
-        public static final int kFrontLeftCANCoderPort = 5;
-        public static final int kFrontRightCANCoderPort = 6;
-        public static final int kBackRightCANCoderPort = 7;
-        public static final int kBackLeftCANCoderPort = 8;
-
         //Positive is counterclockwise, Negative is clockwise
         public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
         public static final double kFrontRightCANCoderOffsetDeg = -74.44; 
@@ -79,6 +64,10 @@ public class Constants {
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
+        public static final double kPivotUpperBound = 0;
+        public static final double kPivotLowerBound
+         = 0;
+
         public static final double kPPivot = 0.02;
         public static final double kIPivot = 0.0;
         public static final double kDPivot = 0.0;
@@ -88,18 +77,24 @@ public class Constants {
 
         public static final int kPivotCANCoderPort = 9;
 
-        //extension
-        public static final double kPExtension = 0.08;
-        public static final double kIExtension = 0.0;
-        public static final double kDExtension = 0.0;
-        public static final double kFExtension = 0.0;
+        //extend
+        public static final double kExtendUpperBound = 48000;
+        public static final double kExtendLowerBound = 0;
+
+        public static final double kPExtend = 0.05;
+        public static final double kIExtend = 0.0;
+        public static final double kDExtend = 0.0;
+        public static final double kFExtend = 0.0;
         
-        public static final int kExtensionMotorPort = 5;
+        public static final int kExtendMotorPort = 5;
 
         //wrist
-        public static final double kWristMaxAngularSpeedDegreesPerSecond = 120;
-
         //flex
+        public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
+
+        public static final double kFlexLowerBound = -37000;
+        public static final double kFlexUpperBound = 2000;
+
         public static final double kPFlex = 0.0001;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
@@ -109,7 +104,12 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kPRotate = 0.0002;
+        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 360;
+
+        public static final double kRotateLowerBound = -20000;
+        public static final double kRotateUpperBound = 20000;
+
+        public static final double kPRotate = 0.0007;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;
@@ -118,7 +118,12 @@ public class Constants {
         public static final int kRotateMotorPort = 7;
 
         //claw 
-        public static final int kCTREPCMid = 9;
+        public static final int kClawSolenoidPort = 9;
+    }
+
+    public static final class VisionConstants {
+        public static final double kLimelightV1FOVAngle = 27.0;
+        public static final double kLimeLightV2FOVAngle = 29.8;
     }
 
     //Checked and verified as of May 1st, 2022

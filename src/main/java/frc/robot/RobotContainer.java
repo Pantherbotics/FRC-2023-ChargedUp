@@ -6,36 +6,36 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
+import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetClaw;
-import frc.robot.commands.RunSpinTurn;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
-import frc.robot.commands.RunWrist;
-import frc.robot.subsystems.Limelight;
+import frc.robot.commands.RunWristJoystick;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.util.AutoPaths;
-import frc.robot.util.DriveMode;
+import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.vision.LimelightMode;
 
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    private final Limelight limelight = new Limelight();
+    private final Limelight reflective = new Limelight("pog", LimelightMode.REFLECTIVE);
+    private final Limelight apriltag = new Limelight("poggers", LimelightMode.APRILTAG);
     private final Arm arm = new Arm(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
     private final AutoPaths autoPaths = new AutoPaths(drivetrain);
 
-    // Sendable choosers
+    // Choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
     private final SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
@@ -44,7 +44,7 @@ public class RobotContainer {
     private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
     private final Joystick secondaryJoystick = new Joystick(OIConstants.kSecondaryJoystickID);
 
-    // Primary controller buttons (logitech controller)
+    // Primary controller buttons 
     private final JoystickButton primaryJoystickAButton = new JoystickButton(primaryJoystick, 1); // A Button
     private final JoystickButton primaryJoystickBButton = new JoystickButton(primaryJoystick, 2); // B Button
     private final JoystickButton primaryJoystickXButton = new JoystickButton(primaryJoystick, 3); // X Button
@@ -61,7 +61,7 @@ public class RobotContainer {
     private final POVButton primaryJoystickPOVSouth = new POVButton(primaryJoystick, 180); // South
     private final POVButton primaryJoystickPOVWest = new POVButton(primaryJoystick, 270); // West
 
-    // Primary controller buttons (ps4 controller)
+    // Secondary controller buttons 
     private final JoystickButton secondaryJoystickAButton = new JoystickButton(secondaryJoystick, 1); // Square Button
     private final JoystickButton secondaryJoystickBButton = new JoystickButton(secondaryJoystick, 2); // X Button
     private final JoystickButton secondaryJoystickXButton = new JoystickButton(secondaryJoystick, 3); // Circle Button
@@ -79,9 +79,8 @@ public class RobotContainer {
     private final POVButton secondaryJoystickPOVWest = new POVButton(secondaryJoystick, 270); // West
 
     public RobotContainer() {
-        configSendables();
         configButtonBindings();
-        updateSmartDashboard();
+        configChoosers();
     }
 
     private void configButtonBindings() {
@@ -94,7 +93,7 @@ public class RobotContainer {
         ));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWrist(wrist, secondaryJoystick));
+        wrist.setDefaultCommand(new RunWristJoystick(wrist, secondaryJoystick));
 
         // pivot manual control
         secondaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
@@ -105,15 +104,14 @@ public class RobotContainer {
         secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
         // claw manual control
-        secondaryJoystickAButton.toggleOnTrue(new RunSetClaw(claw, true));
-        secondaryJoystickBButton.toggleOnTrue(new RunSetClaw(claw, false));
+        secondaryJoystickAButton.onTrue(new RunToggleClaw(claw));
     }
-    
-    private void configSendables() {
+
+    private void configChoosers() {
         // speed chooser
         speedChooser.setDefaultOption("Slow", 0.25);
         speedChooser.addOption("Normal", 0.65);
-        speedChooser.addOption("Demon", 1.0);
+        speedChooser.addOption("Demon", 1.00);
         SmartDashboard.putData("Speed", speedChooser);
 
         // drive mode chooser
@@ -126,16 +124,53 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         // auto chooser
-         autoChooser.setDefaultOption("None", null);
-        for(Map.Entry<String, Command> path : autoPaths.getTrajectories().entrySet())
+        for(Map.Entry<String, Command> traj : autoPaths.getTrajectories().entrySet())
         {
-            if(!path.getKey().equals("None")) 
-                autoChooser.addOption(path.getKey(), path.getValue());
+            String name = traj.getKey();
+            Command command = traj.getValue();
+            if(name.equals("None"))
+                autoChooser.setDefaultOption(name, command);
+            else
+                autoChooser.addOption(name, command);
         }
         SmartDashboard.putData("Auto", autoChooser);
     }
 
-    public void updateSmartDashboard() {}
+    public void updateSmartDashboard() {
+        // drivetrain
+        SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
+
+        SmartDashboard.putNumber("Swerve [1] Speed", drivetrain.getFrontLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [1] Angle", drivetrain.getFrontLeft().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [2] Speed", drivetrain.getFrontRight().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [2] Angle", drivetrain.getFrontRight().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [3] Speed", drivetrain.getBackRight().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [3] Angle", drivetrain.getBackRight().getAngle());
+        
+        SmartDashboard.putNumber("Swerve [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Swerve [4] Angle", drivetrain.getBackLeft().getAngle());
+
+        // limelights
+
+        // arm
+        SmartDashboard.putNumber("Arm Pivot Setpoint", arm.getPivotSetpoint());
+        SmartDashboard.putNumber("Arm Pivot Position", arm.getPivotAngle());
+
+        SmartDashboard.putNumber("Arm Extend Setpoint", arm.getExtendSetpoint());
+        SmartDashboard.putNumber("Arm Extend Position", arm.getExtendPosition());
+
+        // wrist
+        SmartDashboard.putNumber("Wrist Flex Setpoint", wrist.getFlexSetpoint());
+        SmartDashboard.putNumber("Wrist Flex Position", wrist.getFlexAngle());
+
+        SmartDashboard.putNumber("Wrist Rotate Setpoint", wrist.getRotateSetpoint());
+        SmartDashboard.putNumber("Wrist Rotate Position", wrist.getRotateAngle());
+         
+        // claw
+        SmartDashboard.putBoolean("Claw open?", claw.isOpen());
+    }
 
     public Command getAutoCommand() {
         return autoChooser.getSelected();
