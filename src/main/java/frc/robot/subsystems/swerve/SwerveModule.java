@@ -109,7 +109,8 @@ public class SwerveModule {
         // Drive Speed with spark and PID (or by percent output using the 2nd line)
         drivePID.setReference(
             state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, 
-            ControlType.kVelocity);
+            ControlType.kVelocity
+        );
         // drive.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
     }
 
