@@ -46,8 +46,7 @@ public class Drivetrain extends SubsystemBase {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch(Exception ignored) {
-                System.out.println("lmao");
+            } catch (Exception ignored) {
             }
         }).start();
     }
