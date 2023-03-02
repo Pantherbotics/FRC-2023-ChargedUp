@@ -80,7 +80,8 @@ public class Constants {
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
         public static final double kPivotUpperBound = 0;
-        public static final double kPivotLowerBound = 0;
+        public static final double kPivotLowerBound
+         = 0;
 
         public static final double kPPivot = 0.02;
         public static final double kIPivot = 0.0;
@@ -91,14 +92,14 @@ public class Constants {
 
         public static final int kPivotCANCoderPort = 9;
 
-        //extension
+        //extend
         public static final double kExtendUpperBound = 48000;
         public static final double kExtendLowerBound = 0;
 
-        public static final double kPExtension = 0.08;
-        public static final double kIExtension = 0.0;
-        public static final double kDExtension = 0.0;
-        public static final double kFExtension = 0.0;
+        public static final double kPExtend = 0.05;
+        public static final double kIExtend = 0.0;
+        public static final double kDExtend = 0.0;
+        public static final double kFExtend = 0.0;
         
         public static final int kExtensionMotorPort = 5;
 

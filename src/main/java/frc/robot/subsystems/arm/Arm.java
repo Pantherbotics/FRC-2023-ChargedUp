@@ -58,10 +58,10 @@ public class Arm extends SubsystemBase {
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.slot0.kP = ArmConstants.kPExtension;
-        motorConfig.slot0.kI = ArmConstants.kIExtension;
-        motorConfig.slot0.kD = ArmConstants.kDExtension;
-        motorConfig.slot0.kF = ArmConstants.kFExtension;
+        motorConfig.slot0.kP = ArmConstants.kPExtend;
+        motorConfig.slot0.kI = ArmConstants.kIExtend;
+        motorConfig.slot0.kD = ArmConstants.kDExtend;
+        motorConfig.slot0.kF = ArmConstants.kFExtend;
 
         extensionMotor = new TalonFX(ArmConstants.kExtensionMotorPort);
         extensionMotor.configAllSettings(motorConfig);
