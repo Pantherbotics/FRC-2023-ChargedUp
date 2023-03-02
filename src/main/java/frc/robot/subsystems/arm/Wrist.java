@@ -17,7 +17,7 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
     private double flexSetpoint, rotateSetpoint; //these should be zero at start
 
-    public boolean openLoop = false;
+    public boolean flexOpenLoop = false, rotateOpenLoop = false;
 
     public Wrist() {
         // flex motor
@@ -82,13 +82,16 @@ public class Wrist extends SubsystemBase {
         return flexEncoder.getPosition();
     }
 
-    public boolean withinFlexBounds(double position) {
+    public double getFlexSetpoint() {
+        return flexSetpoint;
+    }
+
+    private boolean withinFlexBounds(double position) {
         return position >= ArmConstants.kFlexLowerBound && 
                position <= ArmConstants.kFlexUpperBound;
     }
 
     public void stopFlex() {
-        //flexPID.setReference(0, ControlType.kVelocity);
         flexMotor.stopMotor();
     }
 
@@ -105,32 +108,29 @@ public class Wrist extends SubsystemBase {
             rotateSetpoint = position;
     }
 
-    public boolean withinRotateBounds(double position) {
+    private boolean withinRotateBounds(double position) {
         return position >= ArmConstants.kRotateLowerBound && 
                position <= ArmConstants.kRotateUpperBound;
+    }
+
+    public void stopRotate() {
+        rotateMotor.stopMotor();
     }
 
     public double getRotateAngle() {
         return rotateEncoder.getPosition();
     }
 
-    public void stopRotate() {
-        //rotatePID.setReference(0, ControlType.kVelocity);
-        rotateMotor.stopMotor();
+    public double getRotateSetpoint() {
+        return rotateSetpoint;
     }
 
     @Override
     public void periodic() {
-        if(!openLoop)
-        {
+        if(!flexOpenLoop)
             flexPID.setReference(flexSetpoint, ControlType.kPosition);
+            
+        if(!rotateOpenLoop)
             rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
-        }
-
-        SmartDashboard.putNumber("Flex Setpoint", flexSetpoint);
-        SmartDashboard.putNumber("Flex Position", getFlexAngle());
-
-        SmartDashboard.putNumber("Rotate Setpoint", rotateSetpoint);
-        SmartDashboard.putNumber("Rotate Position", getRotateAngle());
     }
 }

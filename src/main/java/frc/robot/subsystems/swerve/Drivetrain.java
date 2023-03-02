@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.util.MathUtils;
-import frc.robot.util.Odometer;
 
 public class Drivetrain extends SubsystemBase {
     private final SwerveModule frontLeft, frontRight, backRight, backLeft;
@@ -90,7 +89,6 @@ public class Drivetrain extends SubsystemBase {
 
     // Update the odometry by calculating the current wheel vectors, the overall
     // odometry vector, then the amount of movement
-
     public void updateOdometry() {
         // Speeds of the wheels in meters per second
         double frontLeftVelocity = frontLeft.getDriveVelocity();
@@ -115,17 +113,17 @@ public class Drivetrain extends SubsystemBase {
         double backLeftY = MathUtils.getHeadingY(backLeftAngle) * backLeftVelocity;
 
         // Calculate the odometry vector components [-maxDriveVel, maxDriveVel]
-        double odometryX = (frontLeftX + frontRightX + backRightX + backLeftX) / 4.0;
-        double odometryY = (frontLeftY + frontRightY + backRightY + backLeftY) / 4.0;
+        double velocityX = (frontLeftX + frontRightX + backRightX + backLeftX) / 4.0;
+        double velocityY = (frontLeftY + frontRightY + backRightY + backLeftY) / 4.0;
         
         // Calculate the period in seconds since last update
         double currTimeSec = WPIUtilJNI.now() * 1.0e-6;
         double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0.0;
         prevTimeSeconds = currTimeSec;
 
-        // oX is the distance traveled in meters in a second, then multiplied by the period
-        double deltaY = odometryX * period;
-        double deltaX = odometryY * period;
+        // velocityX is the distance traveled in meters in a second, then multiplied by the period
+        double deltaY = velocityX * period;
+        double deltaX = velocityY * period;
         odometer.update(deltaX, deltaY);
     }
 
@@ -144,7 +142,6 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("LF Drive Curr", output);
         if (output >= 30D) 
             spark.getEncoder().setPosition(0);
-
 
         frontLeft.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.getOffsetAngle()));
         frontRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.getOffsetAngle()));

@@ -50,6 +50,7 @@ public class SwerveModule {
         driveEncoder = drive.getEncoder();
         driveEncoder.setPositionConversionFactor(Constants.ModuleConstants.kDriveEncoderRot2Meter);
         driveEncoder.setVelocityConversionFactor(Constants.ModuleConstants.kDriveEncoderRPM2MetersPerSec);
+        driveEncoder.setPosition(0);
 
         // Get the Drive PID Controller and configure it for Velocity PID
         drivePID = drive.getPIDController();
@@ -61,7 +62,7 @@ public class SwerveModule {
         drivePID.setOutputRange(-1, 1);
 
         // Create the Steer TalonSRX
-        steer = new TalonSRX(id);// set in id ())create talon object
+        steer = new TalonSRX(id); //set in id ())create talon object
 
         // Create the encoder based on Constants.ModuleConstants.kSteerEncoderType
         // Create the CANCoder and configure it to work as the RemoteSensor0 for the
@@ -77,12 +78,14 @@ public class SwerveModule {
         steer.config_kD(0, ModuleConstants.kDTurn);
         steer.config_kF(0, ModuleConstants.kFTurn);
         steer.setSelectedSensorPosition(canCoder.getAbsolutePosition());
-        // Reset the encoders
-        resetEncoders();
     }
 
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
+    }
+
+    public double getAngle() {
+        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096 + offsetDeg) - 180);
     }
 
     public double getAbsoluteEncoderRad() {
@@ -97,21 +100,21 @@ public class SwerveModule {
         }
 
         // Log some info about the target state
-        double target = state.angle.getDegrees();
-        double angle = MathUtils.round(target, 1);
-        double speed = MathUtils.round(state.speedMetersPerSecond, 1);
-        SmartDashboard.putString("Swerve[" + id + "] Set", "Angle: " + angle + ", Speed: " + speed);
+        SmartDashboard.putString("Swerve[" + id + "] Set", 
+            "Angle: " + MathUtils.round(state.angle.getDegrees(), 1) + 
+            ", Speed: " + MathUtils.round(state.speedMetersPerSecond, 1));
 
         // Either run the CanCoder logic for steering, or the AnalogInput logic
         // Get the error for the angle, assuming + error is clockwise
-        double errorAng = MathUtils.boundHalfDegrees(target - getAngle());
+        double errorAng = MathUtils.boundHalfDegrees(state.angle.getDegrees() - getAngle());
         // Error has to be negated since Positive is CCW and Negative is CW for our swerve modules
         // Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
         double pos = steer.getSelectedSensorPosition() + (-errorAng) * (4096.0 / 360);
         steer.set(TalonSRXControlMode.Position, pos);
 
         // Drive Speed with spark and PID (or by percent output using the 2nd line)
-        drivePID.setReference(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, ControlType.kVelocity);
+        double speed = state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM;
+        drivePID.setReference(speed, ControlType.kVelocity);
         // drive.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
     }
 
@@ -119,28 +122,6 @@ public class SwerveModule {
         drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
         // drive.set(0);
         steer.set(ControlMode.PercentOutput, 0);
-    }
-
-    public void resetEncoders() {
-        driveEncoder.setPosition(0);
-    }
-
-    public double getAngle() {
-        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096 + offsetDeg) - 180);
-    }
-
-    /**
-     * @return the unbounded steering error, in degrees
-     */
-    public double getError(double target) {
-        return target - getAngle();
-    }
-
-    /**
-     * @return the steering error bounded to [-180, 180] degrees
-     */
-    public double getModifiedError(double target) {
-        return MathUtils.boundHalfDegrees(getError(target)) / 180;
     }
 
     public CANSparkMax getDrive() {

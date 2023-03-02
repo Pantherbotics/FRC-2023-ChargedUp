@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.util.MathUtils;
 
 import java.util.function.Supplier;
-
-import static frc.robot.util.MathUtils.powAxis;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
@@ -82,15 +82,15 @@ public class RunSwerveJoystick extends CommandBase {
         double xRightAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
         double xSpeed, ySpeed, turningSpeed;
-        double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
+        double targetInfluence = drivetrain.getLimelightYaw() / VisionConstants.kLimeLightV2FOVAngle; // Limelight v2 Yaw ranges [-29.8, 29.8]
 
         if(drivetrain.isLockDriveWhileTargeting()) {
             xSpeed = 0;
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
         } else {
-            xSpeed = -powAxis(yLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
-            ySpeed = -powAxis(xLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
+            xSpeed = -MathUtils.powAxis(yLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
+            ySpeed = -MathUtils.powAxis(xLeftAxis, OIConstants.kDriverExp) * speedChooser.get();
             turningSpeed = -xRightAxis * (speedChooser.get() / 2.0) + targetInfluence;
         }
 
@@ -111,16 +111,15 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     private void runBoat() {
-        double YL = -getLeftYAxis(); // We need to invert the Y axis so that positive is forwards
-        double XR = getRightXAxis();
+        double yLeftAxis = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
+        double xRightAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
         // Right stick speed
-        double speed = (YL * YL);// square the speed but keep the sign so it can reverse
-        if (YL < 0) speed = -speed;
-        if (Math.abs(speed) > 1) speed /= Math.abs(speed); // Should have the same effect as previous code.
+        double speed = (yLeftAxis * yLeftAxis) * (yLeftAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
+        if(Math.abs(speed) > 1) speed /= Math.abs(speed); // Should have the same effect as previous code.
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
-        double targetAngle = XR * 90;
+        double targetAngle = xRightAxis * 90;
         drivetrain.setModuleStates(new SwerveModuleState[] {
             new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //left front
             new SwerveModuleState(speed, Rotation2d.fromDegrees(0)), //right front
@@ -130,15 +129,14 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     private void runCar() {
-        double YL = -getLeftYAxis(); // We need to invert the Y axis so that positive is forwards
-        double XR = -getRightXAxis(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we
-                              // must have a positive XR
-        double speed = (YL * YL);// square the speed but keep the sign so it can reverse
-        if (YL < 0) speed = -speed;
+        double yLeftAxis = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // We need to invert the Y axis so that positive is forwards
+        double xRightAxis = -joystick.getRawAxis(OIConstants.kSecondaryJoystickRightXAxisID); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
+
+        double speed = (yLeftAxis * yLeftAxis) * (yLeftAxis < 0 ? -1 : 1);
         if(Math.abs(speed) > 1) speed /= Math.abs(speed);
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
-        double targetAngle = XR * 90;
+        double targetAngle = xRightAxis * 90;
         drivetrain.setModuleStates(new SwerveModuleState[] {
             new SwerveModuleState(speed, Rotation2d.fromDegrees(targetAngle)), //front left
             new SwerveModuleState(speed, Rotation2d.fromDegrees(targetAngle)), //front right
@@ -148,35 +146,34 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     private void runWestCoast() {
-        // No negation of these values since the west coast code we use is already
-        // handling the inverted Y axis
-        double YL = getLeftYAxis();
-        double XR = getRightXAxis();
+        // No negation of these values since the west coast code we use is already handling the inverted Y axis
+        double yLeftAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
+        double xRightAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
 
         // Y axis weirdness handled here already
-        double left = (XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = (-XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double leftSpeed = (xRightAxis - yLeftAxis) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double rightSpeed = -(xRightAxis + yLeftAxis) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
         
         drivetrain.setModuleStates(new SwerveModuleState[] {
-            new SwerveModuleState(left, Rotation2d.fromDegrees(0)), //left front
-            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right front
-            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right back
-            new SwerveModuleState(left, Rotation2d.fromDegrees(0)) //left back
+            new SwerveModuleState(leftSpeed, Rotation2d.fromDegrees(0)), //left front
+            new SwerveModuleState(rightSpeed, Rotation2d.fromDegrees(0)), //right front
+            new SwerveModuleState(rightSpeed, Rotation2d.fromDegrees(0)), //right back
+            new SwerveModuleState(leftSpeed, Rotation2d.fromDegrees(0)) //left back
         });
     }
 
     private void runTank() {
-        double YL = -getLeftYAxis(); // Invert the Y axis so that positive is forwards
-        double YR = -getRightYAxis(); // Invert the Y axis so that positive is forwards
+        double yLeftAxis = -joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // Invert the Y axis so that positive is forwards
+        double yRightAxis = joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID); // Invert the Y axis so that positive is forwards
 
-        double left = YL * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = YR * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double leftSpeed = yLeftAxis * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double rightSpeed = yRightAxis * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
 
         drivetrain.setModuleStates(new SwerveModuleState[] {
-            new SwerveModuleState(left, Rotation2d.fromDegrees(0)), //left front
-            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right front
-            new SwerveModuleState(right, Rotation2d.fromDegrees(0)), //right back
-            new SwerveModuleState(left, Rotation2d.fromDegrees(0)) //left back
+            new SwerveModuleState(leftSpeed, Rotation2d.fromDegrees(0)), //left front
+            new SwerveModuleState(rightSpeed, Rotation2d.fromDegrees(0)), //right front
+            new SwerveModuleState(rightSpeed, Rotation2d.fromDegrees(0)), //right back
+            new SwerveModuleState(leftSpeed, Rotation2d.fromDegrees(0)) //left back
         });
     }   
 
@@ -188,33 +185,5 @@ public class RunSwerveJoystick extends CommandBase {
     @Override
     public boolean isFinished() {
         return false;
-    }
-
-    /**
-     * @return The X axis value of the left joystick. It should be positive to the right.
-     */
-    private double getLeftXAxis() {
-        return joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftXAxisID);
-    }
-
-    /**
-     * @return The Y axis value of the left joystick. It should be NEGATIVE when forwards.
-     */
-    private double getLeftYAxis() {
-        return joystick.getRawAxis(OIConstants.kPrimaryJoystickLeftYAxisID);
-    }
-
-    /**
-     * @return The X axis value of the right joystick. It should be positive to the right.
-     */
-    private double getRightXAxis() {
-        return joystick.getRawAxis(OIConstants.kPrimaryJoystickRightXAxisID);
-    }
-
-    /**
-     * @return The Y axis value of the right joystick. It should be NEGATIVE when forwards.
-     */
-    private double getRightYAxis() {
-        return joystick.getRawAxis(OIConstants.kPrimaryJoystickRightYAxisID);
     }
 }
