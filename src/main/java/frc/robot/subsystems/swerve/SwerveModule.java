@@ -14,7 +14,6 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -85,7 +84,7 @@ public class SwerveModule {
     }
 
     public double getAngle() {
-        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096 + offsetDeg) - 180);
+        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096.0 + offsetDeg) - 180);
     }
 
     public double getAbsoluteEncoderRad() {
@@ -97,19 +96,14 @@ public class SwerveModule {
         if (Math.abs(state.speedMetersPerSecond) < 0.001) {
             stop();
             return;
-        }
-
-        // Log some info about the target state
-        SmartDashboard.putString("Swerve[" + id + "] Set", 
-            "Angle: " + MathUtils.round(state.angle.getDegrees(), 1) + 
-            ", Speed: " + MathUtils.round(state.speedMetersPerSecond, 1));
+        }  
 
         // Either run the CanCoder logic for steering, or the AnalogInput logic
         // Get the error for the angle, assuming + error is clockwise
         double errorAng = MathUtils.boundHalfDegrees(state.angle.getDegrees() - getAngle());
         // Error has to be negated since Positive is CCW and Negative is CW for our swerve modules
         // Convert [0, 360) in degrees to [0, 4906] in ticks (TalonSRX reads 4096 ticks from 360 degrees)
-        double pos = steer.getSelectedSensorPosition() + (-errorAng) * (4096.0 / 360);
+        double pos = steer.getSelectedSensorPosition() + (-errorAng) * (4096.0 / 360.0);
         steer.set(TalonSRXControlMode.Position, pos);
 
         // Drive Speed with spark and PID (or by percent output using the 2nd line)

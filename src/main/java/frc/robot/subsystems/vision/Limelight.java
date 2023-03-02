@@ -8,18 +8,16 @@ import edu.wpi.first.wpilibj.Notifier;
 public class Limelight {
     private final NetworkTable limelight;
     private NetworkTableEntry tx, ty, ta;
-    private double targetYaw, targetPitch, targetArea;
     private LimelightMode mode;
+    private Target target;
 
     public Limelight(String name, LimelightMode limelightMode) {
         limelight = NetworkTableInstance.getDefault().getTable("limelight-" + name);
         tx = limelight.getEntry("tx");
         ty = limelight.getEntry("ty");
         ta = limelight.getEntry("ta");
-
-        targetYaw = 0;
-        targetPitch = 0;
-        targetArea = 0;
+        
+        target = new Target();
 
         mode = limelightMode;
 
@@ -30,9 +28,9 @@ public class Limelight {
     }
 
     private void update() {
-        targetYaw = tx.getDouble(0);
-        targetPitch = ty.getDouble(0);
-        targetArea = ta.getDouble(0);
+        target.setYaw(tx.getDouble(0));
+        target.setPitch(ty.getDouble(0));
+        target.setArea(ta.getDouble(0));
     }
 
     public void setLights(int state) {
@@ -43,34 +41,11 @@ public class Limelight {
         return 0;
     }
 
+    public Target getTarget() {
+        return target;
+    }
+
     public boolean hasTarget() {
         return limelight.getEntry("tv").getDouble(0) == 1;
     }
-
-    public double getTargetYaw()
-    {
-        return targetYaw;
-    }
-
-    public void setTargetYaw(double yaw) {
-        targetYaw = yaw;
-    } 
-
-    public double getTargetPitch()
-    {
-        return targetPitch;
-    }
-
-    public void setTargetPitch(double pitch) {
-        targetPitch = pitch;
-    } 
-
-    public double getTargetArea()
-    {
-        return targetArea;
-    }
-
-    public void setTargetArea(double area) {
-        targetArea = area;
-    } 
 }

@@ -46,7 +46,7 @@ public class Drivetrain extends SubsystemBase {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch (Exception ignored) {
+            } catch(Exception ignored) {
                 System.out.println("lmao");
             }
         }).start();
@@ -131,17 +131,6 @@ public class Drivetrain extends SubsystemBase {
     public void periodic() {
         // Update the odometry, using our own vector-based odometry for Holonomic Swerve
         updateOdometry();
-        // TalonSRX srx = ((SwerveModuleProto) leftFront).getSteer();
-        // SmartDashboard.putNumber("LF Steer Pos", srx.getSelectedSensorPosition());
-        // double output = srx.getStatorCurrent();
-        // SmartDashboard.putNumber("LF Steer Curr", output);
-
-        CANSparkMax spark = ((SwerveModule) frontLeft).getDrive();
-        SmartDashboard.putNumber("LF Drive Pos", spark.getEncoder().getPosition());
-        double output = spark.getOutputCurrent();
-        SmartDashboard.putNumber("LF Drive Curr", output);
-        if (output >= 30D) 
-            spark.getEncoder().setPosition(0);
 
         frontLeft.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.getOffsetAngle()));
         frontRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.getOffsetAngle()));

@@ -22,7 +22,7 @@ public class RunVisionTargeting extends CommandBase {
 	@Override
 	public void execute() {
 		if(limelight.hasTarget())
-			drivetrain.setLimelightYaw(limelight.getTargetYaw());
+			drivetrain.setLimelightYaw(limelight.getTarget().getYaw());
 	}
 
 	// Called once the command ends or is interrupted.
