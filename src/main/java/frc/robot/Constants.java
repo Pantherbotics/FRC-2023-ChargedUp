@@ -109,7 +109,7 @@ public class Constants {
         public static final double kRotateLowerBound = -20000;
         public static final double kRotateUpperBound = 20000;
 
-        public static final double kPRotate = 0.0007;
+        public static final double kPRotate = 0.0005;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;

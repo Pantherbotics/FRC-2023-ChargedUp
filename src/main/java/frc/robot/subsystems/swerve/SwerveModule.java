@@ -47,8 +47,8 @@ public class SwerveModule {
         drive.restoreFactoryDefaults();
         drive.setInverted(inverted);
         driveEncoder = drive.getEncoder();
-        driveEncoder.setPositionConversionFactor(Constants.ModuleConstants.kDriveEncoderRot2Meter);
-        driveEncoder.setVelocityConversionFactor(Constants.ModuleConstants.kDriveEncoderRPM2MetersPerSec);
+        driveEncoder.setPositionConversionFactor(ModuleConstants.kDriveEncoderRot2Meter);
+        driveEncoder.setVelocityConversionFactor(ModuleConstants.kDriveEncoderRPM2MetersPerSec);
         driveEncoder.setPosition(0);
 
         // Get the Drive PID Controller and configure it for Velocity PID

@@ -27,7 +27,7 @@ public class RunWristJoystick extends CommandBase {
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
         double xSpeed = xLeftValue * xLeftValue * (xLeftValue < 0 ? -1 : 1);
-        double ySpeed = yRightValue * yRightValue * (xLeftValue < 0 ? -1 : 1);
+        double ySpeed = yRightValue * yRightValue * (yRightValue < 0 ? -1 : 1);
 
         if(Math.abs(xSpeed) > 1) xSpeed /= Math.abs(xSpeed); 
         if(Math.abs(ySpeed) > 1) ySpeed /= Math.abs(ySpeed); 

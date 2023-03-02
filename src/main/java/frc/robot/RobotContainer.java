@@ -104,7 +104,7 @@ public class RobotContainer {
         secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
         // claw manual control
-        secondaryJoystickAButton.onTrue(new RunToggleClaw(claw));
+        secondaryJoystickAButton.whileTrue(new RunToggleClaw(claw));
     }
 
     private void configChoosers() {
