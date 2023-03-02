@@ -32,10 +32,10 @@ public class Odometer {
 
     /**
      * Reset the odometry to a position
-     * @param pose2d The Pose2d containing the new X and Y coordinates
+     * @param pose The Pose2d containing the new X and Y coordinates
      */
-    public void resetPosition(Pose2d pose2d) {
-        x = pose2d.getX();
-        y = pose2d.getY();
+    public void resetPosition(Pose2d pose) {
+        x = pose.getX();
+        y = pose.getY();
     }
 }

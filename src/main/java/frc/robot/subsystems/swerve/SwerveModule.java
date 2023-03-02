@@ -84,7 +84,7 @@ public class SwerveModule {
     }
 
     public double getAngle() {
-        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096.0 + offsetDeg) - 180);
+        return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * (360.0 / 4096.0) + offsetDeg) - 180);
     }
 
     public double getAbsoluteEncoderRad() {
@@ -107,8 +107,9 @@ public class SwerveModule {
         steer.set(TalonSRXControlMode.Position, pos);
 
         // Drive Speed with spark and PID (or by percent output using the 2nd line)
-        double speed = state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM;
-        drivePID.setReference(speed, ControlType.kVelocity);
+        drivePID.setReference(
+            state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM, 
+            ControlType.kVelocity);
         // drive.set(state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
     }
 
