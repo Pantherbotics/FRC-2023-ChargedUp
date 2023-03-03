@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -60,7 +59,7 @@ public class Wrist extends SubsystemBase {
         rotatePID.setD(ArmConstants.kDRotate);
         rotatePID.setIZone(ArmConstants.kIZoneRotate);
         rotatePID.setFF(ArmConstants.kFFRotate);
-        rotatePID.setOutputRange(-1, 1);
+        rotatePID.setOutputRange(-3, 3);
 
         rotateSetpoint = 0;
     }

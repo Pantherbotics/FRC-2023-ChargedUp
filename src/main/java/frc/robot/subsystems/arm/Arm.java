@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -45,15 +46,15 @@ public class Arm extends SubsystemBase {
         // cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
         cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        cancoderConfig.magnetOffsetDegrees = 0; // change
+        //cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        cancoderConfig.magnetOffsetDegrees = -97.703; // change
 
         pivotCancoder = new CANCoder(ArmConstants.kPivotCANCoderPort);
         pivotCancoder.configAllSettings(cancoderConfig);
         pivotCancoder.setPositionToAbsolute();
-        pivotCancoder.setPosition(0);
 
         pivotPID = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
+        setPivotAngle(80);
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
@@ -85,15 +86,20 @@ public class Arm extends SubsystemBase {
      * @param speed The speed in deg/s
      */
     public void pivotClosedLoop(double speed) {
-        setPivotPosition(pivotPID.getSetpoint() + speed);
+        setPivotAngle(pivotPID.getSetpoint() + speed);
     }
 
     /**
-     * @param position The desired position to set the pivot to
+     * @param angle The desired position to set the pivot to
      */
-    public void setPivotPosition(double position) {
-        if(withinPivotBounds(position))
-            pivotPID.setSetpoint(position);
+    public void setPivotAngle(double angle) {
+        if(!withinPivotBounds(angle))
+            return;
+
+        double delta = angle - getPivotAngle();
+        double sign = delta > 0 ? 1 : -1;
+        for(int i = 0; i < Math.abs(delta); i++)
+            pivotPID.setSetpoint(pivotPID.getSetpoint() + sign);
     }
 
     /**

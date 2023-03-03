@@ -7,42 +7,36 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Claw extends SubsystemBase {
+    private final Value OPEN_STATE = Value.kForward;
+
     private final DoubleSolenoid solenoid;
-    private boolean isOpen;
+    private boolean open;
 
     public Claw() {
-        solenoid = new DoubleSolenoid(0/*ArmConstants.kClawSolenoidPort*/, PneumaticsModuleType.CTREPCM, 0, 1);
-        isOpen = false;
+        solenoid = new DoubleSolenoid(ArmConstants.kClawSolenoidPort, PneumaticsModuleType.CTREPCM, 0, 1);
+        open = solenoid.get().equals(OPEN_STATE);
     }
 
-    public void run(boolean state) {
-        solenoid.set(state ? Value.kForward : Value.kReverse);
-        isOpen = state;
+    public void run(boolean desiredState) {
+        open = desiredState;
     }
 
     public void toggle() {
-        switch(solenoid.get()) {
-            case kForward:
-                solenoid.set(Value.kReverse);
-                isOpen = true;
-                break;
-            case kReverse:
-                solenoid.set(Value.kForward);
-                isOpen = false;
-                break;
-            default:
-                solenoid.set(Value.kOff);
-                isOpen = false;
-                break;
-        }
+        open = !open;
     }
 
     public void stop() {
-        solenoid.set(Value.kOff);
-        isOpen = false;
+        open = false;
     }
 
     public boolean isOpen() {
-        return isOpen;
+        return open;
+    }
+
+    @Override
+    public void periodic() {
+        Value desiredState = open ? Value.kReverse : Value.kForward;
+        if(!solenoid.get().equals(desiredState))
+            solenoid.set(desiredState);
     }
 }

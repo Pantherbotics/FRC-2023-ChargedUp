@@ -23,9 +23,6 @@ public class Constants {
         public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
         public static final double kDriveEncoderRPM2MetersPerSec = kDriveEncoderRot2Meter / 60;
-
-        public static final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / neoMaxRPM;
-        public static final double kTurnPositionCoefficient = 360.0 / 4069.0;
         
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
@@ -104,21 +101,21 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 360;
+        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 10;
 
         public static final double kRotateLowerBound = -20000;
         public static final double kRotateUpperBound = 20000;
 
-        public static final double kPRotate = 0.0005;
+        public static final double kPRotate = 0.0002;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;
-        public static final double kFFRotate = 0.0;
+        public static final double kFFRotate = 0.000156;
 
         public static final int kRotateMotorPort = 7;
 
         //claw 
-        public static final int kClawSolenoidPort = 9;
+        public static final int kClawSolenoidPort = 0;
     }
 
     public static final class VisionConstants {

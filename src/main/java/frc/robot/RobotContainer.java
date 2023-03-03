@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.OIConstants;
@@ -104,7 +105,9 @@ public class RobotContainer {
         secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
 
         // claw manual control
-        secondaryJoystickAButton.whileTrue(new RunToggleClaw(claw));
+        secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
+
+        secondaryJoystickBButton.onFalse(new InstantCommand(() -> arm.setPivotAngle(10)));
     }
 
     private void configChoosers() {

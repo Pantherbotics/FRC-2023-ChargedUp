@@ -26,27 +26,29 @@ public class RunWristJoystick extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue * xLeftValue * (xLeftValue < 0 ? -1 : 1);
-        double ySpeed = yRightValue * yRightValue * (yRightValue < 0 ? -1 : 1);
+        double xSpeed = xLeftValue * ArmConstants.kRotateMaxAngularSpeedDegreesPerSecond;
+        double ySpeed = yRightValue * ArmConstants.kFlexMaxAngularSpeedDegreesPerSecond;
 
-        if(Math.abs(xSpeed) > 1) xSpeed /= Math.abs(xSpeed); 
-        if(Math.abs(ySpeed) > 1) ySpeed /= Math.abs(ySpeed); 
-
-        xSpeed *= ArmConstants.kFlexMaxAngularSpeedDegreesPerSecond;
-        ySpeed *= ArmConstants.kRotateMaxAngularSpeedDegreesPerSecond;
-
-        if(wrist.flexOpenLoop) {
-            wrist.flexOpenLoop(ySpeed);
-            wrist.rotateOpenLoop(xSpeed);
-        } else {
+        if(wrist.flexOpenLoop)
+            wrist.flexOpenLoop(yRightValue);
+        else
             wrist.flexClosedLoop(ySpeed);
+
+        if(wrist.rotateOpenLoop)
+            wrist.rotateOpenLoop(xLeftValue);
+        else
             wrist.rotateClosedLoop(xSpeed);
-        }
     }
   
     //Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        if(wrist.flexOpenLoop)
+            wrist.stopFlex();
+        
+        if(wrist.rotateOpenLoop)
+            wrist.stopRotate();
+    }
   
     // Returns true when the command should end.
     @Override

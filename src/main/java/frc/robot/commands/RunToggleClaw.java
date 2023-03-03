@@ -11,7 +11,7 @@ public class RunToggleClaw extends CommandBase {
     }
     
     @Override
-    public void initialize() {   
+    public void initialize() {
         claw.toggle();
     }
 
@@ -23,6 +23,6 @@ public class RunToggleClaw extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }
