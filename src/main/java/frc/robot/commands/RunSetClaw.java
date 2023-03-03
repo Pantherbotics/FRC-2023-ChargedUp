@@ -14,7 +14,7 @@ public class RunSetClaw extends CommandBase {
 
     @Override
     public void initialize() {   
-        claw.run(desiredState);
+        claw.set(desiredState);
     }
 
     @Override

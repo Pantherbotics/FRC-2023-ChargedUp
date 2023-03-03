@@ -22,7 +22,7 @@ public class RunPivotArm extends CommandBase {
         if(arm.pivotOpenLoop)
             arm.pivotOpenLoop(.3 * (reversed ? -1 : 1)); 
         else
-            arm.pivotClosedLoop(.44 * (reversed ? -1 : 1)); 
+            arm.pivotClosedLoop(.45 * (reversed ? -1 : 1)); 
     }
 
     @Override

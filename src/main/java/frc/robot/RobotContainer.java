@@ -9,10 +9,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetClaw;
+import frc.robot.commands.RunSetExtendPosition;
+import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
@@ -107,7 +110,8 @@ public class RobotContainer {
         // claw manual control
         secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
 
-        secondaryJoystickBButton.onFalse(new InstantCommand(() -> arm.setPivotAngle(10)));
+        secondaryJoystickBButton.onFalse(new RunSetPivotAngle(arm, ArmConstants.kPivotZeroAngle));
+        secondaryJoystickPOVEast.onFalse(new RunSetExtendPosition(arm, 30));
     }
 
     private void configChoosers() {
@@ -137,6 +141,10 @@ public class RobotContainer {
                 autoChooser.addOption(name, command);
         }
         SmartDashboard.putData("Auto", autoChooser);
+    }
+
+    public void robotInit() {
+        //arm.zeroPivotAngle();
     }
 
     public void updateSmartDashboard() {

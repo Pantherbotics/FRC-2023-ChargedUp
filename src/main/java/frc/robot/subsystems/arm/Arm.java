@@ -14,8 +14,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -36,6 +36,7 @@ public class Arm extends SubsystemBase {
         pivotLeader = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
         pivotLeader.restoreFactoryDefaults();
         pivotLeader.setIdleMode(IdleMode.kBrake);
+        //pivotLeader.getPIDController().setOutputRange(-0.3, 0.3);
 
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
@@ -46,18 +47,21 @@ public class Arm extends SubsystemBase {
         // cancoder
         CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
         cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        //cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        cancoderConfig.magnetOffsetDegrees = -97.703; // change
+        cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        cancoderConfig.magnetOffsetDegrees = -97.703; 
 
         pivotCancoder = new CANCoder(ArmConstants.kPivotCANCoderPort);
         pivotCancoder.configAllSettings(cancoderConfig);
-        pivotCancoder.setPositionToAbsolute();
 
         pivotPID = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
-        setPivotAngle(80);
+        pivotPID.setSetpoint(getPivotAngle());
+        
+        setPivotAngle(ArmConstants.kPivotZeroAngle);
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        motorConfig.peakOutputForward = 0.5;
+        motorConfig.peakOutputReverse = -0.5;
         motorConfig.slot0.kP = ArmConstants.kPExtend;
         motorConfig.slot0.kI = ArmConstants.kIExtend;
         motorConfig.slot0.kD = ArmConstants.kDExtend;
@@ -95,11 +99,7 @@ public class Arm extends SubsystemBase {
     public void setPivotAngle(double angle) {
         if(!withinPivotBounds(angle))
             return;
-
-        double delta = angle - getPivotAngle();
-        double sign = delta > 0 ? 1 : -1;
-        for(int i = 0; i < Math.abs(delta); i++)
-            pivotPID.setSetpoint(pivotPID.getSetpoint() + sign);
+        pivotPID.setSetpoint(angle);
     }
 
     /**
@@ -107,8 +107,8 @@ public class Arm extends SubsystemBase {
      * @return Whether the position is within the bounds of the pivot
      */
     private boolean withinPivotBounds(double position) {
-        return true;
-        //TODO
+        return true;//position >= ArmConstants.kPivotLowerBound && 
+               //position <= ArmConstants.kPivotUpperBound;
     }
 
     /**
@@ -133,6 +133,13 @@ public class Arm extends SubsystemBase {
     }
 
     /**
+     * @param speed The percent output of the falcon
+     */
+    public void extendOpenLoop(double speed) {
+        extendMotor.set(ControlMode.PercentOutput, speed);
+    }
+
+    /**
      * @param speed
      */
     public void extendClosedLoop(double speed) {
@@ -143,8 +150,9 @@ public class Arm extends SubsystemBase {
      * @param position
      */
     public void setExtendPosition(double position) {
-        if(withinExtendBounds(position))
-            extendSetpoint = position;
+        if(!withinExtendBounds(position))
+            return;
+        extendSetpoint = position;
     }
 
     /**
@@ -180,7 +188,7 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         if(!pivotOpenLoop)
-            pivotLeader.set(pivotPID.calculate(getPivotAngle()));
+            pivotLeader.set(MathUtil.clamp(pivotPID.calculate(getPivotAngle()), -0.3, 0.3));
         
         if(!extendOpenLoop)
             extendMotor.set(ControlMode.Position, extendSetpoint);

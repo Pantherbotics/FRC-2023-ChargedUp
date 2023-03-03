@@ -61,9 +61,10 @@ public class Constants {
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
+        public static final double kPivotZeroAngle = 85.957031;
+
         public static final double kPivotUpperBound = 0;
-        public static final double kPivotLowerBound
-         = 0;
+        public static final double kPivotLowerBound = 0;
 
         public static final double kPPivot = 0.02;
         public static final double kIPivot = 0.0;
@@ -89,8 +90,8 @@ public class Constants {
         //flex
         public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
 
-        public static final double kFlexLowerBound = -37000;
-        public static final double kFlexUpperBound = 2000;
+        public static final double kFlexLowerBound = -40000;
+        public static final double kFlexUpperBound = 40000;
 
         public static final double kPFlex = 0.0001;
         public static final double kIFlex = 0.0;

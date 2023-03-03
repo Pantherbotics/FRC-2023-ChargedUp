@@ -8,6 +8,7 @@ import frc.robot.Constants.ArmConstants;
 
 public class Claw extends SubsystemBase {
     private final Value OPEN_STATE = Value.kForward;
+    private final Value CLOSE_STATE = Value.kReverse;
 
     private final DoubleSolenoid solenoid;
     private boolean open;
@@ -17,26 +18,35 @@ public class Claw extends SubsystemBase {
         open = solenoid.get().equals(OPEN_STATE);
     }
 
-    public void run(boolean desiredState) {
-        open = desiredState;
+    /**
+     * @param open True if open, false if close
+     * 
+     */
+    public void set(boolean open) {
+        if(open)
+            open();
+        else
+            close();
     }
 
     public void toggle() {
-        open = !open;
+        set(!isOpen());
     }
+
+    public void open() {
+        solenoid.set(OPEN_STATE);
+    }
+
+    public void close() {
+        solenoid.set(CLOSE_STATE);
+    }
+
 
     public void stop() {
         open = false;
     }
 
     public boolean isOpen() {
-        return open;
-    }
-
-    @Override
-    public void periodic() {
-        Value desiredState = open ? Value.kReverse : Value.kForward;
-        if(!solenoid.get().equals(desiredState))
-            solenoid.set(desiredState);
+        return solenoid.get().equals(OPEN_STATE);
     }
 }
