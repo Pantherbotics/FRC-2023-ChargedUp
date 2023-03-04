@@ -60,8 +60,8 @@ public class Arm extends SubsystemBase {
 
         // extension motor
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.peakOutputForward = 0.5;
-        motorConfig.peakOutputReverse = -0.5;
+        motorConfig.peakOutputForward = 0.3;
+        motorConfig.peakOutputReverse = -0.3;
         motorConfig.slot0.kP = ArmConstants.kPExtend;
         motorConfig.slot0.kI = ArmConstants.kIExtend;
         motorConfig.slot0.kD = ArmConstants.kDExtend;

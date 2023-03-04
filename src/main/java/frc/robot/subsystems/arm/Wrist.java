@@ -73,8 +73,9 @@ public class Wrist extends SubsystemBase {
     }
 
     public void setFlexPosition(double position) {
-        if(withinFlexBounds(position))
-            flexSetpoint = position;
+        if(!withinFlexBounds(position))
+            return;
+        flexSetpoint = position;
     }
 
     public double getFlexAngle() {
@@ -103,8 +104,9 @@ public class Wrist extends SubsystemBase {
     }
 
     public void setRotatePosition(double position) {
-        if(withinRotateBounds(position))
-            rotateSetpoint = position;
+        if(!withinRotateBounds(position))
+            return;
+        rotateSetpoint = position;
     }
 
     private boolean withinRotateBounds(double position) {

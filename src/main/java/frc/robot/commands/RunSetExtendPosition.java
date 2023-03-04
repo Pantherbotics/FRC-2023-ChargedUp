@@ -21,7 +21,6 @@ public class RunSetExtendPosition extends CommandBase {
     @Override
     public void execute() {
         arm.setExtendPosition(position);
-        System.out.println("extend to" + 30);
     }
 
     @Override
@@ -29,6 +28,6 @@ public class RunSetExtendPosition extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

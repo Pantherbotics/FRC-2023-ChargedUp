@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ArmConstants;
@@ -16,6 +18,7 @@ import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetClaw;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
+import frc.robot.commands.RunSetWristPosition;
 import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
@@ -110,8 +113,37 @@ public class RobotContainer {
         // claw manual control
         secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
 
-        secondaryJoystickBButton.onFalse(new RunSetPivotAngle(arm, ArmConstants.kPivotZeroAngle));
-        secondaryJoystickPOVEast.onFalse(new RunSetExtendPosition(arm, 30));
+        // zero position
+        secondaryJoystickBButton.whileTrue(new SequentialCommandGroup(
+            new RunSetPivotAngle(arm, ArmConstants.kPivotZeroAngle),
+            new RunSetExtendPosition(arm, 0),
+            new RunSetWristPosition(wrist, 0, 0)
+        ));
+
+        // high goal
+        secondaryJoystickPOVNorth.whileTrue(new SequentialCommandGroup( 
+            new RunSetPivotAngle(arm, 48),
+            new RunSetExtendPosition(arm, 40000),
+            new RunSetWristPosition(wrist, 0, 0)
+        ));
+        // medium goal
+        secondaryJoystickPOVEast.whileTrue(new SequentialCommandGroup( 
+            new RunSetPivotAngle(arm, 48),
+            new RunSetExtendPosition(arm, 0),
+            new RunSetWristPosition(wrist, 0, 0)
+        ));
+        // shelf
+        secondaryJoystickPOVWest.whileTrue(new SequentialCommandGroup(
+            new RunSetPivotAngle(arm, 70),
+            new RunSetExtendPosition(arm, 0),
+            new RunSetWristPosition(wrist, -13000, 0)
+        ));
+        // picking off ground
+        secondaryJoystickPOVSouth.whileTrue(new SequentialCommandGroup(
+            new RunSetPivotAngle(arm, 10),
+            new RunSetExtendPosition(arm, 0),
+            new RunSetWristPosition(wrist, 0, 0)
+        ));
     }
 
     private void configChoosers() {
