@@ -76,7 +76,7 @@ public class Constants {
         public static final int kPivotCANCoderPort = 9;
 
         //extend
-        public static final double kExtendUpperBound = 48000;
+        public static final double kExtendUpperBound = 50000;
         public static final double kExtendLowerBound = 0;
 
         public static final double kPExtend = 0.05;

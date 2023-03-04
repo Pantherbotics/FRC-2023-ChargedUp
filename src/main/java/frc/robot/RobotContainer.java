@@ -123,7 +123,7 @@ public class RobotContainer {
         // high goal
         secondaryJoystickPOVNorth.whileTrue(new SequentialCommandGroup( 
             new RunSetPivotAngle(arm, 48),
-            new RunSetExtendPosition(arm, 40000),
+            new RunSetExtendPosition(arm, 51000),
             new RunSetWristPosition(wrist, 0, 0)
         ));
         // medium goal
