@@ -20,12 +20,18 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule[] modules;
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    private double autoGyroInit = 0; // for maintaining gyro position after auto
-
     private final Odometer odometer = new Odometer(); // Custom odometer that works for Holonomic Swerve
-    private double prevTimeSeconds = -1; // for updating odometry
 
     private double limelightYaw = 0.0;
+
+    public void setLimelightYaw(double y) {
+        limelightYaw = y;
+    }
+
+    public double getLimelightYaw() {
+        return limelightYaw;
+    }
+
     private boolean lockDriveWhileTargeting = false;
 
     public Drivetrain() {
@@ -46,7 +52,8 @@ public class Drivetrain extends SubsystemBase {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }).start();
     }
 
@@ -54,6 +61,8 @@ public class Drivetrain extends SubsystemBase {
     public void zeroHeading() {
         gyro.reset();
     }
+
+    public double autoGyroInit = 0;
 
     /**
      * Get the rotation of the robot (positive CCW, negative CW)
@@ -87,49 +96,53 @@ public class Drivetrain extends SubsystemBase {
 
     // Update the odometry by calculating the current wheel vectors, the overall
     // odometry vector, then the amount of movement
+    private double prevTimeSeconds = -1;
+
     public void updateOdometry() {
         // Speeds of the wheels in meters per second
-        double frontLeftVelocity = frontLeft.getDriveVelocity();
-        double frontRightVelocity = frontRight.getDriveVelocity();
-        double backRightVelocity = backRight.getDriveVelocity();
-        double backLeftVelocity = backLeft.getDriveVelocity();
-
+        double s1 = frontLeft.getDriveVelocity();
+        double s2 = frontRight.getDriveVelocity();
+        double s3 = backRight.getDriveVelocity();
+        double s4 = backLeft.getDriveVelocity();
         // Angles of the wheels [0, 360)
-        double frontLeftAngle = frontLeft.getAngle() + getHeading();
-        double frontRightAngle = frontRight.getAngle() + getHeading();
-        double backRightAngle = backRight.getAngle() + getHeading();
-        double backLeftAngle = backLeft.getAngle() + getHeading();
-
+        double heading = getHeading();
+        double a1 = frontLeft.getAngle() + heading;
+        double a2 = frontRight.getAngle() + heading;
+        double a3 = backRight.getAngle() + heading;
+        double a4 = backLeft.getAngle() + heading;
         // The vector components of the wheels, based on their current values
-        double frontLeftX = MathUtils.getHeadingX(frontLeftAngle) * frontLeftVelocity;
-        double frontLeftY = MathUtils.getHeadingY(frontLeftAngle) * frontLeftVelocity;
-        double frontRightX = MathUtils.getHeadingX(frontRightAngle) * frontRightVelocity;
-        double frontRightY = MathUtils.getHeadingY(frontRightAngle) * frontRightVelocity;
-        double backRightX = MathUtils.getHeadingX(backRightAngle) * backRightVelocity;
-        double backRightY = MathUtils.getHeadingY(backRightAngle) * backRightVelocity;
-        double backLeftX = MathUtils.getHeadingX(backLeftAngle) * backLeftVelocity;
-        double backLeftY = MathUtils.getHeadingY(backLeftAngle) * backLeftVelocity;
+        double X1 = MathUtils.getHeadingX(a1) * s1;
+        double Y1 = MathUtils.getHeadingY(a1) * s1;
+        double X2 = MathUtils.getHeadingX(a2) * s2;
+        double Y2 = MathUtils.getHeadingY(a2) * s2;
+        double X3 = MathUtils.getHeadingX(a3) * s3;
+        double Y3 = MathUtils.getHeadingY(a3) * s3;
+        double X4 = MathUtils.getHeadingX(a4) * s4;
+        double Y4 = MathUtils.getHeadingY(a4) * s4;
 
         // Calculate the odometry vector components [-maxDriveVel, maxDriveVel]
-        double velocityX = (frontLeftX + frontRightX + backRightX + backLeftX) / 4.0;
-        double velocityY = (frontLeftY + frontRightY + backRightY + backLeftY) / 4.0;
-        
+        double oX = (X1 + X2 + X3 + X4) / 4D;
+        double oY = (Y1 + Y2 + Y3 + Y4) / 4D;
+        // SmartDashboard.putString("Odo Data", "oX: " + roundStr(oX, 3) + " oY: " +
+        // roundStr(oY, 3));
+
         // Calculate the period in seconds since last update
         double currTimeSec = WPIUtilJNI.now() * 1.0e-6;
         double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0.0;
         prevTimeSeconds = currTimeSec;
 
-        // velocityX is the distance traveled in meters in a second, then multiplied by the period
-        double deltaY = velocityX * period;
-        double deltaX = velocityY * period;
-        odometer.update(deltaX, deltaY);
+        // oX is the distance traveled in meters in a second, then multiplied by the
+        // period
+        double changeY = oX * period;
+        double changeX = oY * period;
+        odometer.update(changeX, changeY);
     }
 
     @Override
     public void periodic() {
         // Update the odometry, using our own vector-based odometry for Holonomic Swerve
         updateOdometry();
-
+        
         frontLeft.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.getOffsetAngle()));
         frontRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.getOffsetAngle()));
         backRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[3] Offset Degrees", backRight.getOffsetAngle()));
@@ -140,8 +153,10 @@ public class Drivetrain extends SubsystemBase {
      * Invoke stop() on all modules so the robot stops
      */
     public void stopModules() {
-        for(SwerveModule module : modules)
-            module.stop();
+        frontLeft.stop();
+        frontRight.stop();
+        backLeft.stop();
+        backRight.stop();
     }
 
     /**
@@ -150,13 +165,17 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             // Optimize States (Both Teleop and Auto gives unoptimized)
             modules[i].setDesiredState(SwerveModuleState.optimize(
                 desiredStates[i], 
                 Rotation2d.fromDegrees(modules[i].getAngle()))
             );
         }
+    }
+
+    public boolean isLockDriveWhileTargeting() {
+        return lockDriveWhileTargeting;
     }
 
     public AHRS getGyro() {
@@ -177,18 +196,6 @@ public class Drivetrain extends SubsystemBase {
 
     public SwerveModule getBackLeft() {
         return backLeft;
-    }
-
-    public void setLimelightYaw(double yaw) {
-        limelightYaw = yaw;
-    }
-
-    public double getLimelightYaw() {
-        return limelightYaw;
-    }
-
-    public boolean isLockDriveWhileTargeting() {
-        return lockDriveWhileTargeting;
     }
 
     public void setLockDriveWhileTargeting(boolean b) {

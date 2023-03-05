@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.arm.Claw;
+import frc.robot.subsystems.intake.Claw;
 
 public class RunToggleClaw extends CommandBase {
     private Claw claw;
@@ -11,7 +11,7 @@ public class RunToggleClaw extends CommandBase {
     }
     
     @Override
-    public void initialize() {   
+    public void initialize() {
         claw.toggle();
     }
 
@@ -23,6 +23,6 @@ public class RunToggleClaw extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 }

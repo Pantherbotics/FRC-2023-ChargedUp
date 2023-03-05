@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.arm.Claw;
+import frc.robot.subsystems.intake.Claw;
 
 public class RunSetClaw extends CommandBase {
     private Claw claw;
@@ -14,7 +14,7 @@ public class RunSetClaw extends CommandBase {
 
     @Override
     public void initialize() {   
-        claw.run(desiredState);
+        claw.set(desiredState);
     }
 
     @Override

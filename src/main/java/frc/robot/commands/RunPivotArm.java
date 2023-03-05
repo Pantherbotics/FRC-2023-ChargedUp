@@ -1,19 +1,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Pivot;
 
 public class RunPivotArm extends CommandBase {
-    private Arm arm;
+    private Pivot pivot;
     private boolean reversed;
-    private boolean openLoop;
     
-    public RunPivotArm(Arm arm, boolean reversed) {
-        this.arm = arm;
+    public RunPivotArm(Pivot pivot, boolean reversed) {
+        this.pivot = pivot;
         this.reversed = reversed;
-        openLoop = arm.pivotOpenLoop;
 
-        addRequirements(arm);
+        addRequirements(pivot);
     }
 
     @Override
@@ -21,16 +19,16 @@ public class RunPivotArm extends CommandBase {
 
     @Override
     public void execute() {
-        if(openLoop)
-            arm.pivotOpenLoop(.1 * (reversed ? -1 : 1)); 
+        if(pivot.openLoop)
+            pivot.runOpenLoop(.3 * (reversed ? -1 : 1)); 
         else
-            arm.pivotClosedLoop(.44 * (reversed ? -1 : 1)); 
+            pivot.runClosedLoop(.45 * (reversed ? -1 : 1)); 
     }
 
     @Override
     public void end(boolean interrupted) {
-        if(openLoop)
-            arm.stopPivot();
+        if(pivot.openLoop)
+            pivot.stop();
     }
 
     @Override

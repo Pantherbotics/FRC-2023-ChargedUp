@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -7,7 +7,6 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -27,8 +26,7 @@ public class Wrist extends SubsystemBase {
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
-        flexEncoder.setPositionConversionFactor(360); // 360 degrees per rotation
-        flexEncoder.setVelocityConversionFactor(6); // 6 degrees per second
+        flexEncoder.setPositionConversionFactor(360);
         flexEncoder.setPosition(0);
 
         // flex pid
@@ -49,8 +47,6 @@ public class Wrist extends SubsystemBase {
 
         // rotate encoder
         rotateEncoder = rotateMotor.getEncoder();
-        rotateEncoder.setPositionConversionFactor(360);
-        rotateEncoder.setVelocityConversionFactor(6);
         rotateEncoder.setPosition(0);
 
         // rotate pid
@@ -60,7 +56,7 @@ public class Wrist extends SubsystemBase {
         rotatePID.setD(ArmConstants.kDRotate);
         rotatePID.setIZone(ArmConstants.kIZoneRotate);
         rotatePID.setFF(ArmConstants.kFFRotate);
-        rotatePID.setOutputRange(-1, 1);
+        rotatePID.setOutputRange(-3, 3);
 
         rotateSetpoint = 0;
     }
@@ -74,8 +70,9 @@ public class Wrist extends SubsystemBase {
     }
 
     public void setFlexPosition(double position) {
-        if(withinFlexBounds(position))
-            flexSetpoint = position;
+        if(!withinFlexBounds(position))
+            return;
+        flexSetpoint = position;
     }
 
     public double getFlexAngle() {
@@ -104,8 +101,9 @@ public class Wrist extends SubsystemBase {
     }
 
     public void setRotatePosition(double position) {
-        if(withinRotateBounds(position))
-            rotateSetpoint = position;
+        if(!withinRotateBounds(position))
+            return;
+        rotateSetpoint = position;
     }
 
     private boolean withinRotateBounds(double position) {

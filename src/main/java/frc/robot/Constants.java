@@ -23,9 +23,6 @@ public class Constants {
         public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
         public static final double kDriveEncoderRPM2MetersPerSec = kDriveEncoderRot2Meter / 60;
-
-        public static final double kDriveVelocityCoefficient = DriveConstants.kPhysicalMaxSpeedMetersPerSecond / neoMaxRPM;
-        public static final double kTurnPositionCoefficient = 360.0 / 4069.0;
         
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
@@ -64,9 +61,10 @@ public class Constants {
         public static final double kPivotEncoderRot2Degrees = 360;
         public static final double kPivotEncoderRPM2DegreesPerSec = 6;
 
-        public static final double kPivotUpperBound = 0;
-        public static final double kPivotLowerBound
-         = 0;
+        public static final double kPivotZeroAngle = 85.957031;
+
+        public static final double kPivotUpperBound = 360;
+        public static final double kPivotLowerBound = 0;
 
         public static final double kPPivot = 0.02;
         public static final double kIPivot = 0.0;
@@ -78,7 +76,7 @@ public class Constants {
         public static final int kPivotCANCoderPort = 9;
 
         //extend
-        public static final double kExtendUpperBound = 48000;
+        public static final double kExtendUpperBound = 52000;
         public static final double kExtendLowerBound = 0;
 
         public static final double kPExtend = 0.05;
@@ -92,8 +90,8 @@ public class Constants {
         //flex
         public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
 
-        public static final double kFlexLowerBound = -37000;
-        public static final double kFlexUpperBound = 2000;
+        public static final double kFlexLowerBound = -40000;
+        public static final double kFlexUpperBound = 40000;
 
         public static final double kPFlex = 0.0001;
         public static final double kIFlex = 0.0;
@@ -104,12 +102,12 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 360;
+        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 10;
 
         public static final double kRotateLowerBound = -20000;
         public static final double kRotateUpperBound = 20000;
 
-        public static final double kPRotate = 0.0005;
+        public static final double kPRotate = 0.0002;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;
@@ -118,7 +116,7 @@ public class Constants {
         public static final int kRotateMotorPort = 7;
 
         //claw 
-        public static final int kClawSolenoidPort = 9;
+        public static final int kClawSolenoidPort = 0;
     }
 
     public static final class VisionConstants {
@@ -185,6 +183,6 @@ public class Constants {
 
         public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
-        public static final double kDeadband = 0.04; //Higher than average on the controller I'm using
+        public static final double kDeadband = 0.02; //Higher than average on the controller I'm using
     }
 }
