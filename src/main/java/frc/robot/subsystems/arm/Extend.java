@@ -38,14 +38,14 @@ public class Extend extends SubsystemBase {
     /**
      * @param speed The percent output of the falcon
      */
-    public void extendOpenLoop(double speed) {
+    public void runOpenLoop(double speed) {
         motor.set(ControlMode.PercentOutput, speed);
     }
 
     /**
      * @param speed
      */
-    public void extendClosedLoop(double speed) {
+    public void runClosedLoop(double speed) {
         setPosition(setpoint + speed);
     }
 

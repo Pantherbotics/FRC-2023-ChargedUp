@@ -1,4 +1,5 @@
 package frc.robot.auto;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathConstraints;
@@ -9,8 +10,8 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
@@ -18,69 +19,64 @@ import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSetWristPosition;
 import frc.robot.commands.RunToggleClaw;
-import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Extend;
+import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.intake.Claw;
 import frc.robot.subsystems.intake.Wrist;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
 
-public class AutoPaths {
+public class AutoPaths {    
     //subsystems
     private final Drivetrain drivetrain;
     private final Limelight reflective;
     private final Limelight apriltag;
-    private final Arm arm; 
+    private final Extend extend;
+    private final Pivot pivot; 
     private final Wrist wrist;
     private final Claw claw;
 
-    private HashMap<String, Command> paths = new HashMap<String, Command>();
+    private ArrayList<NamedAuto> paths = new ArrayList<NamedAuto>();
 
-    private HashMap<String, Command> eventMap = new HashMap<String, Command>();
-
-    public AutoPaths(
-        Drivetrain drivetrain, 
-        Limelight reflective, 
-        Limelight apriltag, 
-        Arm arm, 
-        Wrist wrist, 
-        Claw claw) {
+    public AutoPaths(SubsystemBase... subsystems) {
         
-        this.drivetrain = drivetrain;
-        this.reflective = reflective;
-        this.apriltag = apriltag;
-        this.arm = arm;
-        this.wrist = wrist;
-        this.claw = claw;
+        drivetrain = (Drivetrain) subsystems[0];
+        reflective = (Limelight) subsystems[1];
+        apriltag = (Limelight) subsystems[2];
+        extend = (Extend) subsystems[3];
+        pivot = (Pivot) subsystems[4];
+        wrist = (Wrist) subsystems[5];
+        claw = (Claw) subsystems[6];
 
         createPaths();
     }
 
     private void createPaths() {
-        paths.put(
-            "None", 
-            null
-        );
+        // paths.add(new NamedAuto(
+        //     "None", 
+        //     null
+        // ));
 
-        paths.put(
+        paths.add(new NamedAuto(
             "Taxi", 
             getCommandFromTrajectory("Taxi", true)
-        );
+        ));
 
-        paths.put(
+        paths.add(new NamedAuto(
             "Taxi Over Charge Station", 
             getCommandFromTrajectory("TaxiOverRamp", true)
-        );
-
-        paths.put(
-            "1 Medium Cone + Taxi", 
-            new SequentialCommandGroup(new SequentialCommandGroup( 
-                new RunSetPivotAngle(arm, 48),
-                new RunSetExtendPosition(arm, 0),
-                new RunSetWristPosition(wrist, -13000, 0)
-            )))
-            .andThen(new RunToggleClaw(claw)
-            .andThen(getCommandFromTrajectory("MediumConeTaxi", true)
         ));
+
+        paths.add(new NamedAuto(
+            "1 Medium Cone + Taxi", 
+            new SequentialCommandGroup(
+                new ParallelCommandGroup( 
+                    new RunSetPivotAngle(pivot, 48),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, -13000, 0)),
+                new RunToggleClaw(claw),
+                getCommandFromTrajectory("MediumConeTaxi", true)
+        )));
 
         //TODO: add more trajectories w/ pp
     }
@@ -112,7 +108,7 @@ public class AutoPaths {
         return command;
     }
 
-    public HashMap<String, Command> getPaths() {
+    public ArrayList<NamedAuto> getPaths() {
         return paths;
     }
 }

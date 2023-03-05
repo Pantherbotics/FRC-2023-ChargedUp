@@ -2,16 +2,17 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Pivot;
 
 public class RunSetPivotAngle extends CommandBase {
-    private final Arm arm;
+    private final Pivot pivot;
     private double angle;
 
-    public RunSetPivotAngle(Arm arm, double angle) {
-        this.arm = arm;
+    public RunSetPivotAngle(Pivot pivot, double angle) {
+        this.pivot = pivot;
         this.angle = angle;
 
-        addRequirements(arm);
+        addRequirements(pivot);
     }
     
     @Override
@@ -19,7 +20,7 @@ public class RunSetPivotAngle extends CommandBase {
 
     @Override
     public void execute() {
-        arm.setPivotAngle(angle);
+        pivot.setAngle(angle);
     }
 
     @Override

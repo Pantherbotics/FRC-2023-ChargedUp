@@ -50,7 +50,7 @@ public class Pivot extends SubsystemBase {
      * Pivots the arm open loop
      * @param speed The desired speed to set the motor to, [-1, 1]
      */
-    public void pivotOpenLoop(double speed) {
+    public void runOpenLoop(double speed) {
         master.set(speed);
     }
 
@@ -58,7 +58,7 @@ public class Pivot extends SubsystemBase {
      * Pivots the arm closed loop; adds the speed to the setpoint
      * @param speed The speed in deg/s
      */
-    public void pivotClosedLoop(double speed) {
+    public void runClosedLoop(double speed) {
         setAngle(pid.getSetpoint() + speed);
     }
 

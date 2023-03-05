@@ -1,5 +1,6 @@
 package frc.robot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -14,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
+import frc.robot.auto.NamedAuto;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
@@ -23,6 +26,8 @@ import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Extend;
+import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.intake.Claw;
 import frc.robot.subsystems.intake.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
@@ -35,7 +40,9 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
     private final Limelight reflective = new Limelight("pog", LimelightMode.REFLECTIVE);
     private final Limelight apriltag = new Limelight("poggers", LimelightMode.APRILTAG);
-    private final Arm arm = new Arm(); 
+    private final Arm arm = new Arm();
+    private final Extend extend = new Extend();
+    private final Pivot pivot = new Pivot(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
@@ -44,7 +51,8 @@ public class RobotContainer {
         drivetrain, 
         reflective,
         apriltag, 
-        arm,
+        extend,
+        pivot,
         wrist,
         claw
     );
@@ -110,45 +118,45 @@ public class RobotContainer {
         wrist.setDefaultCommand(new RunWristJoystick(wrist, secondaryJoystick));
 
         // pivot manual control
-        secondaryJoystickXButton.whileTrue(new RunPivotArm(arm, true));
-        secondaryJoystickYButton.whileTrue(new RunPivotArm(arm, false));
+        secondaryJoystickXButton.whileTrue(new RunPivotArm(pivot, true));
+        secondaryJoystickYButton.whileTrue(new RunPivotArm(pivot, false));
 
         // extension manual control 
-        secondaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(arm, true));
-        secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(arm, false));
+        secondaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(extend, true));
+        secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(extend, false));
 
         // claw manual control
         secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
 
         // zero position
-        secondaryJoystickBButton.whileTrue(new SequentialCommandGroup(
-            new RunSetPivotAngle(arm, ArmConstants.kPivotZeroAngle),
-            new RunSetExtendPosition(arm, 0),
+        secondaryJoystickBButton.whileTrue(new ParallelCommandGroup(
+            new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+            new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, 0, 0)
         ));
 
         // high goal
-        secondaryJoystickPOVNorth.whileTrue(new SequentialCommandGroup( 
-            new RunSetPivotAngle(arm, 48),
-            new RunSetExtendPosition(arm, 51000),
+        secondaryJoystickPOVNorth.whileTrue(new ParallelCommandGroup( 
+            new RunSetPivotAngle(pivot, 48),
+            new RunSetExtendPosition(extend, 51000),
             new RunSetWristPosition(wrist, -13000, 0)
         ));
         // medium goal
         secondaryJoystickPOVEast.whileTrue(new SequentialCommandGroup( 
-            new RunSetPivotAngle(arm, 48),
-            new RunSetExtendPosition(arm, 0),
+            new RunSetPivotAngle(pivot, 48),
+            new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, -13000, 0)
         ));
         // shelf
         secondaryJoystickPOVWest.whileTrue(new SequentialCommandGroup(
-            new RunSetPivotAngle(arm, 70),
-            new RunSetExtendPosition(arm, 0),
+            new RunSetPivotAngle(pivot, 70),
+            new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, -13000, 0)
         ));                                                                
         // picking off ground   
         secondaryJoystickPOVSouth.whileTrue(new SequentialCommandGroup(
-            new RunSetPivotAngle(arm, 10),
-            new RunSetExtendPosition(arm, 0),
+            new RunSetPivotAngle(pivot, 10),
+            new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, -17000, 0)
         ));
     }
@@ -171,15 +179,9 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         // auto chooser
-        for(Map.Entry<String, Command> traj : autoPaths.getPaths().entrySet())
-        {
-            String name = traj.getKey();
-            Command command = traj.getValue();
-            if(name.equals("None"))
-                autoChooser.setDefaultOption(name, command);
-            else
-                autoChooser.addOption(name, command);
-        }
+        autoChooser.setDefaultOption("None", null);
+        for(NamedAuto path : autoPaths.getPaths())
+            autoChooser.addOption(path.getName(), path.getCommand());
         SmartDashboard.putData("Auto", autoChooser);
     }
 
