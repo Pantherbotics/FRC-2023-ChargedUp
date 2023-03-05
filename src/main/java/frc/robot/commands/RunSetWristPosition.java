@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.intake.Wrist;
 
 public class RunSetWristPosition extends CommandBase {
     private Wrist wrist;

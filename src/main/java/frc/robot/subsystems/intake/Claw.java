@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -9,13 +9,12 @@ import frc.robot.Constants.ArmConstants;
 public class Claw extends SubsystemBase {
     private final Value OPEN_STATE = Value.kForward;
     private final Value CLOSE_STATE = Value.kReverse;
+    private final Value OFF_STATE = Value.kOff;
 
     private final DoubleSolenoid solenoid;
-    private boolean open;
 
     public Claw() {
         solenoid = new DoubleSolenoid(ArmConstants.kClawSolenoidPort, PneumaticsModuleType.CTREPCM, 0, 1);
-        open = solenoid.get().equals(OPEN_STATE);
     }
 
     /**
@@ -43,7 +42,7 @@ public class Claw extends SubsystemBase {
 
 
     public void stop() {
-        open = false;
+        solenoid.set(OFF_STATE);
     }
 
     public boolean isOpen() {

@@ -109,8 +109,6 @@ public class SwerveModule {
 
         // Log some info about the target state
         double target = state.angle.getDegrees();
-        SmartDashboard.putString("Swerve[" + id + "] Set",
-                "A: " + MathUtils.round(target, 1) + " S: " + MathUtils.round(state.speedMetersPerSecond, 1) + " OFFSET: " + offsetDeg);
 
         // Either run the CanCoder logic for steering, or the AnalogInput logic
             // Get the error for the angle, assuming + error is clockwise

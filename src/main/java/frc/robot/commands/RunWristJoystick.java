@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.intake.Wrist;
 
 public class RunWristJoystick extends CommandBase {
     private Wrist wrist;

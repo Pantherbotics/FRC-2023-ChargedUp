@@ -1,4 +1,4 @@
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -26,8 +26,7 @@ public class Wrist extends SubsystemBase {
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
-        flexEncoder.setPositionConversionFactor(360); // 360 degrees per rotation
-        flexEncoder.setVelocityConversionFactor(6); // 6 degrees per second
+        flexEncoder.setPositionConversionFactor(360);
         flexEncoder.setPosition(0);
 
         // flex pid
@@ -48,8 +47,6 @@ public class Wrist extends SubsystemBase {
 
         // rotate encoder
         rotateEncoder = rotateMotor.getEncoder();
-        rotateEncoder.setPositionConversionFactor(360);
-        rotateEncoder.setVelocityConversionFactor(6);
         rotateEncoder.setPosition(0);
 
         // rotate pid
