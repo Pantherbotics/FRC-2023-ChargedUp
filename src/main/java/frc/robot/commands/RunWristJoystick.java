@@ -26,18 +26,15 @@ public class RunWristJoystick extends CommandBase {
         double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
         double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
-        double xSpeed = xLeftValue * ArmConstants.kRotateMaxAngularSpeedDegreesPerSecond;
-        double ySpeed = yRightValue * ArmConstants.kFlexMaxAngularSpeedDegreesPerSecond;
-
         if(wrist.flexOpenLoop)
             wrist.flexOpenLoop(yRightValue);
         else
-            wrist.flexClosedLoop(ySpeed);
+            wrist.flexClosedLoop(yRightValue);
 
         if(wrist.rotateOpenLoop)
             wrist.rotateOpenLoop(xLeftValue);
         else
-            wrist.rotateClosedLoop(xSpeed);
+            wrist.rotateClosedLoop(xLeftValue);
     }
   
     //Called once the command ends or is interrupted.

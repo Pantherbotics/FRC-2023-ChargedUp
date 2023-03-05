@@ -103,31 +103,81 @@ public class RobotContainer {
     private void configAutoCommands() {
         autoCommands.put(
             "Taxi", 
-            getCommandFromName("Taxi", true)
+            getPPCommand("SmallTaxi", true)
         );
-
         autoCommands.put(
             "Taxi Over Charge Station", 
-            getCommandFromName("TaxiOverRamp", true)
+            getPPCommand("LargeTaxi", true)
         );
-
         autoCommands.put(
-            "1 Medium Cone + Taxi", 
+            "Medium Goal", 
+            new SequentialCommandGroup(
+                new ParallelCommandGroup( //moves arm
+                    new RunSetPivotAngle(pivot, 48),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, -13000, 0)),
+                new WaitCommand(1),
+                new RunToggleClaw(claw),
+                new WaitCommand(0.5),
+                new ParallelCommandGroup( //zeros position
+                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, 0, 0)
+        )));
+        autoCommands.put(
+            "Medium Goal + Taxi", 
             new SequentialCommandGroup(
                 new ParallelCommandGroup( 
                     new RunSetPivotAngle(pivot, 48),
                     new RunSetExtendPosition(extend, 0),
                     new RunSetWristPosition(wrist, -13000, 0)),
-                new WaitCommand(2),
+                new WaitCommand(1),
                 new RunToggleClaw(claw),
-                new WaitCommand(2),
-                getCommandFromName("MediumConeTaxi", true)
+                new WaitCommand(0.5),
+                new ParallelCommandGroup( //zeros position
+                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, 0, 0)),
+                new WaitCommand(1),
+                getPPCommand("GamePieceTaxi", true)
+        ));
+        autoCommands.put(
+            "High Goal", 
+            new SequentialCommandGroup(
+                new ParallelCommandGroup( 
+                    new RunSetPivotAngle(pivot, 48),
+                    new RunSetExtendPosition(extend, 51000),
+                    new RunSetWristPosition(wrist, -13000, 0)),
+                new WaitCommand(1),
+                new RunToggleClaw(claw),
+                new WaitCommand(0.5),
+                new ParallelCommandGroup( //zeros position
+                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, 0, 0)
+        )));
+        autoCommands.put(
+            "High Goal + Taxi", 
+            new SequentialCommandGroup(
+                new ParallelCommandGroup( 
+                    new RunSetPivotAngle(pivot, 48),
+                    new RunSetExtendPosition(extend, 51000),
+                    new RunSetWristPosition(wrist, -13000, 0)),
+                new WaitCommand(1),
+                new RunToggleClaw(claw),
+                new WaitCommand(0.5),
+                new ParallelCommandGroup( //zeros position
+                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, 0, 0)),
+                new WaitCommand(1),
+                getPPCommand("GamePieceTaxi", true)
         ));
 
         //TODO: add more trajectories w/ pp
     }
 
-    private Command getCommandFromName(String pathName, boolean firstPath) {
+    private Command getPPCommand(String pathName, boolean firstPath) {
         PathPlannerTrajectory traj = PathPlanner.loadPath(
             pathName, 
             new PathConstraints(
@@ -161,6 +211,7 @@ public class RobotContainer {
             speedChooser::getSelected,
             driveModeChooser::getSelected
         ));
+        primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
 
         // wrist manual control
         wrist.setDefaultCommand(new RunWristJoystick(wrist, secondaryJoystick));
@@ -203,9 +254,9 @@ public class RobotContainer {
         ));                                                                
         // picking off ground   
         secondaryJoystickPOVSouth.whileTrue(new SequentialCommandGroup(
-            new RunSetPivotAngle(pivot, 10),
+            new RunSetPivotAngle(pivot, 5),
             new RunSetExtendPosition(extend, 0),
-            new RunSetWristPosition(wrist, -17000, 0)
+            new RunSetWristPosition(wrist, -15000, 0)
         ));
     }
 
@@ -214,8 +265,9 @@ public class RobotContainer {
         speedChooser.setDefaultOption("Slow", 0.25);
         speedChooser.addOption("Kinda Slow", 0.45);
         speedChooser.addOption("Normal", 0.65);
+        speedChooser.addOption("Fast", 0.80);
         speedChooser.addOption("Demon", 1.00);
-        SmartDashboard.putData("Speed", speedChooser);
+        SmartDashboard.putData(speedChooser);
 
         // drive mode chooser
         driveModeChooser.setDefaultOption("Robot Oriented", DriveMode.SWERVE);
@@ -224,12 +276,12 @@ public class RobotContainer {
         driveModeChooser.addOption("Car", DriveMode.CAR);
         driveModeChooser.addOption("West Coast", DriveMode.WEST_COAST);
         driveModeChooser.addOption("Tank", DriveMode.TANK);
-        SmartDashboard.putData("Drive Mode", driveModeChooser);
+        SmartDashboard.putData(driveModeChooser);
 
         // auto chooser
         autoChooser.setDefaultOption("None", null);
         autoCommands.forEach((name, command) -> autoChooser.addOption(name, command));
-        SmartDashboard.putData("Auto", autoChooser);
+        SmartDashboard.putData(autoChooser);
     }
 
     public void updateSmartDashboard() {

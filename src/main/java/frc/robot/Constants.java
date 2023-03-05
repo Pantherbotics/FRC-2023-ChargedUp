@@ -52,18 +52,15 @@ public class Constants {
 
         //Positive is counterclockwise, Negative is clockwise
         public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
-        public static final double kFrontRightCANCoderOffsetDeg = -74.44; 
-        public static final double kBackRightCANCoderOffsetDeg = 60.61; 
+        public static final double kFrontRightCANCoderOffsetDeg = -80.44; 
+        public static final double kBackRightCANCoderOffsetDeg = 45.61; 
         public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
     }
     
     public static final class ArmConstants {
         //arm
         //pivot
-        public static final double kPivotEncoderRot2Degrees = 360;
-        public static final double kPivotEncoderRPM2DegreesPerSec = 6;
-
-        public static final double kPivotZeroAngle = 85.957031;
+        public static final double kPivotZeroAngle = 85.96;
 
         public static final double kPivotUpperBound = 360;
         public static final double kPivotLowerBound = 0;
@@ -90,12 +87,10 @@ public class Constants {
 
         //wrist
         //flex
-        public static final double kFlexMaxAngularSpeedDegreesPerSecond = 120;
-
         public static final double kFlexLowerBound = -40000;
-        public static final double kFlexUpperBound = 40000;
+        public static final double kFlexUpperBound = 10;
 
-        public static final double kPFlex = 0.0001;
+        public static final double kPFlex = 0.05;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
         public static final double kIZoneFlex = 0.0;
@@ -104,12 +99,10 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kRotateMaxAngularSpeedDegreesPerSecond = 10;
-
         public static final double kRotateLowerBound = -20000;
         public static final double kRotateUpperBound = 20000;
 
-        public static final double kPRotate = 0.0002;
+        public static final double kPRotate = 1.00;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;

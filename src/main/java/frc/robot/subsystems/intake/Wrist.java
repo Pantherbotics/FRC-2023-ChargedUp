@@ -26,7 +26,6 @@ public class Wrist extends SubsystemBase {
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
-        flexEncoder.setPositionConversionFactor(360);
         flexEncoder.setPosition(0);
 
         // flex pid
@@ -56,7 +55,7 @@ public class Wrist extends SubsystemBase {
         rotatePID.setD(ArmConstants.kDRotate);
         rotatePID.setIZone(ArmConstants.kIZoneRotate);
         rotatePID.setFF(ArmConstants.kFFRotate);
-        rotatePID.setOutputRange(-3, 3);
+        rotatePID.setOutputRange(-1, 1);
 
         rotateSetpoint = 0;
     }
