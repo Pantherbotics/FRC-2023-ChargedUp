@@ -36,7 +36,6 @@ public class Arm extends SubsystemBase {
         pivotLeader = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
         pivotLeader.restoreFactoryDefaults();
         pivotLeader.setIdleMode(IdleMode.kBrake);
-        //pivotLeader.getPIDController().setOutputRange(-0.3, 0.3);
 
         pivotFollower = new CANSparkMax(ArmConstants.kPivotFollowerMotorPort, MotorType.kBrushless);
         pivotFollower.restoreFactoryDefaults();
@@ -184,7 +183,7 @@ public class Arm extends SubsystemBase {
     public double getExtendSetpoint() {
         return extendSetpoint;
     }
-
+    
     @Override
     public void periodic() {
         if(!pivotOpenLoop)

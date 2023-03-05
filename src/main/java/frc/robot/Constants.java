@@ -76,7 +76,7 @@ public class Constants {
         public static final int kPivotCANCoderPort = 9;
 
         //extend
-        public static final double kExtendUpperBound = 50000;
+        public static final double kExtendUpperBound = 52000;
         public static final double kExtendLowerBound = 0;
 
         public static final double kPExtend = 0.05;
@@ -111,7 +111,7 @@ public class Constants {
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;
-        public static final double kFFRotate = 0.000156;
+        public static final double kFFRotate = 0.0;
 
         public static final int kRotateMotorPort = 7;
 
@@ -183,6 +183,6 @@ public class Constants {
 
         public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
-        public static final double kDeadband = 0.04; //Higher than average on the controller I'm using
+        public static final double kDeadband = 0.02; //Higher than average on the controller I'm using
     }
 }

@@ -1,21 +1,20 @@
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoPaths;
 import frc.robot.commands.RunPivotArm;
-import frc.robot.commands.RunSetClaw;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSetWristPosition;
@@ -24,8 +23,8 @@ import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
 import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.Claw;
-import frc.robot.subsystems.arm.Wrist;
+import frc.robot.subsystems.intake.Claw;
+import frc.robot.subsystems.intake.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
@@ -40,7 +39,15 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    private final AutoPaths autoPaths = new AutoPaths(drivetrain);
+    // Auto paths
+    private final AutoPaths autoPaths = new AutoPaths(
+        drivetrain, 
+        reflective,
+        apriltag, 
+        arm,
+        wrist,
+        claw
+    );
 
     // Choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
@@ -124,31 +131,32 @@ public class RobotContainer {
         secondaryJoystickPOVNorth.whileTrue(new SequentialCommandGroup( 
             new RunSetPivotAngle(arm, 48),
             new RunSetExtendPosition(arm, 51000),
-            new RunSetWristPosition(wrist, 0, 0)
+            new RunSetWristPosition(wrist, -13000, 0)
         ));
         // medium goal
         secondaryJoystickPOVEast.whileTrue(new SequentialCommandGroup( 
             new RunSetPivotAngle(arm, 48),
             new RunSetExtendPosition(arm, 0),
-            new RunSetWristPosition(wrist, 0, 0)
+            new RunSetWristPosition(wrist, -13000, 0)
         ));
         // shelf
         secondaryJoystickPOVWest.whileTrue(new SequentialCommandGroup(
             new RunSetPivotAngle(arm, 70),
             new RunSetExtendPosition(arm, 0),
             new RunSetWristPosition(wrist, -13000, 0)
-        ));
-        // picking off ground
+        ));                                                                
+        // picking off ground   
         secondaryJoystickPOVSouth.whileTrue(new SequentialCommandGroup(
             new RunSetPivotAngle(arm, 10),
             new RunSetExtendPosition(arm, 0),
-            new RunSetWristPosition(wrist, 0, 0)
+            new RunSetWristPosition(wrist, -17000, 0)
         ));
     }
 
     private void configChoosers() {
         // speed chooser
         speedChooser.setDefaultOption("Slow", 0.25);
+        speedChooser.addOption("Kinda Slow", 0.45);
         speedChooser.addOption("Normal", 0.65);
         speedChooser.addOption("Demon", 1.00);
         SmartDashboard.putData("Speed", speedChooser);
@@ -163,7 +171,7 @@ public class RobotContainer {
         SmartDashboard.putData("Drive Mode", driveModeChooser);
 
         // auto chooser
-        for(Map.Entry<String, Command> traj : autoPaths.getTrajectories().entrySet())
+        for(Map.Entry<String, Command> traj : autoPaths.getPaths().entrySet())
         {
             String name = traj.getKey();
             Command command = traj.getValue();
@@ -173,10 +181,6 @@ public class RobotContainer {
                 autoChooser.addOption(name, command);
         }
         SmartDashboard.putData("Auto", autoChooser);
-    }
-
-    public void robotInit() {
-        //arm.zeroPivotAngle();
     }
 
     public void updateSmartDashboard() {
