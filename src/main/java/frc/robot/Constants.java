@@ -63,7 +63,7 @@ public class Constants {
 
         public static final double kPivotZeroAngle = 85.957031;
 
-        public static final double kPivotUpperBound = 0;
+        public static final double kPivotUpperBound = 360;
         public static final double kPivotLowerBound = 0;
 
         public static final double kPPivot = 0.02;

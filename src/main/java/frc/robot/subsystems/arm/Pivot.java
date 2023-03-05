@@ -16,7 +16,7 @@ import frc.robot.Constants.ArmConstants;
 public class Pivot extends SubsystemBase {
     private final CANSparkMax master, slave;
     private final CANCoder cancoder;
-    private final PIDController pivotPID;
+    private final PIDController pid;
 
     public boolean openLoop = false;
 
@@ -40,8 +40,8 @@ public class Pivot extends SubsystemBase {
         cancoder = new CANCoder(ArmConstants.kPivotCANCoderPort);
         cancoder.configAllSettings(config);
 
-        pivotPID = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
-        pivotPID.setSetpoint(getAngle());
+        pid = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
+        pid.setSetpoint(getAngle());
         
         setAngle(ArmConstants.kPivotZeroAngle);
     }
@@ -59,7 +59,7 @@ public class Pivot extends SubsystemBase {
      * @param speed The speed in deg/s
      */
     public void pivotClosedLoop(double speed) {
-        setAngle(pivotPID.getSetpoint() + speed);
+        setAngle(pid.getSetpoint() + speed);
     }
 
     /**
@@ -68,7 +68,7 @@ public class Pivot extends SubsystemBase {
     public void setAngle(double angle) {
         if(!withinBounds(angle))
             return;
-        pivotPID.setSetpoint(angle);
+        pid.setSetpoint(angle);
     }
 
     /**
@@ -76,8 +76,8 @@ public class Pivot extends SubsystemBase {
      * @return Whether the position is within the bounds of the pivot
      */
     private boolean withinBounds(double position) {
-        return true;//position >= ArmConstants.kPivotLowerBound && 
-               //position <= ArmConstants.kPivotUpperBound;
+        return position >= ArmConstants.kPivotLowerBound && 
+               position <= ArmConstants.kPivotUpperBound;
     }
 
     /**
@@ -97,14 +97,14 @@ public class Pivot extends SubsystemBase {
     /**
      * @return The pivot setpoint in deg
      */
-    public double getPivotSetpoint() {
-        return pivotPID.getSetpoint();
+    public double getSetpoint() {
+        return pid.getSetpoint();
     }
 
     @Override
     public void periodic()
     {
         if(!openLoop)
-            master.set(MathUtil.clamp(pivotPID.calculate(getAngle()), -0.3, 0.3));
+            master.set(MathUtil.clamp(pid.calculate(getAngle()), -0.3, 0.3));
     }
 }
