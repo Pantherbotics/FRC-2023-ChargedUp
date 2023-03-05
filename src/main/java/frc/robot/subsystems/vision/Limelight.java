@@ -5,21 +5,18 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Notifier;
 
-public class Limelight {
+public abstract class Limelight {
     private final NetworkTable limelight;
     private NetworkTableEntry tx, ty, ta;
-    private LimelightMode mode;
     private Target target;
 
-    public Limelight(String name, LimelightMode limelightMode) {
+    public Limelight(String name) {
         limelight = NetworkTableInstance.getDefault().getTable("limelight-" + name);
         tx = limelight.getEntry("tx");
         ty = limelight.getEntry("ty");
         ta = limelight.getEntry("ta");
         
         target = new Target();
-
-        mode = limelightMode;
 
         try(Notifier updateLoop = new Notifier(this::update)) {
             updateLoop.startPeriodic(1.0 / 100); // 10 ms

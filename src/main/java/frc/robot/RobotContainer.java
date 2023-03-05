@@ -21,14 +21,15 @@ import frc.robot.subsystems.arm.Claw;
 import frc.robot.subsystems.arm.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.vision.AprilTagLimelight;
 import frc.robot.subsystems.vision.Limelight;
-import frc.robot.subsystems.vision.LimelightMode;
+import frc.robot.subsystems.vision.ReflectiveLimelight;
 
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    private final Limelight reflective = new Limelight("pog", LimelightMode.REFLECTIVE);
-    private final Limelight apriltag = new Limelight("poggers", LimelightMode.APRILTAG);
+    private final Limelight reflective = new ReflectiveLimelight("limelight-pog");
+    private final Limelight apriltag = new AprilTagLimelight("limelight-poggers");
     private final Arm arm = new Arm(); 
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
