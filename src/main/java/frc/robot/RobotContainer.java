@@ -1,22 +1,27 @@
 package frc.robot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.auto.AutoPaths;
-import frc.robot.auto.NamedAuto;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
@@ -25,7 +30,6 @@ import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
-import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.intake.Claw;
@@ -33,21 +37,19 @@ import frc.robot.subsystems.intake.Wrist;
 import frc.robot.subsystems.swerve.DriveMode;
 import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
-import frc.robot.subsystems.vision.LimelightManager;
-import frc.robot.subsystems.vision.ReflectiveLimelight;
 
 public class RobotContainer {
     // Subsystems
     private final Drivetrain drivetrain = new Drivetrain();
-    private final Limelight reflective = new Limelight();
-    private final Limelight apriltag = new Limelight();
+    private final Limelight reflective = new Limelight("limelight-poggers");
+    private final Limelight apriltag = new Limelight("limelight-pog");
     private final Extend extend = new Extend(); 
     private final Pivot pivot = new Pivot();
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    // Auto paths
-    private final AutoPaths autoPaths = new AutoPaths(drivetrain, reflective, apriltag, extend, pivot, wrist, claw);
+    // Autos
+    private final HashMap<String, Command> autoCommands = new HashMap<String, Command>();
 
     // Choosers
     private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
@@ -63,11 +65,11 @@ public class RobotContainer {
     private final JoystickButton primaryJoystickBButton = new JoystickButton(primaryJoystick, 2); // B Button
     private final JoystickButton primaryJoystickXButton = new JoystickButton(primaryJoystick, 3); // X Button
     private final JoystickButton primaryJoystickYButton = new JoystickButton(primaryJoystick, 4); // Y Button
-    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left                                                                                                                                                                                                                     // Button
-    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right                                                                                                                                                                                                                        // Button
+    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left                                                                                                                                                                                                                     
+    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right                                                                                                                                                                                                                        
     private final JoystickButton primaryJoystickBackButton = new JoystickButton(primaryJoystick, 7); // Back Button
     private final JoystickButton primaryJoystickStartButton = new JoystickButton(primaryJoystick, 8); // Start Button
-    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left                                                                                                                                                                                                                         // Button
+    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left                                                                                                                                                                                                                         
     private final JoystickButton primaryJoystickRightJoystickButton = new JoystickButton(primaryJoystick, 10); // Right
                                                                                      
     private final POVButton primaryJoystickPOVNorth = new POVButton(primaryJoystick, 0); // North
@@ -80,11 +82,11 @@ public class RobotContainer {
     private final JoystickButton secondaryJoystickBButton = new JoystickButton(secondaryJoystick, 2); // X Button
     private final JoystickButton secondaryJoystickXButton = new JoystickButton(secondaryJoystick, 3); // Circle Button
     private final JoystickButton secondaryJoystickYButton = new JoystickButton(secondaryJoystick, 4); // Triangle Button
-    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right                                                                                                                                                                                           // Button
-    private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left// Bumper                                                                                                               
+    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right                                                                                                                                                                                           
+    private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left                                                                                                            
     private final JoystickButton secondaryJoystickBackButton = new JoystickButton(secondaryJoystick, 7); // Share Button
     private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Options                                                                                                          
-    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left                                                                                                                                                                                                                                 // Button
+    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left
     private final JoystickButton secondaryJoystickRightJoystickButton = new JoystickButton(secondaryJoystick, 10); // Right                                                                                                                   
                                                                                                                 
     private final POVButton secondaryJoystickPOVNorth = new POVButton(secondaryJoystick, 0); // North
@@ -93,8 +95,62 @@ public class RobotContainer {
     private final POVButton secondaryJoystickPOVWest = new POVButton(secondaryJoystick, 270); // West
 
     public RobotContainer() {
+        configAutoCommands();
         configButtonBindings();
         configChoosers();
+    }
+
+    private void configAutoCommands() {
+        autoCommands.put(
+            "Taxi", 
+            getCommandFromName("Taxi", true)
+        );
+
+        autoCommands.put(
+            "Taxi Over Charge Station", 
+            getCommandFromName("TaxiOverRamp", true)
+        );
+
+        autoCommands.put(
+            "1 Medium Cone + Taxi", 
+            new SequentialCommandGroup(
+                new ParallelCommandGroup( 
+                    new RunSetPivotAngle(pivot, 48),
+                    new RunSetExtendPosition(extend, 0),
+                    new RunSetWristPosition(wrist, -13000, 0)),
+                new WaitCommand(2),
+                new RunToggleClaw(claw),
+                new WaitCommand(2),
+                getCommandFromName("MediumConeTaxi", true)
+        ));
+
+        //TODO: add more trajectories w/ pp
+    }
+
+    private Command getCommandFromName(String pathName, boolean firstPath) {
+        PathPlannerTrajectory traj = PathPlanner.loadPath(
+            pathName, 
+            new PathConstraints(
+                AutoConstants.kMaxSpeedMetersPerSecond, 
+                AutoConstants.kMaxAccelerationMetersPerSecondSquared
+            ));
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                // Reset odometry for the first path you run during auto
+                if(firstPath)
+                    drivetrain.resetOdometry(traj.getInitialState().holonomicRotation, traj.getInitialHolonomicPose());
+            }),
+            new PPSwerveControllerCommand(
+                traj, 
+                drivetrain::getPose,
+                DriveConstants.kDriveKinematics, 
+                new PIDController(AutoConstants.kPXController, 0, 0), 
+                new PIDController(AutoConstants.kPYController, 0, 0), 
+                new PIDController(AutoConstants.kPThetaController, 0, 0),
+                drivetrain::setModuleStates,
+                true, 
+                drivetrain
+        ));
     }
 
     private void configButtonBindings() {
@@ -172,8 +228,7 @@ public class RobotContainer {
 
         // auto chooser
         autoChooser.setDefaultOption("None", null);
-        for(NamedAuto path : autoPaths.getPaths())
-            autoChooser.addOption(path.getName(), path.getCommand());
+        autoCommands.forEach((name, command) -> autoChooser.addOption(name, command));
         SmartDashboard.putData("Auto", autoChooser);
     }
 
@@ -196,11 +251,11 @@ public class RobotContainer {
         // limelights
 
         // arm
-        SmartDashboard.putNumber("Arm Pivot Setpoint", arm.getPivotSetpoint());
-        SmartDashboard.putNumber("Arm Pivot Position", arm.getPivotAngle());
+        SmartDashboard.putNumber("Pivot Setpoint", pivot.getSetpoint());
+        SmartDashboard.putNumber("Pivot Position", pivot.getAngle());
 
-        SmartDashboard.putNumber("Arm Extend Setpoint", arm.getExtendSetpoint());
-        SmartDashboard.putNumber("Arm Extend Position", arm.getExtendPosition());
+        SmartDashboard.putNumber("Extend Setpoint", extend.getSetpoint());
+        SmartDashboard.putNumber("Extend Position", extend.getPosition());
 
         // wrist
         SmartDashboard.putNumber("Wrist Flex Setpoint", wrist.getFlexSetpoint());

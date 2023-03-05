@@ -1,9 +1,12 @@
 package frc.robot;
 
+import java.util.HashMap;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class Constants {
     //--------------------------------------------------------------------------------------------
@@ -15,7 +18,6 @@ public class Constants {
     public static final double potMax = 3798;
 
     public static final double neoMaxRPM = 5000; //5000 was experimentally determined from our swerve chassis
-
 
     //Checked and verified as of May 1st, 2022
     public static final class ModuleConstants {

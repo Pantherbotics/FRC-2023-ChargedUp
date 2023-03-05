@@ -5,13 +5,13 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Notifier;
 
-public abstract class Limelight {
+public class Limelight {
     private final NetworkTable limelight;
     private NetworkTableEntry tx, ty, ta;
     private Target target;
 
     public Limelight(String name) {
-        limelight = NetworkTableInstance.getDefault().getTable("limelight-" + name);
+        limelight = NetworkTableInstance.getDefault().getTable(name);
         tx = limelight.getEntry("tx");
         ty = limelight.getEntry("ty");
         ta = limelight.getEntry("ta");
