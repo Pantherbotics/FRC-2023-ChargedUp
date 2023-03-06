@@ -22,9 +22,9 @@ import frc.robot.commands.RunSetWristPosition;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
+import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.intake.Claw;
 import frc.robot.subsystems.intake.Wrist;
-import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
 
 public class AutoPaths {    
