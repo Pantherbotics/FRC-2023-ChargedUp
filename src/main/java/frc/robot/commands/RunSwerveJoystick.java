@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.swerve.DriveMode;
-import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.drive.DriveMode;
+import frc.robot.subsystems.drive.Drivetrain;
+
 import java.util.function.Supplier;
 
 import static frc.robot.util.MathUtils.powAxis;
@@ -18,14 +19,14 @@ public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
     private final Supplier<Double> speedChooser;
-    private final Supplier<DriveMode> driveMode;
+    private final Supplier<DriveMode> driveModeChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
     public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<DriveMode> driveModeChooser) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
         this.speedChooser = speedChooser;
-        this.driveMode = driveModeChooser;
+        this.driveModeChooser = driveModeChooser;
 
         // These limiters help to smooth out the joystick input by limiting the
         // acceleration during sudden changes
@@ -37,47 +38,39 @@ public class RunSwerveJoystick extends CommandBase {
     }
 
     @Override
-    public void initialize() {
-    }
+    public void initialize() {}
 
     @Override
     public void execute() {
-        if (driveMode.get() == DriveMode.FIELD_ORIENTED_SWERVE) {
+        if (driveModeChooser.get() == DriveMode.FIELD_ORIENTED_SWERVE) {
             runSwerve(true);
-        } else if (driveMode.get() == DriveMode.SWERVE) {
+        } else if (driveModeChooser.get() == DriveMode.ROBOT_ORIENTED_SWERVE) {
             runSwerve(false);
-        } else if (driveMode.get() == DriveMode.BOAT) {
+        } else if (driveModeChooser.get() == DriveMode.BOAT) {
             runBoat();
-        } else if (driveMode.get() == DriveMode.CAR) {
+        } else if (driveModeChooser.get() == DriveMode.CAR) {
             runCar();
-        } else if (driveMode.get() == DriveMode.WEST_COAST) {
+        } else if (driveModeChooser.get() == DriveMode.WEST_COAST) {
             runWestCoast();
-        } else if (driveMode.get() == DriveMode.TANK) {
+        } else if (driveModeChooser.get() == DriveMode.TANK) {
             runTank();
         }
     }
 
     private void runSwerve(boolean fieldOriented) {
         // Background on the speed values:
-        // - YL is positive when pulled BACKWARDS, and negative when pushed FORWARDS
-        // (not intuitive)
-        // - XL is positive when pushed to the right, and negative when pushed to the
-        // left (normal)
-        // - The Y axis on the joystick should control X (forward/backward) movement of
-        // the robot, and vice versa
-        // - In order for the Y axis (negative when forward) to drive X forward
-        // (positive), it needs to be negated
-        // - In order for the X axis to control the expected Y axis movement of positive
-        // to the left, it is also negated
-        // - XR is positive when pushed to the right, and negative when pushed to the
-        // left (normal)
-        // - In order for XR to follow the positive CCW of the gyro, it needs to be
-        // negated
+        // - YL is positive when pulled BACKWARDS, and negative when pushed FORWARDS (not normal)
+        // - XL is positive when pushed to the right, and negative when pushed to the left (normal)
+        // - The Y axis on the joystick should control X (forward/backward) movement of the robot, and vice versa
+        // - In order for the Y axis (negative when forward) to drive X forward (positive), it needs to be negated
+        // - In order for the X axis to control the expected Y axis movement of positive to the left, it is also negated
+        // - XR is positive when pushed to the right, and negative when pushed to the left (normal)
+        // - In order for XR to follow the positive CCW of the gyro, it needs to be negated
 
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xSpeed, ySpeed, turningSpeed;
         double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
-        if (drivetrain.isLockDriveWhileTargeting()) {
+        if (drivetrain.getIsLockDriveWhileTargeting()) {
             xSpeed = 0;
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
@@ -138,9 +131,7 @@ public class RunSwerveJoystick extends CommandBase {
 
     private void runCar() {
         double YL = -getYL(); // We need to invert the Y axis so that positive is forwards
-        double XR = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we
-                              // must have a positive XR
-
+        double XR = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
         double speed = (YL * YL);// square the speed but keep the sign so it can reverse
         if (YL < 0) {
             speed = -speed;
@@ -190,7 +181,7 @@ public class RunSwerveJoystick extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.stopModules();
+        drivetrain.stop();
     }
 
     @Override

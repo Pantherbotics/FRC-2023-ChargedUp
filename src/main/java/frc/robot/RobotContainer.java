@@ -32,10 +32,11 @@ import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
+import frc.robot.subsystems.drive.DriveMode;
+import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.Speed;
 import frc.robot.subsystems.intake.Claw;
 import frc.robot.subsystems.intake.Wrist;
-import frc.robot.subsystems.swerve.DriveMode;
-import frc.robot.subsystems.swerve.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
 
 public class RobotContainer {
@@ -101,6 +102,10 @@ public class RobotContainer {
     }
 
     private void configAutoCommands() {
+        autoCommands.put(
+            "None", 
+            new InstantCommand(() -> System.out.println("xdd"))
+        );
         autoCommands.put(
             "Taxi", 
             getPPCommand("SmallTaxi", true)
@@ -261,20 +266,23 @@ public class RobotContainer {
 
     private void configChoosers() {
         // speed chooser
-        speedChooser.setDefaultOption("Slow", 0.25);
-        speedChooser.addOption("Kinda Slow", 0.45);
-        speedChooser.addOption("Normal", 0.65);
-        speedChooser.addOption("Fast", 0.80);
-        speedChooser.addOption("Demon", 1.00);
+        for(Speed speed : Speed.values())
+        {
+            if(speed.toString().equals("Slow"))
+                speedChooser.setDefaultOption(speed.toString(), speed.getScalar());
+            else
+                speedChooser.addOption(speed.toString(), speed.getScalar());
+        }
         SmartDashboard.putData(speedChooser);
 
         // drive mode chooser
-        driveModeChooser.setDefaultOption("Robot Oriented", DriveMode.SWERVE);
-        driveModeChooser.addOption("Field Oriented", DriveMode.FIELD_ORIENTED_SWERVE);
-        driveModeChooser.addOption("Boat", DriveMode.BOAT);
-        driveModeChooser.addOption("Car", DriveMode.CAR);
-        driveModeChooser.addOption("West Coast", DriveMode.WEST_COAST);
-        driveModeChooser.addOption("Tank", DriveMode.TANK);
+        for(DriveMode mode : DriveMode.values())
+        {
+            if(mode.toString().equals("Robot Oriented"))
+                driveModeChooser.setDefaultOption(mode.toString(), mode);
+            else
+                driveModeChooser.addOption(mode.toString(), mode);
+        }
         SmartDashboard.putData(driveModeChooser);
 
         // auto chooser
@@ -287,17 +295,17 @@ public class RobotContainer {
         // drivetrain
         SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
 
-        SmartDashboard.putNumber("Swerve [1] Speed", drivetrain.getFrontLeft().getDriveVelocity());
-        SmartDashboard.putNumber("Swerve [1] Angle", drivetrain.getFrontLeft().getAngle());
+        SmartDashboard.putNumber("Front Left [1] Speed", drivetrain.getFrontLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Front Left [1] Angle", drivetrain.getFrontLeft().getAngle());
         
-        SmartDashboard.putNumber("Swerve [2] Speed", drivetrain.getFrontRight().getDriveVelocity());
-        SmartDashboard.putNumber("Swerve [2] Angle", drivetrain.getFrontRight().getAngle());
+        SmartDashboard.putNumber("Front Right [2] Speed", drivetrain.getFrontRight().getDriveVelocity());
+        SmartDashboard.putNumber("Front Right [2] Angle", drivetrain.getFrontRight().getAngle());
         
-        SmartDashboard.putNumber("Swerve [3] Speed", drivetrain.getBackRight().getDriveVelocity());
-        SmartDashboard.putNumber("Swerve [3] Angle", drivetrain.getBackRight().getAngle());
+        SmartDashboard.putNumber("Back Right [3] Speed", drivetrain.getBackRight().getDriveVelocity());
+        SmartDashboard.putNumber("Back Right [3] Angle", drivetrain.getBackRight().getAngle());
         
-        SmartDashboard.putNumber("Swerve [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
-        SmartDashboard.putNumber("Swerve [4] Angle", drivetrain.getBackLeft().getAngle());
+        SmartDashboard.putNumber("Back Left [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
+        SmartDashboard.putNumber("Back Left [4] Angle", drivetrain.getBackLeft().getAngle());
 
         // limelights
 

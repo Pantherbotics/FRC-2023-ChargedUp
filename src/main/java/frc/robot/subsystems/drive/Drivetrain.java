@@ -1,8 +1,6 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.subsystems.drive;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -20,41 +18,38 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule[] modules;
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
+    private double autoGyroInit = 0;
+
     private final Odometer odometer = new Odometer(); // Custom odometer that works for Holonomic Swerve
+    private double prevTimeSeconds = -1;
 
     private double limelightYaw = 0.0;
-
-    public void setLimelightYaw(double y) {
-        limelightYaw = y;
-    }
-
-    public double getLimelightYaw() {
-        return limelightYaw;
-    }
-
-    private boolean lockDriveWhileTargeting = false;
+    private boolean isLockDriveWhileTargeting = false;
 
     public Drivetrain() {
-        // Positive is CCW, Negative is CW
         frontLeft = new SwerveModule(1, ModuleConstants.kFrontLeftCANCoderOffsetDeg, false); 
         frontRight = new SwerveModule(2, ModuleConstants.kFrontRightCANCoderOffsetDeg, false); 
         backRight = new SwerveModule(3, ModuleConstants.kBackRightCANCoderOffsetDeg, true);
         backLeft = new SwerveModule(4, ModuleConstants.kBackLeftCANCoderOffsetDeg, true); 
         modules = new SwerveModule[] { frontLeft, frontRight, backRight, backLeft };
 
-        SmartDashboard.putNumber("Swerve[1] Offset Degrees", frontLeft.getOffsetAngle());
-        SmartDashboard.putNumber("Swerve[2] Offset Degrees", frontRight.getOffsetAngle());
-        SmartDashboard.putNumber("Swerve[3] Offset Degrees", backRight.getOffsetAngle());
-        SmartDashboard.putNumber("Swerve[4] Offset Degrees", backLeft.getOffsetAngle());
-
         // Zero the gyro after 1 second while it calibrates
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
                 zeroHeading();
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }).start();
+
+        SmartDashboard.putNumber("Swerve[1] Offset Angle", frontLeft.offsetAngle);
+        SmartDashboard.putNumber("Swerve[2] Offset Angle", frontRight.offsetAngle);
+        SmartDashboard.putNumber("Swerve[3] Offset Angle", backRight.offsetAngle);
+        SmartDashboard.putNumber("Swerve[4] Offset Angle", backLeft.offsetAngle);
+
+        SmartDashboard.putBoolean("Swerve[1] Inverted", frontLeft.inverted);
+        SmartDashboard.putBoolean("Swerve[2] Inverted", frontRight.inverted);
+        SmartDashboard.putBoolean("Swerve[3] Inverted", backRight.inverted);
+        SmartDashboard.putBoolean("Swerve[4] Inverted", backLeft.inverted);
     }
 
     // Zero the heading of the gyro (Sets to 0)
@@ -62,16 +57,12 @@ public class Drivetrain extends SubsystemBase {
         gyro.reset();
     }
 
-    public double autoGyroInit = 0;
-
     /**
      * Get the rotation of the robot (positive CCW, negative CW)
-     * 
      * @return the current heading of the robot in degrees [-180, 180]
      */
     public double getHeading() {
         return MathUtils.boundHalfDegrees(-gyro.getYaw() + autoGyroInit);
-        // return -gyro.getYaw();
     }
 
     /**
@@ -87,55 +78,47 @@ public class Drivetrain extends SubsystemBase {
      * @param pose The new pose
      */
     public void resetOdometry(Rotation2d rotation, Pose2d pose) {
-        // When the auto starts it will reset the odometry. If the robot's rotation
-        // isn't 0 at the start, configure the gyro
+        // When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
         autoGyroInit = rotation.getDegrees();
         odometer.resetPosition(pose);
     }
 
-    // Update the odometry by calculating the current wheel vectors, the overall
-    // odometry vector, then the amount of movement
-    private double prevTimeSeconds = -1;
-
+    // Update the odometry by calculating the current wheel vectors, the overall odometry vector, then the amount of movement
     public void updateOdometry() {
         // Speeds of the wheels in meters per second
-        double s1 = frontLeft.getDriveVelocity();
-        double s2 = frontRight.getDriveVelocity();
-        double s3 = backRight.getDriveVelocity();
-        double s4 = backLeft.getDriveVelocity();
+        double frontLeftSpeed = frontLeft.getDriveVelocity();
+        double frontRightSpeed = frontRight.getDriveVelocity();
+        double backRightSpeed = backRight.getDriveVelocity();
+        double backLeftSpeed = backLeft.getDriveVelocity();
         // Angles of the wheels [0, 360)
-        double heading = getHeading();
-        double a1 = frontLeft.getAngle() + heading;
-        double a2 = frontRight.getAngle() + heading;
-        double a3 = backRight.getAngle() + heading;
-        double a4 = backLeft.getAngle() + heading;
+        double frontLeftAngle = frontLeft.getAngle() + getHeading();
+        double frontRightAngle = frontRight.getAngle() + getHeading();
+        double backRightAngle = backRight.getAngle() + getHeading();
+        double backLeftAngle = backLeft.getAngle() + getHeading();
         // The vector components of the wheels, based on their current values
-        double X1 = MathUtils.getHeadingX(a1) * s1;
-        double Y1 = MathUtils.getHeadingY(a1) * s1;
-        double X2 = MathUtils.getHeadingX(a2) * s2;
-        double Y2 = MathUtils.getHeadingY(a2) * s2;
-        double X3 = MathUtils.getHeadingX(a3) * s3;
-        double Y3 = MathUtils.getHeadingY(a3) * s3;
-        double X4 = MathUtils.getHeadingX(a4) * s4;
-        double Y4 = MathUtils.getHeadingY(a4) * s4;
+        double frontLeftX = MathUtils.getHeadingX(frontLeftAngle) * frontLeftSpeed;
+        double frontLeftY = MathUtils.getHeadingY(frontLeftAngle) * frontLeftSpeed;
+        double frontRightX = MathUtils.getHeadingX(frontRightAngle) * frontRightSpeed;
+        double frontRightY = MathUtils.getHeadingY(frontRightAngle) * frontRightSpeed;
+        double backRightX = MathUtils.getHeadingX(backRightAngle) * backRightSpeed;
+        double backRightY = MathUtils.getHeadingY(backRightAngle) * backRightSpeed;
+        double backLeftX = MathUtils.getHeadingX(backLeftAngle) * backLeftSpeed;
+        double backLeftY = MathUtils.getHeadingY(backLeftAngle) * backLeftSpeed;
 
         // Calculate the odometry vector components [-maxDriveVel, maxDriveVel]
-        double oX = (X1 + X2 + X3 + X4) / 4D;
-        double oY = (Y1 + Y2 + Y3 + Y4) / 4D;
-        // SmartDashboard.putString("Odo Data", "oX: " + roundStr(oX, 3) + " oY: " +
-        // roundStr(oY, 3));
+        double velocityX = (frontLeftX + frontRightX + backRightX + backLeftX) / 4.0;
+        double velocityY = (frontLeftY + frontRightY + backRightY + backLeftY) / 4.0;
 
         // Calculate the period in seconds since last update
         double currTimeSec = WPIUtilJNI.now() * 1.0e-6;
-        double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0.0;
+        double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0;
         prevTimeSeconds = currTimeSec;
 
-        // oX is the distance traveled in meters in a second, then multiplied by the
-        // period
-        double changeY = oX * period;
-        double changeX = oY * period;
-        odometer.update(changeX, changeY);
+        // oX is the distance traveled in meters in a second, then multiplied by the period
+        double deltaY = velocityX * period;
+        double deltaX = velocityY * period;
+        odometer.update(deltaX, deltaY);
     }
 
     @Override
@@ -143,16 +126,21 @@ public class Drivetrain extends SubsystemBase {
         // Update the odometry, using our own vector-based odometry for Holonomic Swerve
         updateOdometry();
         
-        frontLeft.setOffsetAngle(SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.getOffsetAngle()));
-        frontRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.getOffsetAngle()));
-        backRight.setOffsetAngle(SmartDashboard.getNumber("Swerve[3] Offset Degrees", backRight.getOffsetAngle()));
-        backLeft.setOffsetAngle(SmartDashboard.getNumber("Swerve[4] Offset Degrees", backLeft.getOffsetAngle()));
+        frontLeft.offsetAngle = SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.offsetAngle);
+        frontRight.offsetAngle = SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.offsetAngle);
+        backRight.offsetAngle = SmartDashboard.getNumber("Swerve[3] Offset Degrees", backRight.offsetAngle);
+        backLeft.offsetAngle = SmartDashboard.getNumber("Swerve[4] Offset Degrees", backLeft.offsetAngle);
+
+        frontLeft.inverted = SmartDashboard.getBoolean("Swerve[1] Inverted", frontLeft.inverted);
+        frontRight.inverted = SmartDashboard.getBoolean("Swerve[2] Inverted", frontRight.inverted);
+        backRight.inverted = SmartDashboard.getBoolean("Swerve[3] Inverted", backRight.inverted);
+        backLeft.inverted = SmartDashboard.getBoolean("Swerve[4] Inverted", backLeft.inverted);
     }
 
     /**
      * Invoke stop() on all modules so the robot stops
      */
-    public void stopModules() {
+    public void stop() {
         frontLeft.stop();
         frontRight.stop();
         backLeft.stop();
@@ -160,8 +148,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * @param desiredStates The states to set the modules to, in the order specified
-     *                      in kinematics
+     * @param desiredStates The states to set the modules to, in the order specified in kinematics
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
@@ -172,14 +159,6 @@ public class Drivetrain extends SubsystemBase {
                 Rotation2d.fromDegrees(modules[i].getAngle()))
             );
         }
-    }
-
-    public boolean isLockDriveWhileTargeting() {
-        return lockDriveWhileTargeting;
-    }
-
-    public AHRS getGyro() {
-        return gyro;
     }
 
     public SwerveModule getFrontLeft() {
@@ -198,7 +177,19 @@ public class Drivetrain extends SubsystemBase {
         return backLeft;
     }
 
-    public void setLockDriveWhileTargeting(boolean b) {
-        lockDriveWhileTargeting = b;
+    public boolean getIsLockDriveWhileTargeting() {
+        return isLockDriveWhileTargeting;
+    }
+
+    public void setLockDriveWhileTargeting(boolean lockDrive) {
+        isLockDriveWhileTargeting = lockDrive;
+    }
+    
+    public double getLimelightYaw() {
+        return limelightYaw;
+    }
+
+    public void setLimelightYaw(double yaw) {
+        limelightYaw = yaw;
     }
 }
