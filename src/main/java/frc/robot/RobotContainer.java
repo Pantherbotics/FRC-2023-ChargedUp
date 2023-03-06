@@ -233,9 +233,6 @@ public class RobotContainer {
             new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, 0, 0)
         ));
-        configureButtonBindings();
-    }
-
         // high goal
         secondaryJoystickPOVNorth.whileTrue(new ParallelCommandGroup( 
             new RunSetPivotAngle(pivot, 48),
