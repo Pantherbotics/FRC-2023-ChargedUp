@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.vision.Limelight;
 
 public class RunVisionTargeting extends CommandBase {
