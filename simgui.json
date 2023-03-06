@@ -1,0 +1,38 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto": "String Chooser",
+      "/SmartDashboard/Drive Mode": "String Chooser",
+      "/SmartDashboard/Speed": "String Chooser"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Arm": {
+          "Extension": {
+            "open": true
+          },
+          "Flex": {
+            "open": true
+          },
+          "Rotate": {
+            "open": true
+          },
+          "open": true
+        },
+        "Drivetrain": {
+          "Back Left [4]": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      }
+    }
+  }
+}

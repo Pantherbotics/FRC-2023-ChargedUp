@@ -1,9 +1,12 @@
 package frc.robot;
 
+import java.util.HashMap;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class Constants {
     //--------------------------------------------------------------------------------------------
@@ -16,30 +19,104 @@ public class Constants {
 
     public static final double neoMaxRPM = 5000; //5000 was experimentally determined from our swerve chassis
 
-
     //Checked and verified as of May 1st, 2022
     public static final class ModuleConstants {
         public static final double kWheelDiameterMeters = Units.inchesToMeters(4); //4 when new
-        public static final double kDriveMotorGearRatio = 2/15D; // 12:30 then 15:45
-        public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
-        public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
-
+        public static final double kDriveMotorGearRatio = 2.0 / 15; // 12:30 then 15:45
+        public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * kWheelDiameterMeters * Math.PI;
+        public static final double kDriveEncoderRPM2MetersPerSec = kDriveEncoderRot2Meter / 60;
+        
         //These were calculated for our swerve modules, but position PID based on the angle means they aren't needed
         //public static final double kTurningMotorGearRatio = 0.036; // 12:100 then 18:60
         //public static final double kTurningEncoderRot2Rad = kTurningMotorGearRatio * 2 * Math.PI;
         //public static final double kTurningEncoderRPM2RadPerSec = kTurningEncoderRot2Rad / 60;
 
+        //drive pid values
         public static final double kPDrive = 0.0001;
         public static final double kIDrive = 0.0;
         public static final double kDDrive = 0.0001;
         public static final double kIZoneDrive = 0.0;
         public static final double kFFDrive = 0.000175;
 
-        //These values will need to be calibrated when swapping between CANCoders and Potentiometers
-        public static final double kPTurning = 1.0;
-        public static final double kITurning = 0.0005;
-        public static final double kDTurning = 0.0;
-        public static final double kFTurning = 0.0;
+        //turn pid values
+        public static final double kPTurn = 1.0;
+        public static final double kITurn = 0.0005;
+        public static final double kDTurn = 0.0;
+        public static final double kFTurn = 0.0;
+
+        //These are all id numbers, change if necessary (ie: you reconfigured the motor ids for some reason)
+        public static final int kFrontLeftModuleID = 1;
+        public static final int kFrontRightModuleID = 2;
+        public static final int kBackRightModuleID = 3;
+        public static final int kBackLeftModuleID = 4;
+
+        //Positive is counterclockwise, Negative is clockwise
+        public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
+        public static final double kFrontRightCANCoderOffsetDeg = -80.44; 
+        public static final double kBackRightCANCoderOffsetDeg = 45.61; 
+        public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
+    }
+    
+    public static final class ArmConstants {
+        //arm
+        //pivot
+        public static final double kPivotZeroAngle = 85.96;
+
+        public static final double kPivotUpperBound = 360;
+        public static final double kPivotLowerBound = 0;
+
+        public static final double kPPivot = 0.02;
+        public static final double kIPivot = 0.0;
+        public static final double kDPivot = 0.0;
+
+        public static final int kPivotLeaderMotorPort = 5;
+        public static final int kPivotFollowerMotorPort = 6;
+
+        public static final int kPivotCANCoderPort = 9;
+
+        //extend
+        public static final double kExtendUpperBound = 52000;
+        public static final double kExtendLowerBound = 0;
+
+        public static final double kPExtend = 0.05;
+        public static final double kIExtend = 0.0;
+        public static final double kDExtend = 0.0;
+        public static final double kFExtend = 0.0;
+        
+        public static final int kExtendMotorPort = 5;
+
+        //wrist
+        //flex
+        public static final double kFlexLowerBound = -40000;
+        public static final double kFlexUpperBound = 10;
+
+        public static final double kPFlex = 0.05;
+        public static final double kIFlex = 0.0;
+        public static final double kDFlex = 0.0;
+        public static final double kIZoneFlex = 0.0;
+        public static final double kFFFlex = 0.0;
+
+        public static final int kFlexMotorPort = 8;
+
+        //rotate
+        public static final double kRotateLowerBound = -20000;
+        public static final double kRotateUpperBound = 20000;
+
+        public static final double kPRotate = 1.00;
+        public static final double kIRotate = 0.0;
+        public static final double kDRotate = 0.0;
+        public static final double kIZoneRotate = 0.0;
+        public static final double kFFRotate = 0.0;
+
+        public static final int kRotateMotorPort = 7;
+
+        //claw 
+        public static final int kClawSolenoidPort = 0;
+    }
+
+    public static final class VisionConstants {
+        public static final double kLimelightV1FOVAngle = 27.0;
+        public static final double kLimeLightV2FOVAngle = 29.8;
     }
 
     //Checked and verified as of May 1st, 2022
@@ -56,39 +133,12 @@ public class Constants {
                 new Translation2d(-kWheelBase / 2,  kTrackWidth / 2)   //Back Left
         );
 
-        //These are all id numbers, change if necessary (ie: you changed the motor ids for some reason)
-        public static final int kFrontLeftModuleID = 1;
-        public static final int kFrontRightModuleID = 2;
-        public static final int kBackRightModuleID = 3;
-        public static final int kBackLeftModuleID = 4;
-
-        public static final int kFrontLeftDriveMotorPort = 1;
-        public static final int kFrontRightDriveMotorPort = 2;
-        public static final int kBackRightDriveMotorPort = 3;
-        public static final int kBackLeftDriveMotorPort = 4;
-
-        public static final int kFrontLeftTurningMotorPort = 1;
-        public static final int kFrontRightTurningMotorPort = 2;
-        public static final int kBackRightTurningMotorPort = 3;
-        public static final int kBackLeftTurningMotorPort = 4;
-
-        public static final int kFrontLeftTurningEncoderPort = 5;
-        public static final int kFrontRightTurningEncoderPort = 6;
-        public static final int kBackRightTurningEncoderPort = 7;
-        public static final int kBackLeftTurningEncoderPort = 8;
-
-        //Encoders are obviously going to be at an angle when they are installed, figure them out through trial and error
-        //Positive is counterclockwise, Negative is clockwise
-        public static final int kFrontLeftTurningEncoderOffsetDeg = 165; //165  <-- I have no fucking clue what these commented numbers mean
-        public static final int kFrontRightTurningEncoderOffsetDeg = 225; //225
-        public static final int kBackRightTurningEncoderOffsetDeg = 350; //90
-        public static final int kBackLeftTurningEncoderOffsetDeg = 163; //-20 
-
         public static final double kPhysicalMaxSpeedMetersPerSecond = (neoMaxRPM / 60.0) * ModuleConstants.kDriveEncoderRot2Meter; //~3.56 m/s
         public static final double kPhysicalMaxAngularSpeedRadiansPerSecond = 2 * Math.PI; //About 2pi given wheelbase and drive speed
 
         public static final double kTeleDriveMaxSpeedMetersPerSecond = kPhysicalMaxSpeedMetersPerSecond; //we have about 11.68 ft/s, we don't need to reduce it
         public static final double kTeleDriveMaxAngularSpeedRadiansPerSecond = kPhysicalMaxAngularSpeedRadiansPerSecond; //360 degrees per second doesn't need to be reduced
+
         //These values could be tuned:
         public static final double kTeleDriveMaxAccelerationUnitsPerSecond = 1.5;
         public static final double kTeleDriveMaxAngularAccelerationUnitsPerSecond = 1.5;
@@ -115,15 +165,19 @@ public class Constants {
     //Checked and verified as of May 1st, 2022
     public static final class OIConstants {
         public static final int kPrimaryJoystickID = 0;
-        public static final int kPrimaryJoystickLeftXID = 0;
-        public static final int kPrimaryJoystickLeftYID = 1;
-        public static final int kPrimaryJoystickRightXID = 4;
-        public static final int kPrimaryJoystickRightYID = 5;
+        public static final int kPrimaryJoystickLeftXAxisID = 0;
+        public static final int kPrimaryJoystickLeftYAxisID = 1;
+        public static final int kPrimaryJoystickRightXAxisID = 4;
+        public static final int kPrimaryJoystickRightYAxisID = 5;
 
         public static final int kSecondaryJoystickID = 1;
+        public static final int kSecondaryJoystickLeftXAxisID = 0;
+        public static final int kSecondaryJoystickLeftYAxisID = 1;
+        public static final int kSecondaryJoystickRightXAxisID = 4;
+        public static final int kSecondaryJoystickRightYAxisID = 5;
 
-        public static final double driverEXP = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
+        public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
-        public static final double kDeadband = 0.04; //Higher than average on the controller I'm using
+        public static final double kDeadband = 0.02; //Higher than average on the controller I'm using
     }
 }
