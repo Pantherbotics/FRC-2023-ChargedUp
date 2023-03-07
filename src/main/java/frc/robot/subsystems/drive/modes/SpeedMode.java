@@ -1,6 +1,6 @@
-package frc.robot.subsystems.drive;
+package frc.robot.subsystems.drive.modes;
 
-public enum Speed {
+public enum SpeedMode {
     SLOW("Slow", 0.25),
     KINDA_SLOW("Kinda Slow", 0.45),
     NORMAL("Normal", 0.65),
@@ -10,7 +10,7 @@ public enum Speed {
     private String name;
     private double scalar;
 
-    Speed(String name, double scalar)
+    SpeedMode(String name, double scalar)
     {
         this.name = name;
         this.scalar = scalar;

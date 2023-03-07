@@ -8,8 +8,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.drive.DriveMode;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.modes.DriveMode;
+import frc.robot.subsystems.drive.modes.SpeedMode;
 import frc.robot.util.MathUtils;
 
 import java.util.function.Supplier;
@@ -17,11 +18,11 @@ import java.util.function.Supplier;
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
-    private final Supplier<Double> speedChooser;
+    private final Supplier<SpeedMode> speedChooser;
     private final Supplier<DriveMode> driveModeChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<Double> speedChooser, Supplier<DriveMode> driveModeChooser) {
+    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<SpeedMode> speedChooser, Supplier<DriveMode> driveModeChooser) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
         this.speedChooser = speedChooser;
@@ -40,7 +41,7 @@ public class RunSwerveJoystick extends CommandBase {
 
     @Override
     public void execute() {
-        switch(driveModeChooser.get()) {
+        switch(drivetrain.getDriveMode()) {
             case FIELD_ORIENTED_SWERVE:
                 runSwerve(true);
                 break;
@@ -77,26 +78,26 @@ public class RunSwerveJoystick extends CommandBase {
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xSpeed, ySpeed, turningSpeed;
         double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
+        
         if(drivetrain.getIsLockDriveWhileTargeting()) {
             xSpeed = 0;
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
         } else {
-            xSpeed = -MathUtils.powAxis(getYL(), OIConstants.kDriverExp) * speedChooser.get();
-            ySpeed = -MathUtils.powAxis(getXL(), OIConstants.kDriverExp) * speedChooser.get();
-            turningSpeed = -getXR() * (speedChooser.get() / 2) + targetInfluence;
+            xSpeed = -MathUtils.powAxis(getYL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
+            ySpeed = -MathUtils.powAxis(getXL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
+            turningSpeed = -getXR() * (drivetrain.getSpeedMode().getScalar() / 2) + targetInfluence;
         }
 
         // 2. Apply deadband
-        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0.0;
-        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0.0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0.0;
+        xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
+        ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
+        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0;
 
         // 3. Make the driving smoother
         xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
-        turningSpeed = turningLimiter.calculate(turningSpeed)
-                * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
+        turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         // 4. Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds = fieldOriented ? 

@@ -11,18 +11,28 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.subsystems.drive.modes.DriveMode;
+import frc.robot.subsystems.drive.modes.SpeedMode;
 import frc.robot.util.MathUtils;
 
 public class Drivetrain extends SubsystemBase {
+    //modules
     private final SwerveModule frontLeft, frontRight, backRight, backLeft;
     private final SwerveModule[] modules;
 
+    //modes
+    private DriveMode driveMode = DriveMode.ROBOT_ORIENTED_SWERVE;
+    private SpeedMode speedMode = SpeedMode.SLOW;
+
+    //gyro stuff
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
     private double autoGyroInit = 0;
 
+    //odometry stuff
     private final Odometer odometer = new Odometer(); // Custom odometer that works for Holonomic Swerve
     private double prevTimeSeconds = -1;
 
+    //vision stuff
     private double limelightYaw = 0.0;
     private boolean isLockDriveWhileTargeting = false;
 
@@ -141,10 +151,13 @@ public class Drivetrain extends SubsystemBase {
      * Invoke stop() on all modules so the robot stops
      */
     public void stop() {
-        frontLeft.stop();
-        frontRight.stop();
-        backLeft.stop();
-        backRight.stop();
+        for(SwerveModule module : modules)
+            module.stop();
+
+        // frontLeft.stop();
+        // frontRight.stop();
+        // backLeft.stop();
+        // backRight.stop();
     }
 
     /**
@@ -175,6 +188,22 @@ public class Drivetrain extends SubsystemBase {
 
     public SwerveModule getBackLeft() {
         return backLeft;
+    }
+
+    public DriveMode getDriveMode() {
+        return driveMode;
+    }
+
+    public void setDriveMode(DriveMode mode) {
+        driveMode = mode;
+    }
+
+    public SpeedMode getSpeedMode() {
+        return speedMode;
+    }
+
+    public void setSpeedMode(SpeedMode speed) {
+        speedMode = speed;
     }
 
     public boolean getIsLockDriveWhileTargeting() {

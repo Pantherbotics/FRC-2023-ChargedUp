@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive;
+package frc.robot.subsystems.drive.modes;
 
 public enum DriveMode {
     ROBOT_ORIENTED_SWERVE("Robot Oriented"),

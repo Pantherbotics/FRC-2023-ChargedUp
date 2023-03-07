@@ -33,12 +33,12 @@ import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
-import frc.robot.controller.Controller;
+import frc.robot.controllers.Controller;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
-import frc.robot.subsystems.drive.DriveMode;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.Speed;
+import frc.robot.subsystems.drive.modes.DriveMode;
+import frc.robot.subsystems.drive.modes.SpeedMode;
 import frc.robot.subsystems.intake.Claw;
 import frc.robot.subsystems.intake.Wrist;
 import frc.robot.subsystems.vision.Limelight;
@@ -58,7 +58,7 @@ public class RobotContainer {
     private final HashMap<String, Command> autoCommands = new HashMap<String, Command>();
 
     // Choosers
-    private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
+    private final SendableChooser<SpeedMode> speedModeChooser = new SendableChooser<SpeedMode>();
     private final SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
@@ -219,7 +219,7 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(new RunSwerveJoystick(
             drivetrain,
             primaryJoystick,
-            speedChooser::getSelected,
+            speedModeChooser::getSelected,
             driveModeChooser::getSelected
         ));
         primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
@@ -271,20 +271,20 @@ public class RobotContainer {
     }
 
     private void configChoosers() {
-        // speed chooser
-        for(Speed speed : Speed.values())
+        // speed mode chooser
+        for(SpeedMode speed : SpeedMode.values())
         {
-            if(speed.toString().equals("Slow"))
-                speedChooser.setDefaultOption(speed.toString(), speed.getScalar());
+            if(speed.equals(drivetrain.getSpeedMode()))
+                speedModeChooser.setDefaultOption(speed.toString(), speed);
             else
-                speedChooser.addOption(speed.toString(), speed.getScalar());
+                speedModeChooser.addOption(speed.toString(), speed);
         }
-        SmartDashboard.putData(speedChooser);
+        SmartDashboard.putData(speedModeChooser);
 
         // drive mode chooser
         for(DriveMode mode : DriveMode.values())
         {
-            if(mode.toString().equals("Robot Oriented"))
+            if(mode.equals(drivetrain.getDriveMode()))
                 driveModeChooser.setDefaultOption(mode.toString(), mode);
             else
                 driveModeChooser.addOption(mode.toString(), mode);
@@ -294,7 +294,7 @@ public class RobotContainer {
         // auto chooser
         for(AutoCommand auto : autoManager.geAutoCommands())
         {
-            if(auto.toString().equals("None"))
+            if(auto.getName().equals("None"))
                 autoChooser.setDefaultOption(auto.getName(), auto.getCommand());
             else
                 autoChooser.addOption(auto.getName(), auto.getCommand());
@@ -317,6 +317,9 @@ public class RobotContainer {
         
         SmartDashboard.putNumber("Back Left [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
         SmartDashboard.putNumber("Back Left [4] Angle", drivetrain.getBackLeft().getAngle());
+
+        drivetrain.setDriveMode(driveModeChooser.getSelected());
+        drivetrain.setSpeedMode(speedModeChooser.getSelected());
 
         // limelights
 
