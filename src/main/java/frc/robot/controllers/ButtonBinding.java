@@ -1,4 +1,4 @@
-package frc.robot.controller;
+package frc.robot.controllers;
 
 public enum ButtonBinding {
     A_BUTTON,

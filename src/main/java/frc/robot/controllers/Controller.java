@@ -1,4 +1,4 @@
-package frc.robot.controller;
+package frc.robot.controllers;
 
 import java.util.function.Consumer;
 
@@ -12,8 +12,8 @@ import frc.robot.Constants.OIConstants;
 public class Controller {
     private final Joystick joystick;
 
-    public JoystickButton A, B, X, Y, leftBumper, rightBumper, leftStick, rightStick;
-    public POVButton POVNorth, POVEast, POVSouth, POVWest; 
+    private JoystickButton A, B, X, Y, leftBumper, rightBumper, leftStick, rightStick;
+    private POVButton POVNorth, POVEast, POVSouth, POVWest; 
 
     public Controller(int joystickPort) {
         joystick = new Joystick(joystickPort);
