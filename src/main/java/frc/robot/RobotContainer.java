@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -22,6 +23,8 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.auto.AutoCommand;
+import frc.robot.auto.AutoManager;
 import frc.robot.commands.RunPivotArm;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
@@ -30,6 +33,7 @@ import frc.robot.commands.RunSwerveJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunWristJoystick;
+import frc.robot.controller.Controller;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.drive.DriveMode;
@@ -50,6 +54,7 @@ public class RobotContainer {
     private final Claw claw = new Claw();
 
     // Autos
+    private final AutoManager autoManager = new AutoManager(drivetrain, reflective, apriltag, extend, pivot, wrist, claw);
     private final HashMap<String, Command> autoCommands = new HashMap<String, Command>();
 
     // Choosers
@@ -57,21 +62,24 @@ public class RobotContainer {
     private final SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
-    // Joysticks
+    // Controllers
     private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
     private final Joystick secondaryJoystick = new Joystick(OIConstants.kSecondaryJoystickID);
+
+    private final Controller primaryController = new Controller(OIConstants.kPrimaryJoystickID);
+    private final Controller secondaryController = new Controller(OIConstants.kSecondaryJoystickID);
 
     // Primary controller buttons 
     private final JoystickButton primaryJoystickAButton = new JoystickButton(primaryJoystick, 1); // A Button
     private final JoystickButton primaryJoystickBButton = new JoystickButton(primaryJoystick, 2); // B Button
     private final JoystickButton primaryJoystickXButton = new JoystickButton(primaryJoystick, 3); // X Button
     private final JoystickButton primaryJoystickYButton = new JoystickButton(primaryJoystick, 4); // Y Button
-    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left                                                                                                                                                                                                                     
-    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right                                                                                                                                                                                                                        
+    private final JoystickButton primaryJoystickLeftBumperButton = new JoystickButton(primaryJoystick, 5); // Left Bumper
+    private final JoystickButton primaryJoystickRightBumperButton = new JoystickButton(primaryJoystick, 6); // Right Bumper
     private final JoystickButton primaryJoystickBackButton = new JoystickButton(primaryJoystick, 7); // Back Button
     private final JoystickButton primaryJoystickStartButton = new JoystickButton(primaryJoystick, 8); // Start Button
-    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left                                                                                                                                                                                                                         
-    private final JoystickButton primaryJoystickRightJoystickButton = new JoystickButton(primaryJoystick, 10); // Right
+    private final JoystickButton primaryJoystickLeftJoystickButton = new JoystickButton(primaryJoystick, 9); // Left Stick Button
+    private final JoystickButton primaryJoystickRightJoystickButton = new JoystickButton(primaryJoystick, 10); // Right Stick Button
                                                                                      
     private final POVButton primaryJoystickPOVNorth = new POVButton(primaryJoystick, 0); // North
     private final POVButton primaryJoystickPOVEast = new POVButton(primaryJoystick, 90); // East
@@ -83,12 +91,12 @@ public class RobotContainer {
     private final JoystickButton secondaryJoystickBButton = new JoystickButton(secondaryJoystick, 2); // X Button
     private final JoystickButton secondaryJoystickXButton = new JoystickButton(secondaryJoystick, 3); // Circle Button
     private final JoystickButton secondaryJoystickYButton = new JoystickButton(secondaryJoystick, 4); // Triangle Button
-    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right                                                                                                                                                                                           
-    private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left                                                                                                            
-    private final JoystickButton secondaryJoystickBackButton = new JoystickButton(secondaryJoystick, 7); // Share Button
-    private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Options                                                                                                          
-    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left
-    private final JoystickButton secondaryJoystickRightJoystickButton = new JoystickButton(secondaryJoystick, 10); // Right                                                                                                                   
+    private final JoystickButton secondaryJoystickLeftBumperButton = new JoystickButton(secondaryJoystick, 5); // Right Bumper
+    private final JoystickButton secondaryJoystickRightBumperButton = new JoystickButton(secondaryJoystick, 6); // Left Bumper
+    private final JoystickButton secondaryJoystickBackButton = new JoystickButton(secondaryJoystick, 7); // Back Button
+    private final JoystickButton secondaryJoystickStartButton = new JoystickButton(secondaryJoystick, 8); // Start Button
+    private final JoystickButton secondaryJoystickLeftJoystickButton = new JoystickButton(secondaryJoystick, 9); // Left 
+    private final JoystickButton secondaryJoystickRightJoystickButton = new JoystickButton(secondaryJoystick, 10); // Right
                                                                                                                 
     private final POVButton secondaryJoystickPOVNorth = new POVButton(secondaryJoystick, 0); // North
     private final POVButton secondaryJoystickPOVEast = new POVButton(secondaryJoystick, 90); // East
@@ -104,7 +112,7 @@ public class RobotContainer {
     private void configAutoCommands() {
         autoCommands.put(
             "None", 
-            new InstantCommand(() -> System.out.println("xdd"))
+            new PrintCommand("xdd")
         );
         autoCommands.put(
             "Taxi", 
@@ -178,8 +186,6 @@ public class RobotContainer {
                 new WaitCommand(1),
                 getPPCommand("GamePieceTaxi", true)
         ));
-
-        //TODO: add more trajectories w/ pp
     }
 
     private Command getPPCommand(String pathName, boolean firstPath) {
@@ -286,8 +292,13 @@ public class RobotContainer {
         SmartDashboard.putData(driveModeChooser);
 
         // auto chooser
-        autoChooser.setDefaultOption("None", null);
-        autoCommands.forEach((name, command) -> autoChooser.addOption(name, command));
+        for(AutoCommand auto : autoManager.geAutoCommands())
+        {
+            if(auto.toString().equals("None"))
+                autoChooser.setDefaultOption(auto.getName(), auto.getCommand());
+            else
+                autoChooser.addOption(auto.getName(), auto.getCommand());
+        }
         SmartDashboard.putData(autoChooser);
     }
 
