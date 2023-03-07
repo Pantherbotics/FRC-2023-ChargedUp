@@ -167,17 +167,21 @@ public class Constants {
         public static final int kPrimaryJoystickID = 0;
         public static final int kPrimaryJoystickLeftXAxisID = 0;
         public static final int kPrimaryJoystickLeftYAxisID = 1;
+        public static final int kPrimaryJoystickLeftTriggerID = 2;
+        public static final int kPrimaryJoystickRightTriggerID = 3;
         public static final int kPrimaryJoystickRightXAxisID = 4;
         public static final int kPrimaryJoystickRightYAxisID = 5;
 
         public static final int kSecondaryJoystickID = 1;
         public static final int kSecondaryJoystickLeftXAxisID = 0;
         public static final int kSecondaryJoystickLeftYAxisID = 1;
+        public static final int kSecondaryJoystickLeftTriggerID = 3;
+        public static final int kSecondaryJoystickRightTriggerID = 4;
         public static final int kSecondaryJoystickRightXAxisID = 4;
         public static final int kSecondaryJoystickRightYAxisID = 5;
 
         public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
-        public static final double kDeadband = 0.02; //Higher than average on the controller I'm using
+        public static final double kDeadband = 0.02; 
     }
 }

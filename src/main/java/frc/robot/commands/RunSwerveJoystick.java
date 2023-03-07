@@ -10,10 +10,9 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.drive.DriveMode;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.util.MathUtils;
 
 import java.util.function.Supplier;
-
-import static frc.robot.util.MathUtils.powAxis;
 
 public class RunSwerveJoystick extends CommandBase {
     private final Drivetrain drivetrain;
@@ -28,8 +27,7 @@ public class RunSwerveJoystick extends CommandBase {
         this.speedChooser = speedChooser;
         this.driveModeChooser = driveModeChooser;
 
-        // These limiters help to smooth out the joystick input by limiting the
-        // acceleration during sudden changes
+        // These limiters help to smooth out the joystick input by limiting the acceleration during sudden changes
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.yLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
         this.turningLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAngularAccelerationUnitsPerSecond);
@@ -42,18 +40,27 @@ public class RunSwerveJoystick extends CommandBase {
 
     @Override
     public void execute() {
-        if (driveModeChooser.get() == DriveMode.FIELD_ORIENTED_SWERVE) {
-            runSwerve(true);
-        } else if (driveModeChooser.get() == DriveMode.ROBOT_ORIENTED_SWERVE) {
-            runSwerve(false);
-        } else if (driveModeChooser.get() == DriveMode.BOAT) {
-            runBoat();
-        } else if (driveModeChooser.get() == DriveMode.CAR) {
-            runCar();
-        } else if (driveModeChooser.get() == DriveMode.WEST_COAST) {
-            runWestCoast();
-        } else if (driveModeChooser.get() == DriveMode.TANK) {
-            runTank();
+        switch(driveModeChooser.get()) {
+            case FIELD_ORIENTED_SWERVE:
+                runSwerve(true);
+                break;
+            case ROBOT_ORIENTED_SWERVE:
+                runSwerve(false);
+                break;
+            case BOAT:
+                runBoat();
+                break;
+            case CAR:
+                runCar();
+                break;
+            case WEST_COAST:
+                runWestCoast();
+                break;
+            case TANK:
+                runTank();
+                break;
+            default:
+                break;
         }
     }
 
@@ -70,14 +77,14 @@ public class RunSwerveJoystick extends CommandBase {
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
         double xSpeed, ySpeed, turningSpeed;
         double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
-        if (drivetrain.getIsLockDriveWhileTargeting()) {
+        if(drivetrain.getIsLockDriveWhileTargeting()) {
             xSpeed = 0;
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
         } else {
-            xSpeed = -powAxis(getYL(), OIConstants.kDriverExp) * speedChooser.get();
-            ySpeed = -powAxis(getXL(), OIConstants.kDriverExp) * speedChooser.get();
-            turningSpeed = -getXR() * (speedChooser.get() / 2D) + targetInfluence;
+            xSpeed = -MathUtils.powAxis(getYL(), OIConstants.kDriverExp) * speedChooser.get();
+            ySpeed = -MathUtils.powAxis(getXL(), OIConstants.kDriverExp) * speedChooser.get();
+            turningSpeed = -getXR() * (speedChooser.get() / 2) + targetInfluence;
         }
 
         // 2. Apply deadband
@@ -92,15 +99,9 @@ public class RunSwerveJoystick extends CommandBase {
                 * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         // 4. Construct desired chassis speeds
-        ChassisSpeeds chassisSpeeds;
-        if (fieldOriented) {
-            // Relative to field
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed,
-                    Rotation2d.fromDegrees(drivetrain.getHeading()));
-        } else {
-            // Relative to robot
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
-        }
+        ChassisSpeeds chassisSpeeds = fieldOriented ? 
+            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, Rotation2d.fromDegrees(drivetrain.getHeading())) :
+            new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
 
         // 5. Output each module states to wheels
         drivetrain.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
