@@ -19,7 +19,7 @@ public class RunExtendArm extends CommandBase {
   
     @Override
     public void execute() {
-        if(extend.openLoop)
+        if(extend.getIsOpenLoop())
             extend.runOpenLoop(.5 * (reversed ? -1 : 1));
         else
             extend.runClosedLoop(2048.0 / 10.0 * (reversed ? -1 : 1));  
@@ -28,7 +28,7 @@ public class RunExtendArm extends CommandBase {
     //Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        if(extend.openLoop)
+        if(extend.getIsOpenLoop())
             extend.stop();
     }
   

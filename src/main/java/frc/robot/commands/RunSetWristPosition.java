@@ -21,8 +21,8 @@ public class RunSetWristPosition extends CommandBase {
 
     @Override
     public void execute() {
-        wrist.setFlexPosition(flexAngle);
-        wrist.setRotatePosition(rotateAngle);
+        wrist.setFlexAngle(flexAngle);
+        wrist.setRotateAngle(rotateAngle);
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Pivot extends SubsystemBase {
     private final CANCoder cancoder;
     private final PIDController pid;
 
-    public boolean openLoop = false;
+    private boolean isOpenLoop = false;
 
     public Pivot() {
         master = new CANSparkMax(ArmConstants.kPivotLeaderMotorPort, MotorType.kBrushless);
@@ -101,10 +101,25 @@ public class Pivot extends SubsystemBase {
         return pid.getSetpoint();
     }
 
+    /**
+     * @return Whether the pivot is in open loop control or not
+     */
+    public boolean getIsOpenLoop() {
+        return isOpenLoop;
+    }
+
+    /**
+     * @param openLoop True if is open loop, false if closed loop
+     */
+    public void setIsOpenLoop(boolean openLoop) {
+        isOpenLoop = openLoop;
+    }
+
     @Override
     public void periodic()
     {
-        if(!openLoop)
+        if(!isOpenLoop)
             master.set(MathUtil.clamp(pid.calculate(getAngle()), -0.3, 0.3));
+ 
     }
 }

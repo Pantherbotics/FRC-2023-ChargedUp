@@ -16,7 +16,7 @@ public class Wrist extends SubsystemBase {
     private final SparkMaxPIDController flexPID, rotatePID;
     private double flexSetpoint, rotateSetpoint; //these should be zero at start
 
-    public boolean flexOpenLoop = false, rotateOpenLoop = false;
+    private boolean isFlexOpenLoop = false, isRotateOpenLoop = false;
 
     public Wrist() {
         // flex motor
@@ -65,13 +65,13 @@ public class Wrist extends SubsystemBase {
     }
 
     public void flexClosedLoop(double speed) {
-        setFlexPosition(flexSetpoint + speed);
+        setFlexAngle(flexSetpoint + speed);
     }
 
-    public void setFlexPosition(double position) {
-        if(!withinFlexBounds(position))
+    public void setFlexAngle(double angle) {
+        if(!withinFlexBounds(angle))
             return;
-        flexSetpoint = position;
+        flexSetpoint = angle;
     }
 
     public double getFlexAngle() {
@@ -82,13 +82,27 @@ public class Wrist extends SubsystemBase {
         return flexSetpoint;
     }
 
-    private boolean withinFlexBounds(double position) {
-        return position >= ArmConstants.kFlexLowerBound && 
-               position <= ArmConstants.kFlexUpperBound;
+    private boolean withinFlexBounds(double angle) {
+        return angle >= ArmConstants.kFlexLowerBound && 
+               angle <= ArmConstants.kFlexUpperBound;
     }
 
     public void stopFlex() {
         flexMotor.stopMotor();
+    }
+
+    /**
+     * @return Whether the flex is in open loop control or not
+     */
+    public boolean getIsFlexOpenLoop() {
+        return isFlexOpenLoop;
+    }
+
+    /**
+     * @param openLoop True if is open loop, false if closed loop
+     */
+    public void setIsFlexOpenLoop(boolean openLoop) {
+        isFlexOpenLoop = openLoop;
     }
 
     public void rotateOpenLoop(double speed) {
@@ -96,22 +110,13 @@ public class Wrist extends SubsystemBase {
     }
 
     public void rotateClosedLoop(double speed) {
-        setRotatePosition(rotateSetpoint + speed);
+        setRotateAngle(rotateSetpoint + speed);
     }
 
-    public void setRotatePosition(double position) {
-        if(!withinRotateBounds(position))
+    public void setRotateAngle(double angle) {
+        if(!withinRotateBounds(angle))
             return;
-        rotateSetpoint = position;
-    }
-
-    private boolean withinRotateBounds(double position) {
-        return position >= ArmConstants.kRotateLowerBound && 
-               position <= ArmConstants.kRotateUpperBound;
-    }
-
-    public void stopRotate() {
-        rotateMotor.stopMotor();
+        rotateSetpoint = angle;
     }
 
     public double getRotateAngle() {
@@ -122,12 +127,35 @@ public class Wrist extends SubsystemBase {
         return rotateSetpoint;
     }
 
+    private boolean withinRotateBounds(double angle) {
+        return angle >= ArmConstants.kRotateLowerBound && 
+               angle <= ArmConstants.kRotateUpperBound;
+    }
+
+    public void stopRotate() {
+        rotateMotor.stopMotor();
+    }
+
+    /**
+     * @return Whether the rotate is in open loop control or not
+     */
+    public boolean getIsRotateOpenLoop() {
+        return isRotateOpenLoop;
+    }
+
+    /**
+     * @param openLoop True if is open loop, false if closed loop
+     */
+    public void setIsRotateOpenLoop(boolean openLoop) {
+        isRotateOpenLoop = openLoop;
+    }
+
     @Override
     public void periodic() {
-        if(!flexOpenLoop)
+        if(!isFlexOpenLoop)
             flexPID.setReference(flexSetpoint, ControlType.kPosition);
             
-        if(!rotateOpenLoop)
+        if(!isRotateOpenLoop)
             rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
     }
 }

@@ -14,7 +14,7 @@ public class Extend extends SubsystemBase {
     private final TalonFX motor;
     private double setpoint;
 
-    public boolean openLoop = false;
+    private boolean isOpenLoop = false;
     
     public Extend() {
         // extension motor
@@ -82,6 +82,20 @@ public class Extend extends SubsystemBase {
     }
 
     /**
+     * @return Whether the extend is in open loop control or not
+     */
+    public boolean getIsOpenLoop() {
+        return isOpenLoop;
+    }
+
+    /**
+     * @param openLoop True if is open loop, false if closed loop
+     */
+    public void setIsOpenLoop(boolean openLoop) {
+        isOpenLoop = openLoop;
+    }
+
+    /**
      * @return The extend setpoint
      */
     public double getSetpoint() {
@@ -90,7 +104,7 @@ public class Extend extends SubsystemBase {
     
     @Override
     public void periodic() {
-        if(!openLoop)
+        if(!isOpenLoop)
             motor.set(ControlMode.Position, setpoint);
     }
 }

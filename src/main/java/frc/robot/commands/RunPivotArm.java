@@ -19,7 +19,7 @@ public class RunPivotArm extends CommandBase {
 
     @Override
     public void execute() {
-        if(pivot.openLoop)
+        if(pivot.getIsOpenLoop())
             pivot.runOpenLoop(.3 * (reversed ? -1 : 1)); 
         else
             pivot.runClosedLoop(.45 * (reversed ? -1 : 1)); 
@@ -27,7 +27,7 @@ public class RunPivotArm extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        if(pivot.openLoop)
+        if(pivot.getIsOpenLoop())
             pivot.stop();
     }
 
