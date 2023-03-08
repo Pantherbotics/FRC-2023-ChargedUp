@@ -9,11 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.modes.DriveMode;
-import frc.robot.subsystems.drive.modes.SpeedMode;
 import frc.robot.util.MathUtils;
-
-import java.util.function.Supplier;
 
 public class RunDrivetrainJoystick extends CommandBase {
     private final Drivetrain drivetrain;
@@ -72,7 +68,12 @@ public class RunDrivetrainJoystick extends CommandBase {
         // - In order for XR to follow the positive CCW of the gyro, it needs to be negated
 
         // 1. Get real-time joystick inputs, converted to work with Swerve and WPI
+        double leftXAxis = getXL();
+        double leftYAxis = getYL();
+        double rightXAxis = getXR();
+
         double xSpeed, ySpeed, turningSpeed;
+        double speedScalar = drivetrain.getSpeedMode().getScalar();
         double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
         
         if(drivetrain.getIsLockDriveWhileTargeting()) {
@@ -80,9 +81,9 @@ public class RunDrivetrainJoystick extends CommandBase {
             ySpeed = 0;
             turningSpeed = targetInfluence; // 45 degree field of view maybe
         } else {
-            xSpeed = -MathUtils.powAxis(getYL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
-            ySpeed = -MathUtils.powAxis(getXL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
-            turningSpeed = -getXR() * (drivetrain.getSpeedMode().getScalar()) + targetInfluence;
+            xSpeed = -MathUtils.powAxis(leftYAxis, OIConstants.kDriverExp) * speedScalar;
+            ySpeed = -MathUtils.powAxis(leftXAxis, OIConstants.kDriverExp) * speedScalar;
+            turningSpeed = -rightXAxis * speedScalar + targetInfluence;
         }
 
         // 2. Apply deadband
@@ -105,76 +106,78 @@ public class RunDrivetrainJoystick extends CommandBase {
     }
 
     private void runBoat() {
-        double YL = -getYL(); // We need to invert the Y axis so that positive is forwards
-        double XR = getXR();
+        double leftYAxis = -getYL(); // We need to invert the Y axis so that positive is forwards
+        double rightXAxis = getXR();
 
         // Right stick speed
-        double speed = (YL * YL);// square the speed but keep the sign so it can reverse
-        if (YL < 0) {
-            speed = -speed;
-        }
-        if (Math.abs(speed) > 1)
-            speed /= Math.abs(speed); // Should have the same effect as previous code.
+        double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
+
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle
-        double TargetAng = (XR) * 90;
-        SwerveModuleState lF = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
-        SwerveModuleState rF = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
-        SwerveModuleState rB = new SwerveModuleState(speed, Rotation2d.fromDegrees(-TargetAng));
-        SwerveModuleState lB = new SwerveModuleState(speed, Rotation2d.fromDegrees(-TargetAng));
+        double angle = rightXAxis * (Math.PI / 4);
 
-        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+        drivetrain.setModuleStates(new SwerveModuleState[] { 
+            new SwerveModuleState(speed, new Rotation2d(0)), //front left
+            new SwerveModuleState(speed, new Rotation2d(0)), //front right
+            new SwerveModuleState(speed, new Rotation2d(-angle)), //back right
+            new SwerveModuleState(speed, new Rotation2d(-angle)) //back left
+        });
     }
 
     private void runCar() {
-        double YL = -getYL(); // We need to invert the Y axis so that positive is forwards
-        double XR = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
-        double speed = (YL * YL);// square the speed but keep the sign so it can reverse
-        if (YL < 0) {
-            speed = -speed;
-        }
-        if(Math.abs(speed) > 1) speed /= Math.abs(speed);
+        double leftYAxis = -getYL(); // We need to invert the Y axis so that positive is forwards
+        double rightXAxis = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
+
+        double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
+    
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle
-        double TargetAng = (XR) * 90;
+        double angle = rightXAxis * (Math.PI / 4);
 
-        SwerveModuleState lF = new SwerveModuleState(speed, Rotation2d.fromDegrees(TargetAng));
-        SwerveModuleState rF = new SwerveModuleState(speed, Rotation2d.fromDegrees(TargetAng));
-        SwerveModuleState rB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
-        SwerveModuleState lB = new SwerveModuleState(speed, Rotation2d.fromDegrees(0));
-
-        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+        drivetrain.setModuleStates(new SwerveModuleState[] {
+            new SwerveModuleState(speed, new Rotation2d(angle)), //front left
+            new SwerveModuleState(speed, new Rotation2d(angle)), //front right
+            new SwerveModuleState(speed, new Rotation2d(0)), //back right
+            new SwerveModuleState(speed, new Rotation2d(0)), //back left
+        });
     }
 
     private void runWestCoast() {
         // No negation of these values since the west coast code we use is already
         // handling the inverted Y axis
-        double YL = getYL();
-        double XR = getXR();
+        double leftYAxis = getYL();
+        double rightXAxis = getXR();
 
         // Y axis weirdness handled here already
-        double left = (XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = (-XR - YL) * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState lB = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+        double leftSpeed = rightXAxis - leftYAxis;
+        double rightSpeed = -(rightXAxis + leftYAxis);
+
+        leftSpeed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        rightSpeed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+
+        drivetrain.setModuleStates(new SwerveModuleState[] {
+            new SwerveModuleState(leftSpeed, new Rotation2d(0)),
+            new SwerveModuleState(rightSpeed, new Rotation2d(0)),
+            new SwerveModuleState(rightSpeed, new Rotation2d(0)),
+            new SwerveModuleState(leftSpeed, new Rotation2d(0))
+        });
     }
 
     private void runTank() {
-        double YL = -getYL(); // Invert the Y axis so that positive is forwards
-        double YR = -getYR(); // Invert the Y axis so that positive is forwards
+        double leftYAxis = -getYL(); // Invert the Y axis so that positive is forwards
+        double rightYAxis = -getYR(); // Invert the Y axis so that positive is forwards
 
-        double left = YL * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        double right = YR * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
-        SwerveModuleState lF = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        SwerveModuleState rF = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState rB = new SwerveModuleState(right, Rotation2d.fromDegrees(0));
-        SwerveModuleState lB = new SwerveModuleState(left, Rotation2d.fromDegrees(0));
-        drivetrain.setModuleStates(new SwerveModuleState[] { lF, rF, rB, lB });
+        double leftSpeed = leftYAxis * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        double rightSpeed = rightYAxis * DriveConstants.kPhysicalMaxSpeedMetersPerSecond;
+        
+        drivetrain.setModuleStates(new SwerveModuleState[] { 
+            new SwerveModuleState(leftSpeed, new Rotation2d(0)),
+            new SwerveModuleState(rightSpeed, new Rotation2d(0)),
+            new SwerveModuleState(rightSpeed, new Rotation2d(0)),
+            new SwerveModuleState(leftSpeed, new Rotation2d(0))
+        });
     }
 
     @Override

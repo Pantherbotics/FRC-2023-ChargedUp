@@ -22,17 +22,15 @@ public class RunPivotArmJoystick extends CommandBase {
     @Override
     public
      void execute() {
-        double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftTriggerID);
-        double yRightValue = -joystick.getRawAxis(OIConstants.kSecondaryJoystickRightTriggerID);
+        double leftAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftTriggerID);
+        double rightAxis = -joystick.getRawAxis(OIConstants.kSecondaryJoystickRightTriggerID);
+
+        double speed = leftAxis - rightAxis;
 
         if(pivot.getIsOpenLoop())
-        {
-            pivot.runOpenLoop(0.3 * xLeftValue); 
-            pivot.runOpenLoop(0.3 * yRightValue);
-        } else {
-            pivot.runClosedLoop(0.6 * xLeftValue);
-            pivot.runClosedLoop(0.6 * yRightValue);
-        }
+            pivot.runOpenLoop(speed); 
+        else
+            pivot.runClosedLoop(speed);
     }
   
     //Called once the command ends or is interrupted.

@@ -55,6 +55,12 @@ public class Constants {
         public static final double kFrontRightCANCoderOffsetDeg = -80.44; 
         public static final double kBackRightCANCoderOffsetDeg = 45.61; 
         public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
+
+        //Whether to invert the drive motor 
+        public static final boolean kFrontLeftDriveMotorInverted = false; 
+        public static final boolean kFrontRightDriveMotorInverted = false; 
+        public static final boolean kBackRightDriveMotorInverted = true; 
+        public static final boolean kBackLeftDriveMotorInverted = true; 
     }
     
     public static final class ArmConstants {
@@ -151,15 +157,20 @@ public class Constants {
         //All the following Constants can be tuned:
         public static final double kMaxAccelerationMetersPerSecondSquared = 1.5;
         public static final double kMaxAngularAccelerationRadiansPerSecondSquared = 2 * Math.PI;
-        public static final double kPXController = 1.5;
-        public static final double kPYController = 1.5;
-        public static final double kPThetaController = 3.0;
 
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-                new TrapezoidProfile.Constraints(
-                        kMaxAngularSpeedRadiansPerSecond,
-                        kMaxAngularAccelerationRadiansPerSecondSquared
-                    );
+        public static final double kPXYController = 1.5;
+        public static final double kIXYController = 0;
+        public static final double kDXYController = 0;
+        
+        public static final double kPThetaController = 3.0;
+        public static final double kIThetaController = 0;
+        public static final double kDThetaController = 0;
+
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = 
+            new TrapezoidProfile.Constraints(
+                kMaxAngularSpeedRadiansPerSecond,
+                kMaxAngularAccelerationRadiansPerSecondSquared
+            );
     }
 
     //Checked and verified as of May 1st, 2022

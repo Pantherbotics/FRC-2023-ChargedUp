@@ -5,6 +5,8 @@ import java.util.HashMap;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -32,7 +34,6 @@ import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSetWristPosition;
 import frc.robot.commands.RunDrivetrainJoystick;
 import frc.robot.commands.RunToggleClaw;
-import frc.robot.commands.RunExtendArm;
 import frc.robot.commands.RunExtendArmJoystick;
 import frc.robot.commands.RunWristJoystick;
 import frc.robot.oi.Controller;
@@ -56,14 +57,30 @@ public class RobotContainer {
     private final Wrist wrist = new Wrist();
     private final Claw claw = new Claw();
 
-    // Autos
-    private final AutoManager autoManager = new AutoManager(drivetrain, reflective, apriltag, extend, pivot, wrist, claw);
-    private final HashMap<String, Command> autoCommands = new HashMap<String, Command>();
+    // Event map for button binding and autos
+    private final HashMap<String, Command> eventMap = new HashMap<String, Command>();
 
-    // Choosers
-    private final SendableChooser<SpeedMode> speedModeChooser = new SendableChooser<SpeedMode>();
-    private final SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
-    private final SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+    // Auto stuff
+    private final AutoManager autoManager = new AutoManager();
+    // private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+    //     drivetrain::getPose, 
+    //     drivetrain::resetOdometry, 
+    //     DriveConstants.kDriveKinematics, 
+    //     new PIDConstants(
+    //         AutoConstants.kPXController, 
+    //         AutoConstants.kIXYController, 
+    //         AutoConstants.kDXYController
+    //     ),
+    //     new PIDConstants(
+    //         AutoConstants.kPThetaController, 
+    //         AutoConstants.kIThetaController, 
+    //         AutoConstants.kDThetaController
+    //     ),
+    //     drivetrain::setModuleStates, 
+    //     eventMap,
+    //     true, 
+    //     drivetrain
+    // );
 
     // Controllers
     private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
@@ -107,122 +124,38 @@ public class RobotContainer {
     private final POVButton secondaryJoystickPOVWest = new POVButton(secondaryJoystick, 270); // West
 
     public RobotContainer() {
-        configAutoCommands();
+        initEventMap();
+        configAutos();
         configButtonBindings();
     }
 
-    private void configAutoCommands() {
-        autoCommands.put(
-            "None", 
-            new PrintCommand("xdd")
-        );
-        autoCommands.put(
-            "Taxi", 
-            getPPCommand("SmallTaxi", true)
-        );
-        autoCommands.put(
-            "Taxi Over Charge Station", 
-            getPPCommand("LargeTaxi", true)
-        );
-        autoCommands.put(
-            "Medium Goal", 
-            new SequentialCommandGroup(
-                new ParallelCommandGroup( //moves arm
-                    new RunSetPivotAngle(pivot, 48),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, -13000, 0)),
-                new WaitCommand(1),
-                new RunToggleClaw(claw),
-                new WaitCommand(0.5),
-                new ParallelCommandGroup( //zeros position
-                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, 0, 0)
-        )));
-        autoCommands.put(
-            "Medium Goal + Taxi", 
-            new SequentialCommandGroup(
-                new ParallelCommandGroup( 
-                    new RunSetPivotAngle(pivot, 48),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, -13000, 0)),
-                new WaitCommand(1),
-                new RunToggleClaw(claw),
-                new WaitCommand(0.5),
-                new ParallelCommandGroup( //zeros position
-                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, 0, 0)),
-                new WaitCommand(1),
-                getPPCommand("GamePieceTaxi", true)
-        ));
-        autoCommands.put(
-            "High Goal", 
-            new SequentialCommandGroup(
-                new ParallelCommandGroup( 
-                    new RunSetPivotAngle(pivot, 48),
-                    new RunSetExtendPosition(extend, 51000),
-                    new RunSetWristPosition(wrist, -13000, 0)),
-                new WaitCommand(1),
-                new RunToggleClaw(claw),
-                new WaitCommand(0.5),
-                new ParallelCommandGroup( //zeros position
-                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, 0, 0)
-        )));
-        autoCommands.put(
-            "High Goal + Taxi", 
-            new SequentialCommandGroup(
-                new ParallelCommandGroup( 
-                    new RunSetPivotAngle(pivot, 48),
-                    new RunSetExtendPosition(extend, 51000),
-                    new RunSetWristPosition(wrist, -13000, 0)),
-                new WaitCommand(1),
-                new RunToggleClaw(claw),
-                new WaitCommand(0.5),
-                new ParallelCommandGroup( //zeros position
-                    new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
-                    new RunSetExtendPosition(extend, 0),
-                    new RunSetWristPosition(wrist, 0, 0)),
-                new WaitCommand(1),
-                getPPCommand("GamePieceTaxi", true)
+    private void initEventMap() {
+        eventMap.put(
+            "Stow", 
+            new ParallelCommandGroup(
+                new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                new RunSetExtendPosition(extend, 0),
+                new RunSetWristPosition(wrist, 0, 0)
         ));
     }
 
-    private Command getPPCommand(String pathName, boolean firstPath) {
-        PathPlannerTrajectory traj = PathPlanner.loadPath(
-            pathName, 
-            new PathConstraints(
-                AutoConstants.kMaxSpeedMetersPerSecond, 
-                AutoConstants.kMaxAccelerationMetersPerSecondSquared
-            ));
-        return new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                // Reset odometry for the first path you run during auto
-                if(firstPath)
-                    drivetrain.resetOdometry(traj.getInitialState().holonomicRotation, traj.getInitialHolonomicPose());
-            }),
-            new PPSwerveControllerCommand(
-                traj, 
-                drivetrain::getPose,
-                DriveConstants.kDriveKinematics, 
-                new PIDController(AutoConstants.kPXController, 0, 0), 
-                new PIDController(AutoConstants.kPYController, 0, 0), 
-                new PIDController(AutoConstants.kPThetaController, 0, 0),
-                drivetrain::setModuleStates,
-                true, 
-                drivetrain
-        ));
+    private void configAutos() {
+
     }
 
     private void configButtonBindings() {
         // drivetrain manual control
-        drivetrain.setDefaultCommand(new RunDrivetrainJoystick(
-            primaryJoystick,
-            drivetrain
-        ));
+        drivetrain.setDefaultCommand(new RunDrivetrainJoystick(primaryJoystick, drivetrain));
+
+        primaryJoystickXButton.onTrue(eventMap.get("Stow"));
         primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
+        primaryJoystickAButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.ROBOT_ORIENTED_SWERVE)));
+        primaryJoystickBButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.FIELD_ORIENTED_SWERVE)));
+
+        primaryJoystickPOVNorth.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.SLOW)));
+        primaryJoystickPOVEast.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.KINDA_SLOW)));
+        primaryJoystickPOVSouth.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.NORMAL)));
+        primaryJoystickPOVWest.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.FAST)));
 
         // wrist manual control
         wrist.setDefaultCommand(new RunWristJoystick(secondaryJoystick, wrist));
@@ -236,7 +169,7 @@ public class RobotContainer {
         // claw manual control
         secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
 
-        // zero position
+        // stow
         secondaryJoystickBButton.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
             new RunSetExtendPosition(extend, 0),
@@ -249,7 +182,7 @@ public class RobotContainer {
             new RunSetWristPosition(wrist, 0, 0)
         ));
         // high goal towards short end
-        secondaryJoystickXButton.onTrue(new ParallelCommandGroup(
+        secondaryJoystickYButton.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, 150),
             new RunSetExtendPosition(extend, 40000),
             new RunSetWristPosition(wrist, -65, 0)
@@ -260,7 +193,8 @@ public class RobotContainer {
             new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, -65, 0)
         ));
-        secondaryJoystickYButton.onTrue(new ParallelCommandGroup(
+        // medium goal towards short end
+        secondaryJoystickXButton.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, 150),
             new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, 0, 0)
@@ -281,35 +215,36 @@ public class RobotContainer {
 
     public void updateSmartDashboard() {
         // speed mode chooser
-        for(SpeedMode speed : SpeedMode.values())
-        {
-            if(speed.equals(drivetrain.getSpeedMode()))
-                speedModeChooser.setDefaultOption(speed.toString(), speed);
+        SendableChooser<SpeedMode> speedModeChooser = new SendableChooser<SpeedMode>();
+        for(SpeedMode speedMode : SpeedMode.values()) {
+            if(speedMode.equals(drivetrain.getSpeedMode()))
+                speedModeChooser.setDefaultOption(speedMode.toString(), speedMode);
             else
-                speedModeChooser.addOption(speed.toString(), speed);
+                speedModeChooser.addOption(speedMode.toString(), speedMode);
         }
         SmartDashboard.putData(speedModeChooser);
 
         // drive mode chooser
-        for(DriveMode mode : DriveMode.values())
-        {
-            if(mode.equals(drivetrain.getDriveMode()))
-                driveModeChooser.setDefaultOption(mode.toString(), mode);
+        SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
+        for(DriveMode driveMode : DriveMode.values()) {
+            if(driveMode.equals(drivetrain.getDriveMode()))
+                driveModeChooser.setDefaultOption(driveMode.toString(), driveMode);
             else
-                driveModeChooser.addOption(mode.toString(), mode);
+                driveModeChooser.addOption(driveMode.toString(), driveMode);
         }
         SmartDashboard.putData(driveModeChooser);
 
         // auto chooser
-        for(AutoCommand auto : autoManager.geAutoCommands())
-        {
-            if(auto.getName().equals("None"))
-                autoChooser.setDefaultOption(auto.getName(), auto.getCommand());
+        SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+        autoManager.getAutos().forEach((name, auto) -> {
+            if(auto.equals(autoManager.getSelectedAuto()))
+                autoChooser.setDefaultOption(name, auto);
             else
-                autoChooser.addOption(auto.getName(), auto.getCommand());
-        }
+                autoChooser.addOption(name, auto);
+        });
         SmartDashboard.putData(autoChooser);
 
+        // subsystems
         // drivetrain
         SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
 
@@ -320,49 +255,20 @@ public class RobotContainer {
         drivetrain.setDriveMode(driveModeChooser.getSelected());
         drivetrain.setSpeedMode(speedModeChooser.getSelected());
 
-        //individual swerve modules
-        SwerveModule frontLeft = drivetrain.getFrontLeft();
-        SwerveModule frontRight = drivetrain.getFrontRight();
-        SwerveModule backRight = drivetrain.getBackRight();
-        SwerveModule backLeft = drivetrain.getBackLeft();
+        // swerve modules
 
-        //front left
-        SmartDashboard.putNumber("Front Left [1] Speed", frontLeft.getDriveVelocity());
-        SmartDashboard.putNumber("Front Left [1] Angle", frontLeft.getAngle());
-        SmartDashboard.putNumber("Front Left [1] Offset Angle", frontLeft.getOffsetAngle());
-        SmartDashboard.putBoolean("Front Left [1] Inverted", frontLeft.getInverted());
-        
-        frontLeft.setOffsetAngle(SmartDashboard.getNumber("Front Left [1] Offset Degrees", frontLeft.getOffsetAngle()));
-        frontLeft.setInverted(SmartDashboard.getBoolean("Front Left [1] Inverted", frontLeft.getInverted()));
+        for(SwerveModule module : drivetrain.getModules()) {
+            String moduleName = "Swerve Module [" + module.getID() + "]";
 
-        //front right
-        SmartDashboard.putNumber("Front Right [2] Speed", frontRight.getDriveVelocity());
-        SmartDashboard.putNumber("Front Right [2] Angle", frontRight.getAngle());
-        SmartDashboard.putNumber("Front Right [2] Offset Angle", frontRight.getOffsetAngle());
-        SmartDashboard.putBoolean("Front Right [2] Inverted", frontRight.getInverted());
+            SmartDashboard.putNumber(moduleName + " Position", module.getDrivePosition());
+            SmartDashboard.putNumber(moduleName + " Speed", module.getDriveVelocity());
+            SmartDashboard.putNumber(moduleName + " Angle", module.getAngle());
+            SmartDashboard.putNumber(moduleName + " Offset Angle", module.getOffsetAngle());
+            SmartDashboard.putBoolean(moduleName + " Inverted", module.getInverted());
 
-        frontRight.setOffsetAngle(SmartDashboard.getNumber("Front Right [2] Offset Degrees", frontRight.getOffsetAngle()));
-        frontRight.setInverted(SmartDashboard.getBoolean("Front Right [2] Inverted", frontRight.getInverted()));
-        
-        //back right
-        SmartDashboard.putNumber("Back Right [3] Speed", backRight.getDriveVelocity());
-        SmartDashboard.putNumber("Back Right [3] Angle", backRight.getAngle());
-        SmartDashboard.putNumber("Back Right [3] Offset Angle", backRight.getOffsetAngle());
-        SmartDashboard.putBoolean("Back Right [3] Inverted", backRight.getInverted());
-        
-        backRight.setOffsetAngle(SmartDashboard.getNumber("Back Right [3] Offset Degrees", backRight.getOffsetAngle()));
-        backRight.setInverted(SmartDashboard.getBoolean("Back Right [3] Inverted", backRight.getInverted()));
-
-        //back left
-        SmartDashboard.putNumber("Back Left [4] Speed", backLeft.getDriveVelocity());
-        SmartDashboard.putNumber("Back Left [4] Angle", backLeft.getAngle());
-        SmartDashboard.putNumber("Back Left [4] Offset Angle", backLeft.getOffsetAngle());
-        SmartDashboard.putBoolean("Back Left [4] Inverted", backLeft.getInverted());
-        
-        backLeft.setOffsetAngle(SmartDashboard.getNumber("Back Left [4] Offset Degrees", backLeft.getOffsetAngle()));
-        backLeft.setInverted(SmartDashboard.getBoolean("Back Left [4] Inverted", backLeft.getInverted()));
-
-        // limelights
+            module.setOffsetAngle(SmartDashboard.getNumber(moduleName + " Offset Degrees", module.getOffsetAngle()));
+            module.setInverted(SmartDashboard.getBoolean(moduleName +" Inverted", module.getInverted()));
+        }
 
         // arm
         //pivot
@@ -375,18 +281,18 @@ public class RobotContainer {
 
         // wrist
         //flex
-        SmartDashboard.putNumber("Wrist Flex Setpoint", wrist.getFlexSetpoint());
-        SmartDashboard.putNumber("Wrist Flex Position", wrist.getFlexAngle());
+        SmartDashboard.putNumber("Flex Setpoint", wrist.getFlexSetpoint());
+        SmartDashboard.putNumber("Flex Position", wrist.getFlexAngle());
 
         //rotate
-        SmartDashboard.putNumber("Wrist Rotate Setpoint", wrist.getRotateSetpoint());
-        SmartDashboard.putNumber("Wrist Rotate Position", wrist.getRotateAngle());
+        SmartDashboard.putNumber("Rotate Setpoint", wrist.getRotateSetpoint());
+        SmartDashboard.putNumber("Rotate Position", wrist.getRotateAngle());
          
         // claw
         SmartDashboard.putBoolean("Claw open?", claw.isOpen());
     }
 
     public Command getAutoCommand() {
-        return autoChooser.getSelected();
+        return autoManager.getSelectedAuto();
     }
 }

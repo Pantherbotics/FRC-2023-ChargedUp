@@ -11,6 +11,7 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -21,6 +22,7 @@ import frc.robot.util.MathUtils;
 
 public class SwerveModule {
     // Module Variables
+    private final int id;
     private double offsetAngle;
     private boolean inverted;
 
@@ -39,6 +41,7 @@ public class SwerveModule {
      * @param inverted Whether to invert the drive motor
      */
     public SwerveModule(int id, double offsetAngle, boolean inverted) {
+        this.id = id;
         this.offsetAngle = offsetAngle;
         this.inverted = inverted;
 
@@ -54,11 +57,11 @@ public class SwerveModule {
 
         // Get the Drive PID Controller and configure it for Velocity PID
         drivePID = drive.getPIDController();
-        drivePID.setP(.0001);
-        drivePID.setI(0);
-        drivePID.setD(.0001);
-        drivePID.setIZone(0);
-        drivePID.setFF(.000175);
+        drivePID.setP(ModuleConstants.kPDrive);
+        drivePID.setI(ModuleConstants.kIDrive);
+        drivePID.setD(ModuleConstants.kDDrive);
+        drivePID.setIZone(ModuleConstants.kIZoneDrive);
+        drivePID.setFF(ModuleConstants.kFFDrive);
         drivePID.setOutputRange(-1, 1);
 
         // cancoder
@@ -80,17 +83,16 @@ public class SwerveModule {
         steer.setSelectedSensorPosition(cancoder.getAbsolutePosition());
     }
 
+    public double getDrivePosition() {
+        return driveEncoder.getPosition();
+    }
+
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
     }
     
     public double getAngle() {
         return -(MathUtils.restrictAngle(steer.getSelectedSensorPosition() * 360.0 / 4096 + offsetAngle) - 180);
-    }
-
-    public void stop() {
-        drivePID.setReference(0, CANSparkMax.ControlType.kVelocity);
-        steer.set(ControlMode.PercentOutput, 0);
     }
 
     public void setDesiredState(SwerveModuleState state) {
@@ -110,6 +112,15 @@ public class SwerveModule {
         drivePID.setReference(
                 state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM,
                 CANSparkMax.ControlType.kVelocity);
+    }
+
+    public void stop() {
+        drivePID.setReference(0, ControlType.kVelocity);
+        steer.set(ControlMode.PercentOutput, 0);
+    }
+
+    public int getID() {
+        return id;
     }
 
     public double getOffsetAngle() {
