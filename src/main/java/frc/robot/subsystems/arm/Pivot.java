@@ -8,15 +8,16 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.util.MathUtils;
 
 public class Pivot extends SubsystemBase {
     private final CANSparkMax master, slave;
     private final CANCoder cancoder;
     private final PIDController pid;
+
 
     private boolean isOpenLoop = false;
 
@@ -119,7 +120,7 @@ public class Pivot extends SubsystemBase {
     public void periodic()
     {
         if(!isOpenLoop)
-            master.set(MathUtil.clamp(pid.calculate(getAngle()), -0.3, 0.3));
+            master.set(MathUtils.clamp(pid.calculate(getAngle()), -0.5, 0.5));
  
     }
 }

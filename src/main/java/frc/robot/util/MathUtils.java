@@ -38,10 +38,9 @@ public class MathUtils {
 	public static double getHeading(double x, double y) {
 		if(x == 0 && y == 0) return 0;
 
-		double angle = (360D - ((Math.atan2(y, x) * 180D / Math.PI) + 180D)) - 90D;
-		if(angle < 0D) {
-			angle = 270D + (90D - Math.abs(angle));
-		}
+		double angle = (360 - ((Math.atan2(y, x) * 180 / Math.PI) + 180)) - 90;
+		if(angle < 0)
+			angle = 270 + (90 - Math.abs(angle));
 		return angle;
 	}
 
@@ -90,12 +89,6 @@ public class MathUtils {
 	 * @return the shifted value
 	 */
 	public static double approachZero(double value, double shift) {
-		// if(value >= 0) {
-		// 	return Math.max(0, value - shift);
-		// } else if(value < 0) {
-		// 	return Math.min(0, value + shift);
-		// }
-		// return 0;
 		return value >= 0 ? Math.max(0, value - shift) : Math.min(0, value + shift);
 	}
 
@@ -139,11 +132,10 @@ public class MathUtils {
 	 * @return A to the power of B maintaining the sign of A
 	 */
 	public static double powAxis(double a, double b) {
-		// if(a >= 0) {
-		// 	return Math.pow(a, b);
-		// } else {
-		// 	return -Math.pow(-a, b);
-		// }
 		return a >= 0 ? Math.pow(a, b) : -Math.pow(-a, b);
+	}
+
+	public static double clamp(double value, double low, double high) {
+		return Math.max(low, Math.min(value, high));
 	}
 }

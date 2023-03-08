@@ -87,8 +87,8 @@ public class Constants {
 
         //wrist
         //flex
-        public static final double kFlexLowerBound = -40000;
-        public static final double kFlexUpperBound = 10;
+        public static final double kFlexLowerBound = -300;
+        public static final double kFlexUpperBound = 300;
 
         public static final double kPFlex = 0.05;
         public static final double kIFlex = 0.0;
@@ -175,8 +175,8 @@ public class Constants {
         public static final int kSecondaryJoystickID = 1;
         public static final int kSecondaryJoystickLeftXAxisID = 0;
         public static final int kSecondaryJoystickLeftYAxisID = 1;
-        public static final int kSecondaryJoystickLeftTriggerID = 3;
-        public static final int kSecondaryJoystickRightTriggerID = 4;
+        public static final int kSecondaryJoystickLeftTriggerID = 2;
+        public static final int kSecondaryJoystickRightTriggerID = 3;
         public static final int kSecondaryJoystickRightXAxisID = 4;
         public static final int kSecondaryJoystickRightYAxisID = 5;
 

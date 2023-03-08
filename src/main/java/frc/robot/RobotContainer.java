@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -25,18 +26,20 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.auto.AutoCommand;
 import frc.robot.auto.AutoManager;
-import frc.robot.commands.RunPivotArm;
+import frc.robot.commands.RunPivotArmJoystick;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSetWristPosition;
-import frc.robot.commands.RunSwerveJoystick;
+import frc.robot.commands.RunDrivetrainJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArm;
+import frc.robot.commands.RunExtendArmJoystick;
 import frc.robot.commands.RunWristJoystick;
-import frc.robot.controllers.Controller;
+import frc.robot.oi.Controller;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.SwerveModule;
 import frc.robot.subsystems.drive.modes.DriveMode;
 import frc.robot.subsystems.drive.modes.SpeedMode;
 import frc.robot.subsystems.intake.Claw;
@@ -106,7 +109,6 @@ public class RobotContainer {
     public RobotContainer() {
         configAutoCommands();
         configButtonBindings();
-        configChoosers();
     }
 
     private void configAutoCommands() {
@@ -216,61 +218,68 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         // drivetrain manual control
-        drivetrain.setDefaultCommand(new RunSwerveJoystick(
-            drivetrain,
+        drivetrain.setDefaultCommand(new RunDrivetrainJoystick(
             primaryJoystick,
-            speedModeChooser::getSelected,
-            driveModeChooser::getSelected
+            drivetrain
         ));
         primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWristJoystick(wrist, secondaryJoystick));
+        wrist.setDefaultCommand(new RunWristJoystick(secondaryJoystick, wrist));
 
         // pivot manual control
-        secondaryJoystickXButton.whileTrue(new RunPivotArm(pivot, true));
-        secondaryJoystickYButton.whileTrue(new RunPivotArm(pivot, false));
-
+        pivot.setDefaultCommand(new RunPivotArmJoystick(secondaryJoystick, pivot));
+        
         // extension manual control 
-        secondaryJoystickLeftBumperButton.whileTrue(new RunExtendArm(extend, true));
-        secondaryJoystickRightBumperButton.whileTrue(new RunExtendArm(extend, false));
+        extend.setDefaultCommand(new RunExtendArmJoystick(secondaryJoystick, extend));
 
         // claw manual control
         secondaryJoystickAButton.toggleOnTrue(new RunToggleClaw(claw));
 
         // zero position
-        secondaryJoystickBButton.whileTrue(new ParallelCommandGroup(
+        secondaryJoystickBButton.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
             new RunSetExtendPosition(extend, 0),
             new RunSetWristPosition(wrist, 0, 0)
         ));
-        // high goal
-        secondaryJoystickPOVNorth.whileTrue(new ParallelCommandGroup( 
+        // high goal towards long end
+        secondaryJoystickPOVNorth.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, 48),
             new RunSetExtendPosition(extend, 51000),
-            new RunSetWristPosition(wrist, -13000, 0)
+            new RunSetWristPosition(wrist, 0, 0)
         ));
-        // medium goal
-        secondaryJoystickPOVEast.whileTrue(new SequentialCommandGroup( 
+        // high goal towards short end
+        secondaryJoystickXButton.onTrue(new ParallelCommandGroup(
+            new RunSetPivotAngle(pivot, 150),
+            new RunSetExtendPosition(extend, 40000),
+            new RunSetWristPosition(wrist, -65, 0)
+        ));
+        // medium goal towards long end
+        secondaryJoystickPOVEast.onTrue(new ParallelCommandGroup( 
             new RunSetPivotAngle(pivot, 48),
             new RunSetExtendPosition(extend, 0),
-            new RunSetWristPosition(wrist, -13000, 0)
+            new RunSetWristPosition(wrist, -65, 0)
+        ));
+        secondaryJoystickYButton.onTrue(new ParallelCommandGroup(
+            new RunSetPivotAngle(pivot, 150),
+            new RunSetExtendPosition(extend, 0),
+            new RunSetWristPosition(wrist, 0, 0)
         ));
         // shelf
-        secondaryJoystickPOVWest.whileTrue(new SequentialCommandGroup(
+        secondaryJoystickPOVWest.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, 70),
             new RunSetExtendPosition(extend, 0),
-            new RunSetWristPosition(wrist, -13000, 0)
+            new RunSetWristPosition(wrist, -78, 0)
         ));                                                                
         // picking off ground   
-        secondaryJoystickPOVSouth.whileTrue(new SequentialCommandGroup(
+        secondaryJoystickPOVSouth.onTrue(new ParallelCommandGroup(
             new RunSetPivotAngle(pivot, 5),
             new RunSetExtendPosition(extend, 0),
-            new RunSetWristPosition(wrist, -15000, 0)
+            new RunSetWristPosition(wrist, -45, 0)
         ));
     }
 
-    private void configChoosers() {
+    public void updateSmartDashboard() {
         // speed mode chooser
         for(SpeedMode speed : SpeedMode.values())
         {
@@ -300,40 +309,76 @@ public class RobotContainer {
                 autoChooser.addOption(auto.getName(), auto.getCommand());
         }
         SmartDashboard.putData(autoChooser);
-    }
 
-    public void updateSmartDashboard() {
         // drivetrain
         SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
 
-        SmartDashboard.putNumber("Front Left [1] Speed", drivetrain.getFrontLeft().getDriveVelocity());
-        SmartDashboard.putNumber("Front Left [1] Angle", drivetrain.getFrontLeft().getAngle());
-        
-        SmartDashboard.putNumber("Front Right [2] Speed", drivetrain.getFrontRight().getDriveVelocity());
-        SmartDashboard.putNumber("Front Right [2] Angle", drivetrain.getFrontRight().getAngle());
-        
-        SmartDashboard.putNumber("Back Right [3] Speed", drivetrain.getBackRight().getDriveVelocity());
-        SmartDashboard.putNumber("Back Right [3] Angle", drivetrain.getBackRight().getAngle());
-        
-        SmartDashboard.putNumber("Back Left [4] Speed", drivetrain.getBackLeft().getDriveVelocity());
-        SmartDashboard.putNumber("Back Left [4] Angle", drivetrain.getBackLeft().getAngle());
+        //drive modes
+        SmartDashboard.putString("Drive Mode", drivetrain.getDriveMode().toString());
+        SmartDashboard.putString("Speed Mode", drivetrain.getSpeedMode().toString());
 
         drivetrain.setDriveMode(driveModeChooser.getSelected());
         drivetrain.setSpeedMode(speedModeChooser.getSelected());
 
+        //individual swerve modules
+        SwerveModule frontLeft = drivetrain.getFrontLeft();
+        SwerveModule frontRight = drivetrain.getFrontRight();
+        SwerveModule backRight = drivetrain.getBackRight();
+        SwerveModule backLeft = drivetrain.getBackLeft();
+
+        //front left
+        SmartDashboard.putNumber("Front Left [1] Speed", frontLeft.getDriveVelocity());
+        SmartDashboard.putNumber("Front Left [1] Angle", frontLeft.getAngle());
+        SmartDashboard.putNumber("Front Left [1] Offset Angle", frontLeft.getOffsetAngle());
+        SmartDashboard.putBoolean("Front Left [1] Inverted", frontLeft.getInverted());
+        
+        frontLeft.setOffsetAngle(SmartDashboard.getNumber("Front Left [1] Offset Degrees", frontLeft.getOffsetAngle()));
+        frontLeft.setInverted(SmartDashboard.getBoolean("Front Left [1] Inverted", frontLeft.getInverted()));
+
+        //front right
+        SmartDashboard.putNumber("Front Right [2] Speed", frontRight.getDriveVelocity());
+        SmartDashboard.putNumber("Front Right [2] Angle", frontRight.getAngle());
+        SmartDashboard.putNumber("Front Right [2] Offset Angle", frontRight.getOffsetAngle());
+        SmartDashboard.putBoolean("Front Right [2] Inverted", frontRight.getInverted());
+
+        frontRight.setOffsetAngle(SmartDashboard.getNumber("Front Right [2] Offset Degrees", frontRight.getOffsetAngle()));
+        frontRight.setInverted(SmartDashboard.getBoolean("Front Right [2] Inverted", frontRight.getInverted()));
+        
+        //back right
+        SmartDashboard.putNumber("Back Right [3] Speed", backRight.getDriveVelocity());
+        SmartDashboard.putNumber("Back Right [3] Angle", backRight.getAngle());
+        SmartDashboard.putNumber("Back Right [3] Offset Angle", backRight.getOffsetAngle());
+        SmartDashboard.putBoolean("Back Right [3] Inverted", backRight.getInverted());
+        
+        backRight.setOffsetAngle(SmartDashboard.getNumber("Back Right [3] Offset Degrees", backRight.getOffsetAngle()));
+        backRight.setInverted(SmartDashboard.getBoolean("Back Right [3] Inverted", backRight.getInverted()));
+
+        //back left
+        SmartDashboard.putNumber("Back Left [4] Speed", backLeft.getDriveVelocity());
+        SmartDashboard.putNumber("Back Left [4] Angle", backLeft.getAngle());
+        SmartDashboard.putNumber("Back Left [4] Offset Angle", backLeft.getOffsetAngle());
+        SmartDashboard.putBoolean("Back Left [4] Inverted", backLeft.getInverted());
+        
+        backLeft.setOffsetAngle(SmartDashboard.getNumber("Back Left [4] Offset Degrees", backLeft.getOffsetAngle()));
+        backLeft.setInverted(SmartDashboard.getBoolean("Back Left [4] Inverted", backLeft.getInverted()));
+
         // limelights
 
         // arm
+        //pivot
         SmartDashboard.putNumber("Pivot Setpoint", pivot.getSetpoint());
         SmartDashboard.putNumber("Pivot Position", pivot.getAngle());
 
+        //extend
         SmartDashboard.putNumber("Extend Setpoint", extend.getSetpoint());
         SmartDashboard.putNumber("Extend Position", extend.getPosition());
 
         // wrist
+        //flex
         SmartDashboard.putNumber("Wrist Flex Setpoint", wrist.getFlexSetpoint());
         SmartDashboard.putNumber("Wrist Flex Position", wrist.getFlexAngle());
 
+        //rotate
         SmartDashboard.putNumber("Wrist Rotate Setpoint", wrist.getRotateSetpoint());
         SmartDashboard.putNumber("Wrist Rotate Position", wrist.getRotateAngle());
          

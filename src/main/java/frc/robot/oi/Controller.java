@@ -1,4 +1,4 @@
-package frc.robot.controllers;
+package frc.robot.oi;
 
 import java.util.function.Consumer;
 

@@ -15,18 +15,14 @@ import frc.robot.util.MathUtils;
 
 import java.util.function.Supplier;
 
-public class RunSwerveJoystick extends CommandBase {
+public class RunDrivetrainJoystick extends CommandBase {
     private final Drivetrain drivetrain;
     private final Joystick joystick;
-    private final Supplier<SpeedMode> speedChooser;
-    private final Supplier<DriveMode> driveModeChooser;
     private final SlewRateLimiter xLimiter, yLimiter, turningLimiter;
 
-    public RunSwerveJoystick(Drivetrain drivetrain, Joystick joystick, Supplier<SpeedMode> speedChooser, Supplier<DriveMode> driveModeChooser) {
+    public RunDrivetrainJoystick(Joystick joystick, Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         this.joystick = joystick;
-        this.speedChooser = speedChooser;
-        this.driveModeChooser = driveModeChooser;
 
         // These limiters help to smooth out the joystick input by limiting the acceleration during sudden changes
         this.xLimiter = new SlewRateLimiter(DriveConstants.kTeleDriveMaxAccelerationUnitsPerSecond);
@@ -86,7 +82,7 @@ public class RunSwerveJoystick extends CommandBase {
         } else {
             xSpeed = -MathUtils.powAxis(getYL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
             ySpeed = -MathUtils.powAxis(getXL(), OIConstants.kDriverExp) * drivetrain.getSpeedMode().getScalar();
-            turningSpeed = -getXR() * (drivetrain.getSpeedMode().getScalar() / 2) + targetInfluence;
+            turningSpeed = -getXR() * (drivetrain.getSpeedMode().getScalar()) + targetInfluence;
         }
 
         // 2. Apply deadband

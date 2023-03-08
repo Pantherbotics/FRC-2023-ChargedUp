@@ -21,8 +21,8 @@ import frc.robot.util.MathUtils;
 
 public class SwerveModule {
     // Module Variables
-    public double offsetAngle;
-    public boolean inverted;
+    private double offsetAngle;
+    private boolean inverted;
 
     // Drive objects for the Module
     private final CANSparkMax drive;
@@ -110,5 +110,21 @@ public class SwerveModule {
         drivePID.setReference(
                 state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM,
                 CANSparkMax.ControlType.kVelocity);
+    }
+
+    public double getOffsetAngle() {
+        return offsetAngle;
+    }
+
+    public void setOffsetAngle(double angle) {
+        offsetAngle = angle;
+    }
+
+    public boolean getInverted() {
+        return inverted;
+    }
+
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
     }
 }

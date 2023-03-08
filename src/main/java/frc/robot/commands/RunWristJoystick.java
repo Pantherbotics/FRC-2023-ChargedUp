@@ -2,17 +2,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.intake.Wrist;
 
 public class RunWristJoystick extends CommandBase {
-    private Wrist wrist;
     private Joystick joystick;
+    private Wrist wrist;
 
-    public RunWristJoystick(Wrist wrist, Joystick joystick) {
-        this.wrist = wrist;
+    public RunWristJoystick(Joystick joystick, Wrist wrist) {
         this.joystick = joystick;
+        this.wrist = wrist;
         
         addRequirements(wrist);
     }
@@ -31,10 +30,10 @@ public class RunWristJoystick extends CommandBase {
         else
             wrist.flexClosedLoop(yRightValue);
 
-        if(wrist.getIsRotateOpenLoop())
-            wrist.rotateOpenLoop(xLeftValue);
-        else
-            wrist.rotateClosedLoop(xLeftValue);
+        // if(wrist.getIsRotateOpenLoop())
+        //     wrist.rotateOpenLoop(xLeftValue);
+        // else
+        //     wrist.rotateClosedLoop(xLeftValue);
     }
   
     //Called once the command ends or is interrupted.
@@ -43,8 +42,8 @@ public class RunWristJoystick extends CommandBase {
         if(wrist.getIsFlexOpenLoop())
             wrist.stopFlex();
         
-        if(wrist.getIsFlexOpenLoop())
-            wrist.stopRotate();
+        // if(wrist.getIsRotateOpenLoop())
+        //     wrist.stopRotate();
     }
   
     // Returns true when the command should end.

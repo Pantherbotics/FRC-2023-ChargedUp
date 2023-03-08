@@ -50,16 +50,6 @@ public class Drivetrain extends SubsystemBase {
                 zeroHeading();
             } catch (Exception ignored) {}
         }).start();
-
-        SmartDashboard.putNumber("Swerve[1] Offset Angle", frontLeft.offsetAngle);
-        SmartDashboard.putNumber("Swerve[2] Offset Angle", frontRight.offsetAngle);
-        SmartDashboard.putNumber("Swerve[3] Offset Angle", backRight.offsetAngle);
-        SmartDashboard.putNumber("Swerve[4] Offset Angle", backLeft.offsetAngle);
-
-        SmartDashboard.putBoolean("Swerve[1] Inverted", frontLeft.inverted);
-        SmartDashboard.putBoolean("Swerve[2] Inverted", frontRight.inverted);
-        SmartDashboard.putBoolean("Swerve[3] Inverted", backRight.inverted);
-        SmartDashboard.putBoolean("Swerve[4] Inverted", backLeft.inverted);
     }
 
     // Zero the heading of the gyro (Sets to 0)
@@ -135,16 +125,6 @@ public class Drivetrain extends SubsystemBase {
     public void periodic() {
         // Update the odometry, using our own vector-based odometry for Holonomic Swerve
         updateOdometry();
-        
-        frontLeft.offsetAngle = SmartDashboard.getNumber("Swerve[1] Offset Degrees", frontLeft.offsetAngle);
-        frontRight.offsetAngle = SmartDashboard.getNumber("Swerve[2] Offset Degrees", frontRight.offsetAngle);
-        backRight.offsetAngle = SmartDashboard.getNumber("Swerve[3] Offset Degrees", backRight.offsetAngle);
-        backLeft.offsetAngle = SmartDashboard.getNumber("Swerve[4] Offset Degrees", backLeft.offsetAngle);
-
-        frontLeft.inverted = SmartDashboard.getBoolean("Swerve[1] Inverted", frontLeft.inverted);
-        frontRight.inverted = SmartDashboard.getBoolean("Swerve[2] Inverted", frontRight.inverted);
-        backRight.inverted = SmartDashboard.getBoolean("Swerve[3] Inverted", backRight.inverted);
-        backLeft.inverted = SmartDashboard.getBoolean("Swerve[4] Inverted", backLeft.inverted);
     }
 
     /**
@@ -153,11 +133,6 @@ public class Drivetrain extends SubsystemBase {
     public void stop() {
         for(SwerveModule module : modules)
             module.stop();
-
-        // frontLeft.stop();
-        // frontRight.stop();
-        // backLeft.stop();
-        // backRight.stop();
     }
 
     /**
