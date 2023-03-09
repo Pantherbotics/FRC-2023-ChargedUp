@@ -20,7 +20,6 @@ public class Claw extends SubsystemBase {
 
     /**
      * @param open True if open, false if close
-     * 
      */
     public void set(boolean open) {
         if(open)
@@ -29,19 +28,30 @@ public class Claw extends SubsystemBase {
             close();
     }
 
+    /**
+     * Toggles the claw state, if open close and vice versa
+     */
     public void toggle() {
         set(!isOpen());
     }
 
+    /**
+     * Opens the claw
+     */
     public void open() {
         solenoid.set(OPEN_STATE);
     }
 
+    /**
+     * Closes the claw
+     */
     public void close() {
         solenoid.set(CLOSE_STATE);
     }
 
-
+    /**
+     * "Stops" the claw, turns the solenoid off
+     */
     public void stop() {
         solenoid.set(OFF_STATE);
     }

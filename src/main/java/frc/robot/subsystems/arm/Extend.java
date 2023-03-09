@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Extend extends SubsystemBase {
-    private final TalonFX motor;
+    private final TalonFX falcon;
     private double setpoint;
 
     private boolean isOpenLoop = false;
@@ -26,20 +26,21 @@ public class Extend extends SubsystemBase {
         config.slot0.kD = ArmConstants.kDExtend;
         config.slot0.kF = ArmConstants.kFExtend;
 
-        motor = new TalonFX(ArmConstants.kExtendMotorPort);
-        motor.configAllSettings(config);
-        motor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
-        motor.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
-        motor.setNeutralMode(NeutralMode.Coast);
-        motor.setInverted(TalonFXInvertType.CounterClockwise);
+        falcon = new TalonFX(ArmConstants.kExtendMotorPort);
+        falcon.configAllSettings(config);
+        falcon.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 20);
+        falcon.setSelectedSensorPosition(0); // 0 position should be when the arm is fully down
+        falcon.setNeutralMode(NeutralMode.Coast);
+        falcon.setInverted(TalonFXInvertType.CounterClockwise);
         
         setpoint = 0;  
     }
+
     /**
      * @param speed The percent output of the falcon
      */
     public void runOpenLoop(double speed) {
-        motor.set(ControlMode.PercentOutput, speed);
+        falcon.set(ControlMode.PercentOutput, speed);
     }
 
     /**
@@ -62,7 +63,7 @@ public class Extend extends SubsystemBase {
      * @return the position of the extend motor
      */
     public double getPosition() {
-        return motor.getSelectedSensorPosition();
+        return falcon.getSelectedSensorPosition();
     }
     
     /**
@@ -85,7 +86,7 @@ public class Extend extends SubsystemBase {
      * Stops the extend motor
      */
     public void stop() {
-        motor.set(ControlMode.PercentOutput, 0);
+        falcon.set(ControlMode.PercentOutput, 0);
     }
 
     /**
@@ -105,6 +106,6 @@ public class Extend extends SubsystemBase {
     @Override
     public void periodic() {
         if(!isOpenLoop)
-            motor.set(ControlMode.Position, setpoint);
+            falcon.set(ControlMode.Position, setpoint);
     }
 }

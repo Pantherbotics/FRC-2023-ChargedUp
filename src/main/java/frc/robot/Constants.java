@@ -63,7 +63,7 @@ public class Constants {
     public static final class ArmConstants {
         //arm
         //pivot
-        public static final double kPivotZeroAngle = 85.96;
+        public static final double kPivotCANCoderOffsetDeg = -97.703;
 
         public static final double kPivotUpperBound = 360;
         public static final double kPivotLowerBound = 0;

@@ -35,15 +35,15 @@ public class Pivot extends SubsystemBase {
         CANCoderConfiguration config = new CANCoderConfiguration();
         config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        config.magnetOffsetDegrees = -97.703; 
+        config.magnetOffsetDegrees = ArmConstants.kPivotCANCoderOffsetDeg; 
 
         cancoder = new CANCoder(ArmConstants.kPivotCANCoderPort);
         cancoder.configAllSettings(config);
 
         pid = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
-        pid.setSetpoint(getAngle());
+        //pid.setSetpoint(getAngle());
         
-        setAngle(ArmConstants.kPivotZeroAngle);
+        setAngle(86);
     }
 
     /**
@@ -119,6 +119,7 @@ public class Pivot extends SubsystemBase {
     @Override
     public void periodic()
     {
+        // move to setpoint
         if(!isOpenLoop)
             master.set(MathUtils.clamp(pid.calculate(getAngle()), -0.5, 0.5));
  

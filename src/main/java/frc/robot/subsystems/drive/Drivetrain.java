@@ -20,22 +20,16 @@ public class Drivetrain extends SubsystemBase {
     //modules
     private final SwerveModule[] modules;
 
-    //modes
-    private DriveMode driveMode = DriveMode.ROBOT_ORIENTED_SWERVE;
-    private SpeedMode speedMode = SpeedMode.SLOW;
-
     //gyro stuff
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    private double autoGyroInit = 0;
 
     //odometry stuff
-    private final SwerveDriveOdometry odometry;
     private final Odometer odometer = new Odometer();
     private double prevTimeSeconds = -1;
 
-    //vision stuff
-    private double limelightYaw = 0.0;
-    private boolean isLockDriveWhileTargeting = false;
+    //modes
+    private DriveMode driveMode = DriveMode.ROBOT_ORIENTED_SWERVE;
+    private SpeedMode speedMode = SpeedMode.SLOW;
 
     public Drivetrain() {
         modules = new SwerveModule[] {
@@ -67,16 +61,6 @@ public class Drivetrain extends SubsystemBase {
                 zeroYaw();
             } catch(Exception ignored) {}
         }).start();
-
-        odometry = new SwerveDriveOdometry(
-            DriveConstants.kDriveKinematics,
-            Rotation2d.fromDegrees(gyro.getAngle()),
-            new SwerveModulePosition[] {
-                new SwerveModulePosition(modules[0].getDrivePosition(), Rotation2d.fromDegrees(modules[0].getAngle())),
-                new SwerveModulePosition(modules[1].getDrivePosition(), Rotation2d.fromDegrees(modules[1].getAngle())),
-                new SwerveModulePosition(modules[2].getDrivePosition(), Rotation2d.fromDegrees(modules[2].getAngle())),
-                new SwerveModulePosition(modules[3].getDrivePosition(), Rotation2d.fromDegrees(modules[3].getAngle())),
-        });
     }
 
     // Zero the yaw (heading) of the gyro (Sets to 0)
@@ -85,18 +69,25 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Get the rotation of the robot (positive CCW, negative CW)
-     * @return the current heading of the robot in degrees [-180, 180]
+     * Get the heading of the robot (positive CCW, negative CW)
+     * @return the current yaw of the robot in degrees [-180, 180]
      */
-    public double getHeading() {
-        return MathUtils.boundHalfDegrees(-gyro.getYaw() + autoGyroInit);
+    public double getYaw() {
+        return -gyro.getYaw();
+    }
+
+    /**
+     * @return The current roll of the robot in degrees [-180, 180]
+     */
+    public double getRoll() {
+        return gyro.getRoll();
     }
 
     /**
      * @return the current pose of the robot
      */
     public Pose2d getPose() {
-        return new Pose2d(odometer.getPoseMeters(), Rotation2d.fromDegrees(getHeading()));
+        return new Pose2d(odometer.getPoseMeters(), Rotation2d.fromDegrees(getYaw()));
     }
 
     /**
@@ -104,55 +95,18 @@ public class Drivetrain extends SubsystemBase {
      * 
      * @param pose The new pose
      */
-    public void resetOdometry(/*Rotation2d rotation, */Pose2d pose) {
-        // When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
-        // to report correct values for the rest of the match.
-        // autoGyroInit = rotation.getDegrees();
-        // odometer.resetPosition(pose);
+    public void resetOdometry(Pose2d pose) {
+        odometer.resetPosition(pose);
     }
 
     // Update the odometry by calculating the current wheel vectors, the overall odometry vector, then the amount of movement
     public void updateOdometry() {
-        // // Speeds of the wheels in meters per second
-        // double frontLeftVelocity = frontLeft.getDriveVelocity();
-        // double frontRightVelocity = frontRight.getDriveVelocity();
-        // double backRightVelocity = backRight.getDriveVelocity();
-        // double backLeftVelocity = backLeft.getDriveVelocity();
-        // // Angles of the wheels [0, 360)
-        // double frontLeftAngle = frontLeft.getAngle() + getHeading();
-        // double frontRightAngle = frontRight.getAngle() + getHeading();
-        // double backRightAngle = backRight.getAngle() + getHeading();
-        // double backLeftAngle = backLeft.getAngle() + getHeading();
-        // // The vector components of the wheels, based on their current values
-        // double frontLeftX = MathUtils.getHeadingX(frontLeftAngle) * frontLeftVelocity;
-        // double frontLeftY = MathUtils.getHeadingY(frontLeftAngle) * frontLeftVelocity;
-        // double frontRightX = MathUtils.getHeadingX(frontRightAngle) * frontRightVelocity;
-        // double frontRightY = MathUtils.getHeadingY(frontRightAngle) * frontRightVelocity;
-        // double backRightX = MathUtils.getHeadingX(backRightAngle) * backRightVelocity;
-        // double backRightY = MathUtils.getHeadingY(backRightAngle) * backRightVelocity;
-        // double backLeftX = MathUtils.getHeadingX(backLeftAngle) * backLeftVelocity;
-        // double backLeftY = MathUtils.getHeadingY(backLeftAngle) * backLeftVelocity;
-
-        // // Calculate the odometry vector components [-maxDriveVel, maxDriveVel]
-        // double velocityX = (frontLeftX + frontRightX + backRightX + backLeftX) / 4.0;
-        // double velocityY = (frontLeftY + frontRightY + backRightY + backLeftY) / 4.0;
-
-        // // Calculate the period in seconds since last update
-        // double currTimeSec = WPIUtilJNI.now() * 1.0e-6;
-        // double period = prevTimeSeconds >= 0 ? currTimeSec - prevTimeSeconds : 0;
-        // prevTimeSeconds = currTimeSec;
-
-        // // oX is the distance traveled in meters in a second, then multiplied by the period
-        // double deltaY = velocityX * period;
-        // double deltaX = velocityY * period;
-        // odometer.update(deltaX, deltaY);
-
         double overallVelocityX = 0; 
         double overallVelocityY = 0;
 
         for(SwerveModule module : modules) {
             double velocity = module.getDriveVelocity();
-            double angle = module.getAngle() + getHeading();
+            double angle = module.getAngle() + getYaw();
 
             double velocityX = MathUtils.getHeadingX(angle) * velocity;
             double velocityY = MathUtils.getHeadingY(angle) * velocity;
@@ -221,21 +175,5 @@ public class Drivetrain extends SubsystemBase {
 
     public void setSpeedMode(SpeedMode speed) {
         speedMode = speed;
-    }
-
-    public boolean getIsLockDriveWhileTargeting() {
-        return isLockDriveWhileTargeting;
-    }
-
-    public void setLockDriveWhileTargeting(boolean lockDrive) {
-        isLockDriveWhileTargeting = lockDrive;
-    }
-    
-    public double getLimelightYaw() {
-        return limelightYaw;
-    }
-
-    public void setLimelightYaw(double yaw) {
-        limelightYaw = yaw;
     }
 }

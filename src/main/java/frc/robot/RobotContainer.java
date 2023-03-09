@@ -2,32 +2,20 @@ package frc.robot;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.auto.AutoCommand;
 import frc.robot.auto.AutoManager;
 import frc.robot.commands.RunPivotArmJoystick;
 import frc.robot.commands.RunSetClaw;
@@ -35,12 +23,11 @@ import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetFlexAngle;
 import frc.robot.commands.RunSetPivotAngle;
 import frc.robot.commands.RunSetRotateAngle;
-import frc.robot.commands.RunSetWristPosition;
 import frc.robot.commands.RunDrivetrainJoystick;
 import frc.robot.commands.RunToggleClaw;
 import frc.robot.commands.RunExtendArmJoystick;
 import frc.robot.commands.RunWristJoystick;
-import frc.robot.oi.Controller;
+import frc.robot.oi.OI;
 import frc.robot.subsystems.arm.Extend;
 import frc.robot.subsystems.arm.Pivot;
 import frc.robot.subsystems.drive.Drivetrain;
@@ -91,12 +78,12 @@ public class RobotContainer {
     SendableChooser<DriveMode> driveModeChooser = new SendableChooser<DriveMode>();
     SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
+    // Operator Interface
+    private OI oi;
+
     // Controllers
     private final Joystick primaryJoystick = new Joystick(OIConstants.kPrimaryJoystickID);
     private final Joystick secondaryJoystick = new Joystick(OIConstants.kSecondaryJoystickID);
-
-    private final Controller primaryController = new Controller(OIConstants.kPrimaryJoystickID);
-    private final Controller secondaryController = new Controller(OIConstants.kSecondaryJoystickID);
 
     // Primary controller buttons 
     private final JoystickButton primaryJoystickAButton = new JoystickButton(primaryJoystick, 1); // A Button
@@ -168,7 +155,7 @@ public class RobotContainer {
         eventMap.put(
             "Stow", 
             new ParallelCommandGroup(
-                new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+                new RunSetPivotAngle(pivot, 86),
                 new RunSetExtendPosition(extend, 0),
                 new RunSetFlexAngle(wrist, 0)
         ));
@@ -278,9 +265,8 @@ public class RobotContainer {
     }
 
     public void updateSmartDashboard() {
-        // subsystems
         // drivetrain
-        SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getHeading());
+        SmartDashboard.putNumber("Drivetrain Heading", drivetrain.getYaw());
 
         // drive modes
         SmartDashboard.putString("Drive Mode", drivetrain.getDriveMode().toString());
@@ -300,7 +286,6 @@ public class RobotContainer {
             module.setInverted(SmartDashboard.getBoolean(moduleName +" Inverted", module.getInverted()));
         }
 
-        // arm
         // pivot
         SmartDashboard.putNumber("Pivot Setpoint", pivot.getSetpoint());
         SmartDashboard.putNumber("Pivot Position", pivot.getAngle());
@@ -309,7 +294,6 @@ public class RobotContainer {
         SmartDashboard.putNumber("Extend Setpoint", extend.getSetpoint());
         SmartDashboard.putNumber("Extend Position", extend.getPosition());
 
-        // wrist
         // flex
         SmartDashboard.putNumber("Flex Setpoint", wrist.getFlexSetpoint());
         SmartDashboard.putNumber("Flex Position", wrist.getFlexAngle());
@@ -319,7 +303,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("Rotate Position", wrist.getRotateAngle());
          
         // claw
-        SmartDashboard.putBoolean("Claw Open?", claw.isOpen());
+        SmartDashboard.putString("Claw State", claw.isOpen() ? "Open" : "Close");
     }
 
     public Command getAutoCommand() {
