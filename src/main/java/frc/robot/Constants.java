@@ -1,12 +1,9 @@
 package frc.robot;
 
-import java.util.HashMap;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class Constants {
     //--------------------------------------------------------------------------------------------
@@ -89,6 +86,7 @@ public class Constants {
         public static final double kDExtend = 0.0;
         public static final double kFExtend = 0.0;
         
+        
         public static final int kExtendMotorPort = 5;
 
         //wrist
@@ -96,7 +94,7 @@ public class Constants {
         public static final double kFlexLowerBound = -300;
         public static final double kFlexUpperBound = 300;
 
-        public static final double kPFlex = 0.05;
+        public static final double kPFlex = 0.01;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
         public static final double kIZoneFlex = 0.0;
@@ -108,7 +106,7 @@ public class Constants {
         public static final double kRotateLowerBound = -20000;
         public static final double kRotateUpperBound = 20000;
 
-        public static final double kPRotate = 1.00;
+        public static final double kPRotate = 0.05;
         public static final double kIRotate = 0.0;
         public static final double kDRotate = 0.0;
         public static final double kIZoneRotate = 0.0;
@@ -193,6 +191,6 @@ public class Constants {
 
         public static final double kDriverExp = 7.0 / 3; //Exponentiate the joystick values to have finer control at low values
 
-        public static final double kDeadband = 0.02; 
+        public static final double kDeadband = 0.01; 
     }
 }

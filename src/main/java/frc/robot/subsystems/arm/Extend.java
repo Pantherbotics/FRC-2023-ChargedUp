@@ -57,6 +57,20 @@ public class Extend extends SubsystemBase {
             return;
         setpoint = position;
     }
+    
+    /**
+     * @return the position of the extend motor
+     */
+    public double getPosition() {
+        return motor.getSelectedSensorPosition();
+    }
+    
+    /**
+     * @return The extend setpoint
+     */
+    public double getSetpoint() {
+        return setpoint;
+    }
 
     /**
      * @param position The position to test
@@ -75,13 +89,6 @@ public class Extend extends SubsystemBase {
     }
 
     /**
-     * @return the position of the extend motor
-     */
-    public double getPosition() {
-        return motor.getSelectedSensorPosition();
-    }
-
-    /**
      * @return Whether the extend is in open loop control or not
      */
     public boolean getIsOpenLoop() {
@@ -93,13 +100,6 @@ public class Extend extends SubsystemBase {
      */
     public void setIsOpenLoop(boolean openLoop) {
         isOpenLoop = openLoop;
-    }
-
-    /**
-     * @return The extend setpoint
-     */
-    public double getSetpoint() {
-        return setpoint;
     }
     
     @Override

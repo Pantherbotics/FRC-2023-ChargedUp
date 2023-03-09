@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import javax.imageio.plugins.jpeg.JPEGHuffmanTable;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.OIConstants;
@@ -24,12 +22,12 @@ public class RunExtendArmJoystick extends CommandBase {
     @Override
     public
      void execute() {
-        double yLeftValue = -joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftYAxisID);
+        double leftYAxis = -joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftYAxisID);
 
         if(extend.getIsOpenLoop())
-            extend.runOpenLoop(0.5 * yLeftValue);
+            extend.runOpenLoop(0.5 * leftYAxis);
         else
-            extend.runClosedLoop(400 * yLeftValue); 
+            extend.runClosedLoop(500 * leftYAxis); 
     }
   
     //Called once the command ends or is interrupted.

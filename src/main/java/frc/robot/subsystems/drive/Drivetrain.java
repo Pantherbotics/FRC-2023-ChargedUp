@@ -18,7 +18,6 @@ import frc.robot.util.MathUtils;
 
 public class Drivetrain extends SubsystemBase {
     //modules
-    private final SwerveModule frontLeft, frontRight, backRight, backLeft;
     private final SwerveModule[] modules;
 
     //modes
@@ -30,7 +29,7 @@ public class Drivetrain extends SubsystemBase {
     private double autoGyroInit = 0;
 
     //odometry stuff
-    //private final SwerveDriveOdometry odometry;
+    private final SwerveDriveOdometry odometry;
     private final Odometer odometer = new Odometer();
     private double prevTimeSeconds = -1;
 
@@ -39,29 +38,49 @@ public class Drivetrain extends SubsystemBase {
     private boolean isLockDriveWhileTargeting = false;
 
     public Drivetrain() {
-        frontLeft = new SwerveModule(1, ModuleConstants.kFrontLeftCANCoderOffsetDeg, ModuleConstants.kFrontLeftDriveMotorInverted); 
-        frontRight = new SwerveModule(2, ModuleConstants.kFrontRightCANCoderOffsetDeg, ModuleConstants.kFrontRightDriveMotorInverted); 
-        backRight = new SwerveModule(3, ModuleConstants.kBackRightCANCoderOffsetDeg, ModuleConstants.kBackRightDriveMotorInverted);
-        backLeft = new SwerveModule(4, ModuleConstants.kBackLeftCANCoderOffsetDeg, ModuleConstants.kBackLeftDriveMotorInverted); 
-        modules = new SwerveModule[] { frontLeft, frontRight, backRight, backLeft };
+        modules = new SwerveModule[] {
+            new SwerveModule( //front left
+                ModuleConstants.kFrontLeftModuleID, 
+                ModuleConstants.kFrontLeftCANCoderOffsetDeg, 
+                ModuleConstants.kFrontLeftDriveMotorInverted
+            ),
+            new SwerveModule( //front right
+                ModuleConstants.kFrontRightModuleID,
+                ModuleConstants.kFrontRightCANCoderOffsetDeg, 
+                ModuleConstants.kFrontRightDriveMotorInverted
+            ),
+            new SwerveModule( //back right
+                ModuleConstants.kBackRightModuleID, 
+                ModuleConstants.kBackRightCANCoderOffsetDeg, 
+                ModuleConstants.kBackRightDriveMotorInverted
+            ),
+            new SwerveModule( //back left
+                ModuleConstants.kBackLeftModuleID, 
+                ModuleConstants.kBackLeftCANCoderOffsetDeg, 
+                ModuleConstants.kBackLeftDriveMotorInverted
+        )};
 
         // Zero the gyro after 1 second while it calibrates
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                zeroHeading();
-            } catch (Exception ignored) {}
+                zeroYaw();
+            } catch(Exception ignored) {}
         }).start();
 
-        // odometry = new SwerveDriveOdometry(
-        //     DriveConstants.kDriveKinematics,
-        //     Rotation2d.fromDegrees(gyro.getAngle()),
-            
-        // });
+        odometry = new SwerveDriveOdometry(
+            DriveConstants.kDriveKinematics,
+            Rotation2d.fromDegrees(gyro.getAngle()),
+            new SwerveModulePosition[] {
+                new SwerveModulePosition(modules[0].getDrivePosition(), Rotation2d.fromDegrees(modules[0].getAngle())),
+                new SwerveModulePosition(modules[1].getDrivePosition(), Rotation2d.fromDegrees(modules[1].getAngle())),
+                new SwerveModulePosition(modules[2].getDrivePosition(), Rotation2d.fromDegrees(modules[2].getAngle())),
+                new SwerveModulePosition(modules[3].getDrivePosition(), Rotation2d.fromDegrees(modules[3].getAngle())),
+        });
     }
 
     // Zero the yaw (heading) of the gyro (Sets to 0)
-    public void zeroHeading() {
+    public void zeroYaw() {
         gyro.zeroYaw();
     }
 
@@ -89,7 +108,7 @@ public class Drivetrain extends SubsystemBase {
         // When the auto starts it will reset the odometry. If the robot's rotation isn't 0 at the start, configure the gyro
         // to report correct values for the rest of the match.
         // autoGyroInit = rotation.getDegrees();
-        odometer.resetPosition(pose);
+        // odometer.resetPosition(pose);
     }
 
     // Update the odometry by calculating the current wheel vectors, the overall odometry vector, then the amount of movement
@@ -186,22 +205,6 @@ public class Drivetrain extends SubsystemBase {
 
     public SwerveModule[] getModules() {
         return modules;
-    }
-
-    public SwerveModule getFrontLeft() {
-        return frontLeft;
-    }
-
-    public SwerveModule getFrontRight() {
-        return frontRight;
-    }
-
-    public SwerveModule getBackRight() {
-        return backRight;
-    }
-
-    public SwerveModule getBackLeft() {
-        return backLeft;
     }
 
     public DriveMode getDriveMode() {

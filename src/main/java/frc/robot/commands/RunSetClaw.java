@@ -7,9 +7,9 @@ public class RunSetClaw extends CommandBase {
     private Claw claw;
     private boolean desiredState;
 
-    public RunSetClaw(Claw claw, boolean forward) {
+    public RunSetClaw(Claw claw, boolean open) {
         this.claw = claw;
-        this.desiredState = forward;
+        this.desiredState = open;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class RunPivotArmJoystick extends CommandBase {
     public
      void execute() {
         double leftAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftTriggerID);
-        double rightAxis = -joystick.getRawAxis(OIConstants.kSecondaryJoystickRightTriggerID);
+        double rightAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightTriggerID);
 
         double speed = leftAxis - rightAxis;
 

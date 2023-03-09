@@ -18,7 +18,6 @@ public class Pivot extends SubsystemBase {
     private final CANCoder cancoder;
     private final PIDController pid;
 
-
     private boolean isOpenLoop = false;
 
     public Pivot() {
@@ -72,6 +71,21 @@ public class Pivot extends SubsystemBase {
         pid.setSetpoint(angle);
     }
 
+    
+    /**
+     * @return The pivot angle in deg
+     */
+    public double getAngle() {
+        return cancoder.getPosition();
+    }
+
+    /**
+     * @return The pivot setpoint in deg
+     */
+    public double getSetpoint() {
+        return pid.getSetpoint();
+    }
+
     /**
      * @param position The position to test
      * @return Whether the position is within the bounds of the pivot
@@ -86,20 +100,6 @@ public class Pivot extends SubsystemBase {
      */
     public void stop() {
         master.stopMotor();
-    }
-
-    /**
-     * @return The pivot angle in deg
-     */
-    public double getAngle() {
-        return cancoder.getPosition();
-    }
-
-    /**
-     * @return The pivot setpoint in deg
-     */
-    public double getSetpoint() {
-        return pid.getSetpoint();
     }
 
     /**

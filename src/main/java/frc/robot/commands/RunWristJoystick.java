@@ -22,18 +22,18 @@ public class RunWristJoystick extends CommandBase {
     @Override
     public
      void execute() {
-        double xLeftValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickLeftXAxisID);
-        double yRightValue = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
+        double rightXAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightXAxisID);
+        double rightYAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
         if(wrist.getIsFlexOpenLoop())
-            wrist.flexOpenLoop(yRightValue);
+            wrist.flexOpenLoop(rightYAxis);
         else
-            wrist.flexClosedLoop(yRightValue);
+            wrist.flexClosedLoop(rightYAxis);
 
-        // if(wrist.getIsRotateOpenLoop())
-        //     wrist.rotateOpenLoop(xLeftValue);
-        // else
-        //     wrist.rotateClosedLoop(xLeftValue);
+        if(wrist.getIsRotateOpenLoop())
+            wrist.rotateOpenLoop(rightXAxis);
+        else
+            wrist.rotateClosedLoop(rightXAxis);
     }
   
     //Called once the command ends or is interrupted.
@@ -42,8 +42,8 @@ public class RunWristJoystick extends CommandBase {
         if(wrist.getIsFlexOpenLoop())
             wrist.stopFlex();
         
-        // if(wrist.getIsRotateOpenLoop())
-        //     wrist.stopRotate();
+        if(wrist.getIsRotateOpenLoop())
+            wrist.stopRotate();
     }
   
     // Returns true when the command should end.
