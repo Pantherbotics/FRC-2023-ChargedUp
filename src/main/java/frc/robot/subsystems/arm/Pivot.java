@@ -41,9 +41,7 @@ public class Pivot extends SubsystemBase {
         cancoder.configAllSettings(config);
 
         pid = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
-        //pid.setSetpoint(getAngle());
-        
-        setAngle(86);
+        pid.setSetpoint(ArmConstants.kPivotZeroAngle);
     }
 
     /**

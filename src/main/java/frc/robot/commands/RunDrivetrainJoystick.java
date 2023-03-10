@@ -121,8 +121,7 @@ public class RunDrivetrainJoystick extends CommandBase {
         double leftYAxis = -getYL(); // We need to invert the Y axis so that positive is forwards
         double rightXAxis = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
 
-        // square the speed but keep the sign so it can reverse
-        double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); 
+        double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle

@@ -83,10 +83,6 @@ public class SwerveModule {
         steer.setSelectedSensorPosition(cancoder.getAbsolutePosition());
     }
 
-    public double getDrivePosition() {
-        return driveEncoder.getPosition();
-    }
-
     public double getDriveVelocity() {
         return driveEncoder.getVelocity();
     }

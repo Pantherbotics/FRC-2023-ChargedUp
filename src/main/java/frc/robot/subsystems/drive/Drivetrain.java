@@ -22,6 +22,7 @@ public class Drivetrain extends SubsystemBase {
 
     //gyro stuff
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
+    public double autoGyroInit = 0;
 
     //odometry stuff
     private final Odometer odometer = new Odometer();
@@ -58,14 +59,14 @@ public class Drivetrain extends SubsystemBase {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                zeroYaw();
+                zeroHeading();
             } catch(Exception ignored) {}
         }).start();
     }
 
     // Zero the yaw (heading) of the gyro (Sets to 0)
-    public void zeroYaw() {
-        gyro.zeroYaw();
+    public void zeroHeading() {
+        gyro.reset();
     }
 
     /**
@@ -177,3 +178,4 @@ public class Drivetrain extends SubsystemBase {
         speedMode = speed;
     }
 }
+

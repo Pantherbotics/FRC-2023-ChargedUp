@@ -123,6 +123,13 @@ public class RobotContainer {
         initEventMap();
         configAutos();
         configChoosers();
+
+        // default commands
+        drivetrain.setDefaultCommand(new RunDrivetrainJoystick(primaryJoystick, drivetrain));
+        wrist.setDefaultCommand(new RunWristJoystick(secondaryJoystick, wrist));
+        pivot.setDefaultCommand(new RunPivotArmJoystick(secondaryJoystick, pivot));
+        extend.setDefaultCommand(new RunExtendArmJoystick(secondaryJoystick, extend));
+
         configButtonBindings();
     }
 
@@ -161,9 +168,7 @@ public class RobotContainer {
         ));
     }
 
-    private void configAutos() {
-
-    }
+    private void configAutos() {}
 
     private void configChoosers() {
         // speed mode chooser
@@ -196,10 +201,13 @@ public class RobotContainer {
 
     private void configButtonBindings() {
         // drivetrain manual control
-        drivetrain.setDefaultCommand(new RunDrivetrainJoystick(primaryJoystick, drivetrain));
 
-        primaryJoystickXButton.onTrue(eventMap.get("Stow"));
-        primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroYaw()));
+        primaryJoystickXButton.onTrue(new ParallelCommandGroup( // stow
+            new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
+            new RunSetExtendPosition(extend, 0),
+            new RunSetFlexAngle(wrist, 0)
+        ));
+        primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
         primaryJoystickAButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.ROBOT_ORIENTED_SWERVE)));
         primaryJoystickBButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.FIELD_ORIENTED_SWERVE)));
 
@@ -209,57 +217,47 @@ public class RobotContainer {
         primaryJoystickPOVWest.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.FAST)));
 
         // wrist manual control
-        wrist.setDefaultCommand(new RunWristJoystick(secondaryJoystick, wrist));
-        secondaryJoystickLeftBumperButton.onTrue(eventMap.get("Rotate to 180")); //rotate 180
-        secondaryJoystickRightBumperButton.onTrue(eventMap.get("Rotate to 0")); //rotate back
-
-        // pivot manual control
-        pivot.setDefaultCommand(new RunPivotArmJoystick(secondaryJoystick, pivot));
-        
-        // extension manual control 
-        extend.setDefaultCommand(new RunExtendArmJoystick(secondaryJoystick, extend));
+        secondaryJoystickLeftBumperButton.onTrue(new RunSetRotateAngle(wrist, -28.5)); //rotate 180
+        secondaryJoystickRightBumperButton.onTrue(new RunSetRotateAngle(wrist, 0)); //rotate back
 
         // claw manual control
-        secondaryJoystickAButton.onTrue(eventMap.get("Toggle Claw"));
+        secondaryJoystickAButton.onTrue(new RunToggleClaw(claw));
 
-        // stow
-        secondaryJoystickBButton.onTrue(eventMap.get("Stow"));
-        // high goal towards long end
-        secondaryJoystickPOVNorth.onTrue(new ParallelCommandGroup(
-            new RunSetPivotAngle(pivot, 48),
-            new RunSetExtendPosition(extend, 51000),
-            new RunSetFlexAngle(wrist, -65)
-        ));
-        // high goal towards short end
-        secondaryJoystickYButton.onTrue(new ParallelCommandGroup(
-            new RunSetPivotAngle(pivot, 159),
-            new RunSetExtendPosition(extend, 45900),
-            new RunSetFlexAngle(wrist, -53)
-        ));
-        // medium goal towards long end
-        secondaryJoystickPOVEast.onTrue(new ParallelCommandGroup( 
-            new RunSetPivotAngle(pivot, 48),
+        secondaryJoystickBButton.onTrue(new ParallelCommandGroup( // stow
+            new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
             new RunSetExtendPosition(extend, 0),
-            new RunSetFlexAngle(wrist, -65)
+            new RunSetFlexAngle(wrist, 0)
         ));
-        // medium goal towards short end
-        secondaryJoystickXButton.onTrue(new ParallelCommandGroup(
-            new RunSetPivotAngle(pivot, 164),
+        secondaryJoystickPOVNorth.onTrue(new ParallelCommandGroup( // high goal towards long end
+            new RunSetPivotAngle(pivot, 51),
+            new RunSetExtendPosition(extend, 49000),
+            new RunSetFlexAngle(wrist, -45)
+        ));
+        secondaryJoystickYButton.onTrue(new ParallelCommandGroup( // high goal towards short end
+            new RunSetPivotAngle(pivot, 166.5),
+            new RunSetExtendPosition(extend, 30500),
+            new RunSetFlexAngle(wrist, -58)
+        ));
+        secondaryJoystickPOVEast.onTrue(new ParallelCommandGroup( // medium goal towards long end
+            new RunSetPivotAngle(pivot, 51),
+            new RunSetExtendPosition(extend, 6300),
+            new RunSetFlexAngle(wrist, -46)
+        ));
+        secondaryJoystickXButton.onTrue(new ParallelCommandGroup( // medium goal towards short end
+            new RunSetPivotAngle(pivot, 168),
             new RunSetExtendPosition(extend, 0),
             new RunSetFlexAngle(wrist, -57)
         ));
-        // shelf
-        secondaryJoystickPOVWest.onTrue(new ParallelCommandGroup(
+        secondaryJoystickPOVWest.onTrue(new ParallelCommandGroup( // shelf
             new RunSetPivotAngle(pivot, 61.7),
             new RunSetExtendPosition(extend, 0),
             new RunSetFlexAngle(wrist, -78),
             new RunSetClaw(claw, true)
         ));                                                                
-        // picking off ground   
-        secondaryJoystickPOVSouth.onTrue(new ParallelCommandGroup(
-            new RunSetPivotAngle(pivot, 5),
+        secondaryJoystickPOVSouth.onTrue(new ParallelCommandGroup( // picking off ground   
+            new RunSetPivotAngle(pivot, 9.2),
             new RunSetExtendPosition(extend, 0),
-            new RunSetFlexAngle(wrist, -45),
+            new RunSetFlexAngle(wrist, -49),
             new RunSetClaw(claw, true)
         ));
     }
@@ -276,7 +274,6 @@ public class RobotContainer {
         for(SwerveModule module : drivetrain.getModules()) {
             String moduleName = "Swerve Module [" + module.getID() + "]";
 
-            SmartDashboard.putNumber(moduleName + " Position", module.getDrivePosition());
             SmartDashboard.putNumber(moduleName + " Speed", module.getDriveVelocity());
             SmartDashboard.putNumber(moduleName + " Angle", module.getAngle());
             SmartDashboard.putNumber(moduleName + " Offset", module.getOffsetAngle());

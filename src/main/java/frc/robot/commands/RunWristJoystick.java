@@ -23,7 +23,7 @@ public class RunWristJoystick extends CommandBase {
     public
      void execute() {
         double rightXAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightXAxisID);
-        double rightYAxis = joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
+        double rightYAxis = -joystick.getRawAxis(OIConstants.kSecondaryJoystickRightYAxisID);
 
         if(wrist.getIsFlexOpenLoop())
             wrist.flexOpenLoop(rightYAxis);
