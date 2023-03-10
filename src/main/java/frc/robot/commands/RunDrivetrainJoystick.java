@@ -72,34 +72,27 @@ public class RunDrivetrainJoystick extends CommandBase {
         double leftYAxis = getYL();
         double rightXAxis = getXR();
 
-        double xSpeed, ySpeed, turningSpeed;
+        double xSpeed, ySpeed, turnSpeed;
         double speedScalar = drivetrain.getSpeedMode().getScalar();
-        double targetInfluence = drivetrain.getLimelightYaw() / 27; // Limelight v1 Yaw ranges [-27, 27]
         
-        if(drivetrain.getIsLockDriveWhileTargeting()) {
-            xSpeed = 0;
-            ySpeed = 0;
-            turningSpeed = targetInfluence; // 45 degree field of view maybe
-        } else {
-            xSpeed = -MathUtils.powAxis(leftYAxis, OIConstants.kDriverExp) * speedScalar;
-            ySpeed = -MathUtils.powAxis(leftXAxis, OIConstants.kDriverExp) * speedScalar;
-            turningSpeed = -rightXAxis * speedScalar + targetInfluence;
-        }
+        xSpeed = -MathUtils.powAxis(leftYAxis, OIConstants.kDriverExp) * speedScalar;
+        ySpeed = -MathUtils.powAxis(leftXAxis, OIConstants.kDriverExp) * speedScalar;
+        turnSpeed = -rightXAxis * speedScalar;
 
         // 2. Apply deadband
         xSpeed = Math.abs(xSpeed) > OIConstants.kDeadband ? xSpeed : 0;
         ySpeed = Math.abs(ySpeed) > OIConstants.kDeadband ? ySpeed : 0;
-        turningSpeed = Math.abs(turningSpeed) > OIConstants.kDeadband ? turningSpeed : 0;
+        turnSpeed = Math.abs(turnSpeed) > OIConstants.kDeadband ? turnSpeed : 0;
 
         // 3. Make the driving smoother
         xSpeed = xLimiter.calculate(xSpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
         ySpeed = yLimiter.calculate(ySpeed) * DriveConstants.kTeleDriveMaxSpeedMetersPerSecond;
-        turningSpeed = turningLimiter.calculate(turningSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
+        turnSpeed = turningLimiter.calculate(turnSpeed) * DriveConstants.kTeleDriveMaxAngularSpeedRadiansPerSecond;
 
         // 4. Construct desired chassis speeds
         ChassisSpeeds chassisSpeeds = fieldOriented ? 
-            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turningSpeed, Rotation2d.fromDegrees(drivetrain.getHeading())) :
-            new ChassisSpeeds(xSpeed, ySpeed, turningSpeed);
+            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, Rotation2d.fromDegrees(drivetrain.getHeading())) :
+            new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
 
         // 5. Output each module states to wheels
         drivetrain.setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds));
@@ -111,7 +104,6 @@ public class RunDrivetrainJoystick extends CommandBase {
 
         // Right stick speed
         double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
-
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle
@@ -130,7 +122,6 @@ public class RunDrivetrainJoystick extends CommandBase {
         double rightXAxis = -getXR(); // The swerve follows positive CCW wheel angles, so to turn the wheel left we must have a positive XR
 
         double speed = leftYAxis * leftYAxis * (leftYAxis < 0 ? -1 : 1); // square the speed but keep the sign so it can reverse
-    
         speed *= DriveConstants.kPhysicalMaxSpeedMetersPerSecond; // Scale it up to m/s
 
         // Calculate Steering Angle

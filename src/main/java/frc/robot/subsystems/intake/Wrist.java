@@ -60,28 +60,50 @@ public class Wrist extends SubsystemBase {
         rotateSetpoint = 0;
     }
 
+    /**
+     * Flex control in open loop
+     * @param speed the speed to set it to [-1, 1]
+     */
     public void flexOpenLoop(double speed) {
         flexMotor.set(speed);
     }
 
+    /**
+     * Flex control in closed loop
+     * @param speed The speed in rpm
+     */
     public void flexClosedLoop(double speed) {
         setFlexAngle(flexSetpoint + speed);
     }
 
+    /**
+     * Sets the flex angle
+     * @param angle The angle of the flex in rotations
+     */
     public void setFlexAngle(double angle) {
         if(!withinFlexBounds(angle))
             return;
         flexSetpoint = angle;
     }
 
+    /**
+     * @return The angle of the flex in rotations
+     */
     public double getFlexAngle() {
         return flexEncoder.getPosition();
     }
 
+    /**
+     * @return The setpoint of the flex in rotations
+     */
     public double getFlexSetpoint() {
         return flexSetpoint;
     }
 
+    /**
+     * @param angle The angle to test
+     * @return Whether the angle is within the flex bounds
+     */
     private boolean withinFlexBounds(double angle) {
         return angle >= ArmConstants.kFlexLowerBound && 
                angle <= ArmConstants.kFlexUpperBound;
