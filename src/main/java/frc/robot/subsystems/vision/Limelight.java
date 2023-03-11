@@ -10,8 +10,8 @@ public class Limelight {
     private NetworkTableEntry tx, ty, ta;
     private Target target;
 
-    public Limelight(String name) {
-        limelight = NetworkTableInstance.getDefault().getTable(name);
+    public Limelight() {
+        limelight = NetworkTableInstance.getDefault().getTable("limelight-poggers");
         tx = limelight.getEntry("tx");
         ty = limelight.getEntry("ty");
         ta = limelight.getEntry("ta");

@@ -1,0 +1,170 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 1.94,
+        "y": 0.45676672549926234
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.9400000000000004,
+        "y": 0.45676672549926234
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": true,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "High Goal Towards Short End",
+          "Wait",
+          "Open Claw"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "deadline",
+        "waitTime": 2.5
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.513350223281643,
+        "y": 0.75
+      },
+      "prevControl": {
+        "x": 3.7355045185190443,
+        "y": 0.75
+      },
+      "nextControl": {
+        "x": 5.5133502232816385,
+        "y": 0.75
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "Pickup Off Ground"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.5,
+        "y": 0.9249526191360088
+      },
+      "prevControl": {
+        "x": 5.535670110752303,
+        "y": 0.9249526191360088
+      },
+      "nextControl": {
+        "x": 7.464329889247699,
+        "y": 0.9249526191360088
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": true,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "Close Claw",
+          "Wait",
+          "Stow"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "deadline",
+        "waitTime": 3.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.3569853457996714,
+        "y": 0.75
+      },
+      "prevControl": {
+        "x": 6.38419737796511,
+        "y": 0.7499999999999999
+      },
+      "nextControl": {
+        "x": 4.329773313634233,
+        "y": 0.7500000000000001
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.583510808047257,
+        "y": 0.75
+      },
+      "prevControl": {
+        "x": 3.447510131507822,
+        "y": 0.7499999999999999
+      },
+      "nextControl": {
+        "x": 1.7195114845866906,
+        "y": 0.7500000000000001
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.94,
+        "y": 1.64
+      },
+      "prevControl": {
+        "x": 2.44951835066584,
+        "y": 1.64
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "High Goal Towards Long End",
+          "Wait",
+          "Open Claw"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 0.9309090909090706,
+      "names": [
+        "Pickup Off Ground"
+      ]
+    }
+  ]
+}

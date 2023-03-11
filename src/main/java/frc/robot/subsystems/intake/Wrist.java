@@ -100,6 +100,10 @@ public class Wrist extends SubsystemBase {
         return flexSetpoint;
     }
 
+    public boolean atFlexSetpoint() {
+        return Math.abs(flexSetpoint - getFlexAngle()) < 3;
+    }
+
     /**
      * @param angle The angle to test
      * @return Whether the angle is within the flex bounds
@@ -147,6 +151,10 @@ public class Wrist extends SubsystemBase {
 
     public double getRotateSetpoint() {
         return rotateSetpoint;
+    }
+
+    public boolean atRotateSetpoint() {
+        return Math.abs(rotateSetpoint - getRotateAngle()) < 3;
     }
 
     private boolean withinRotateBounds(double angle) {

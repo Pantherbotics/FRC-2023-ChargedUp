@@ -14,7 +14,7 @@ public class Claw extends SubsystemBase {
     private final DoubleSolenoid solenoid;
 
     public Claw() {
-        solenoid = new DoubleSolenoid(ArmConstants.kClawSolenoidPort, PneumaticsModuleType.CTREPCM, 0, 1);
+        solenoid = new DoubleSolenoid(ArmConstants.kClawSolenoidPort, PneumaticsModuleType.CTREPCM, 1, 0);
         close();
     }
 

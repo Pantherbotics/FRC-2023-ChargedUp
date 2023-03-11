@@ -64,7 +64,7 @@ public class Constants {
         //pivot
         public static final double kPivotCANCoderOffsetDeg = -97.703;
         
-        public static final double kPivotZeroAngle = 85.96;
+        public static final double kPivotZeroAngle = 100;
 
         public static final double kPivotUpperBound = 360;
         public static final double kPivotLowerBound = 0;
@@ -95,7 +95,7 @@ public class Constants {
         public static final double kFlexLowerBound = -300;
         public static final double kFlexUpperBound = 300;
 
-        public static final double kPFlex = 0.01;
+        public static final double kPFlex = 0.05;
         public static final double kIFlex = 0.0;
         public static final double kDFlex = 0.0;
         public static final double kIZoneFlex = 0.0;
@@ -104,8 +104,8 @@ public class Constants {
         public static final int kFlexMotorPort = 8;
 
         //rotate
-        public static final double kRotateLowerBound = -20000;
-        public static final double kRotateUpperBound = 20000;
+        public static final double kRotateLowerBound = -28.5;
+        public static final double kRotateUpperBound = 0;
 
         public static final double kPRotate = 0.05;
         public static final double kIRotate = 0.0;

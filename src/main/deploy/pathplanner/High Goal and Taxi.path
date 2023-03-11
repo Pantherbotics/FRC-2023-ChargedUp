@@ -2,39 +2,43 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.0,
-        "y": 3.0
+        "x": 1.94,
+        "y": 0.45676672549926234
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0000000000000018,
-        "y": 3.0
+        "x": 2.9399999999999995,
+        "y": 0.45676672549926234
       },
       "holonomicAngle": 0,
       "isReversal": false,
-      "velOverride": 1.0,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "High Goal Towards Long End",
+          "Wait",
+          "Open Claw"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.0,
-        "y": 3.0
+        "x": 6.169129603216471,
+        "y": 0.9021142828610453
       },
       "prevControl": {
-        "x": 5.440344251269691,
-        "y": 3.0
+        "x": 5.169129603216471,
+        "y": 0.9021142828610453
       },
       "nextControl": null,
       "holonomicAngle": 0,
       "isReversal": false,
-      "velOverride": 0.5,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {

@@ -74,6 +74,13 @@ public class Extend extends SubsystemBase {
     }
 
     /**
+     * @return Whether the extend is at (close to) its setpoint
+     */
+    public boolean atSetpoint() {
+        return Math.abs(setpoint - getPosition()) < 7000;
+    }
+
+    /**
      * @param position The position to test
      * @return Whether the position is within the bounds of the extend (assuming the extend started in 0 position) 
      */

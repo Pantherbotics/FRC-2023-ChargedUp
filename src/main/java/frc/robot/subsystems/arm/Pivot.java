@@ -41,7 +41,9 @@ public class Pivot extends SubsystemBase {
         cancoder.configAllSettings(config);
 
         pid = new PIDController(ArmConstants.kPPivot, ArmConstants.kIPivot, ArmConstants.kDPivot);
-        pid.setSetpoint(ArmConstants.kPivotZeroAngle);
+        pid.setSetpoint(getAngle());
+        
+        setAngle(ArmConstants.kPivotZeroAngle);
     }
 
     /**
@@ -85,6 +87,13 @@ public class Pivot extends SubsystemBase {
     }
 
     /**
+     * @return Whether the pivot is at (close to) its setpoint
+     */
+    public boolean atSetpoint() {
+        return Math.abs(pid.getSetpoint() - getAngle()) < 2; 
+    }
+
+    /**
      * @param position The position to test
      * @return Whether the position is within the bounds of the pivot
      */
@@ -115,11 +124,8 @@ public class Pivot extends SubsystemBase {
     }
 
     @Override
-    public void periodic()
-    {
-        // move to setpoint
+    public void periodic() {
         if(!isOpenLoop)
             master.set(MathUtils.clamp(pid.calculate(getAngle()), -0.5, 0.5));
- 
     }
 }

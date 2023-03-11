@@ -4,8 +4,6 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.SPI;
@@ -22,7 +20,6 @@ public class Drivetrain extends SubsystemBase {
 
     //gyro stuff
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-    public double autoGyroInit = 0;
 
     //odometry stuff
     private final Odometer odometer = new Odometer();
@@ -64,7 +61,9 @@ public class Drivetrain extends SubsystemBase {
         }).start();
     }
 
-    // Zero the yaw (heading) of the gyro (Sets to 0)
+    /**
+     *  Zero the yaw (heading) of the gyro (Sets to 0)
+     */ 
     public void zeroHeading() {
         gyro.reset();
     }
@@ -78,10 +77,10 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * @return The current roll of the robot in degrees [-180, 180]
+     * @return The current pitch of the robot in degrees [-180, 180]
      */
-    public double getRoll() {
-        return gyro.getRoll();
+    public double getPitch() {
+        return gyro.getPitch();
     }
 
     /**
