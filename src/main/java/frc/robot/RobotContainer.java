@@ -59,7 +59,11 @@ public class RobotContainer {
     private final HashMap<String, Command> eventMap = new HashMap<String, Command>();
 
     // Auto stuff
-    private final String[] autoNames = {"Taxi", "High Goal", "High Goal and Taxi", "Two High Goal",  "Auto Balance", "High Goal and Auto Balance"};
+    private final String[] autos = {
+        "Taxi", "High Goal", "High Goal and Taxi", "Two High Goal", 
+        "Auto Balance", "High Goal and Auto Balance", "Two High Goal and Auto Balance", 
+        "Two High Goal Top Side"
+    };
     private final AutoManager autoManager = new AutoManager();
     private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
         drivetrain::getPose, 
@@ -139,6 +143,19 @@ public class RobotContainer {
         extend.setDefaultCommand(new RunExtendArmJoystick(secondaryJoystick, extend));
 
         configButtonBindings();
+
+        //gross
+        SmartDashboard.putNumber("Swerve Module [1] Offset", drivetrain.getModules()[0].getOffsetAngle());
+        SmartDashboard.putNumber("Swerve Module [2] Offset", drivetrain.getModules()[1].getOffsetAngle());
+        SmartDashboard.putNumber("Swerve Module [3] Offset", drivetrain.getModules()[2].getOffsetAngle());
+        SmartDashboard.putNumber("Swerve Module [4] Offset", drivetrain.getModules()[3].getOffsetAngle());
+
+        SmartDashboard.putBoolean("Swerve Module [1] Inverted", drivetrain.getModules()[0].getInverted());
+        SmartDashboard.putBoolean("Swerve Module [2] Inverted", drivetrain.getModules()[1].getInverted());
+        SmartDashboard.putBoolean("Swerve Module [3] Inverted", drivetrain.getModules()[2].getInverted());
+        SmartDashboard.putBoolean("Swerve Module [4] Inverted", drivetrain.getModules()[3].getInverted());
+
+        SmartDashboard.putNumber("Pivot Offset", pivot.getOffsetAngle());
     }
 
     private void initEventMap() {
@@ -147,11 +164,11 @@ public class RobotContainer {
             new WaitCommand(1));
 
         eventMap.put(
-            "Balance From Front", // coming onto the charge station from the side further away from the driver stations
+            "Balance Front", // coming onto the charge station from the side further away from the driver stations
             new RunAutoBalance(drivetrain, true) 
         );
         eventMap.put(
-            "Balance From Behind",
+            "Balance Behind",
             new RunAutoBalance(drivetrain, false));
 
         //claw
@@ -174,49 +191,58 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 new RunSetPivotAngle(pivot, ArmConstants.kPivotZeroAngle),
                 new RunSetExtendPosition(extend, 0),
-                new RunSetFlexAngle(wrist, -38)
+                new RunSetFlexAngle(wrist, -18)
         ));
         eventMap.put(
-            "High Goal Towards Long End", 
+            "High Goal Long End", 
             new ParallelCommandGroup(
-                new RunSetPivotAngle(pivot, 68),
-                new RunSetExtendPosition(extend, 49000),
-                new RunSetFlexAngle(wrist, -47)
+                new RunSetPivotAngle(pivot, 47.18),
+                new RunSetExtendPosition(extend, 52000),
+                new RunSetFlexAngle(wrist, -22.7)
         ));
         eventMap.put(
-            "High Goal Towards Short End",
+            "High Goal Short End",
             new ParallelCommandGroup(
-                new RunSetPivotAngle(pivot, 183),
-                new RunSetExtendPosition(extend, 26700),
-                new RunSetFlexAngle(wrist, -61)
+                new RunSetPivotAngle(pivot, 152),
+                new RunSetExtendPosition(extend, 38250),
+                new RunSetFlexAngle(wrist, -35)
         ));
         eventMap.put(
-            "Medium Goal Towards Long End",
+            "Medium Goal Long End",
             new ParallelCommandGroup( 
-                new RunSetPivotAngle(pivot, 66),
-                new RunSetExtendPosition(extend, 0),
-                new RunSetFlexAngle(wrist, -46)
+                new RunSetPivotAngle(pivot, 47),
+                new RunSetExtendPosition(extend, 7292),
+                new RunSetFlexAngle(wrist, -28)
         ));
         eventMap.put(
-            "Medium Goal Towards Short End",
+            "Medium Goal Short End",
             new ParallelCommandGroup( 
                 new RunSetPivotAngle(pivot, 189),
                 new RunSetExtendPosition(extend, 0),
                 new RunSetFlexAngle(wrist, -62)
         )); 
         eventMap.put(
-            "Pickup From Shelf",
+            "Shelf Pickup",
             new ParallelCommandGroup(
-                new RunSetPivotAngle(pivot, 85),
+                new RunSetPivotAngle(pivot, 61),
                 new RunSetExtendPosition(extend, 0),
-                new RunSetFlexAngle(wrist, -71)
+                new RunSetFlexAngle(wrist, -30)
         ));                                                                
         eventMap.put(
-            "Pickup Off Ground",
+            "Ground Pickup",
             new ParallelCommandGroup(   
-                new RunSetPivotAngle(pivot, 24),
+                new RunSetPivotAngle(pivot, 6),
                 new RunSetExtendPosition(extend, 0),
-                new RunSetFlexAngle(wrist, -47)
+                new RunSetFlexAngle(wrist, -18)
+        ));
+
+        // full commands 
+        eventMap.put(
+            "Score High Goal Long End",
+            new ParallelCommandGroup(
+                new RunSetPivotAngle(pivot, 6),
+                new RunSetExtendPosition(extend, 0),
+                new RunSetFlexAngle(wrist, -18)
         ));
     }
 
@@ -224,7 +250,7 @@ public class RobotContainer {
         autoManager.addDefaultOption(
             "None",     
             new PrintCommand("No Auto"));
-        for(String name : autoNames) {
+        for(String name : autos) {
             List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup(
                 name, 
                 AutoConstants.kMaxSpeedMetersPerSecond, 
@@ -265,8 +291,7 @@ public class RobotContainer {
     }
 
     private void configButtonBindings() {
-        // drivetrain manual control
-
+        // primary controller 
         primaryJoystickXButton.onTrue(eventMap.get("Stow"));
         primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
         primaryJoystickAButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.ROBOT_ORIENTED_SWERVE)));
@@ -277,9 +302,10 @@ public class RobotContainer {
         primaryJoystickPOVSouth.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.NORMAL)));
         primaryJoystickPOVWest.onTrue(new InstantCommand(() -> drivetrain.setSpeedMode(SpeedMode.FAST)));
 
-        // claw manual control
+        // claw
         secondaryJoystickAButton.onTrue(eventMap.get("Toggle Claw"));
 
+        // presets
         secondaryJoystickBButton.onTrue(eventMap.get("Stow"));
         secondaryJoystickPOVNorth.onTrue(eventMap.get("High Goal Towards Long End"));
         secondaryJoystickYButton.onTrue(eventMap.get("High Goal Towards Short End"));
@@ -308,19 +334,25 @@ public class RobotContainer {
         // swerve modules
         for(SwerveModule module : drivetrain.getModules()) {
             String moduleName = "Swerve Module [" + module.getID() + "]";
-
             SmartDashboard.putNumber(moduleName + " Speed", module.getDriveVelocity());
             SmartDashboard.putNumber(moduleName + " Angle", module.getAngle());
-            SmartDashboard.putNumber(moduleName + " Offset", module.getOffsetAngle());
-            SmartDashboard.putBoolean(moduleName + " Inverted", module.getInverted());
-
-            module.setOffsetAngle(SmartDashboard.getNumber(moduleName + " Offset", module.getOffsetAngle()));
-            module.setInverted(SmartDashboard.getBoolean(moduleName +" Inverted", module.getInverted()));
         }
+
+        drivetrain.getModules()[0].setOffsetAngle(SmartDashboard.getNumber("Swerve Module [1] Offset", drivetrain.getModules()[0].getOffsetAngle()));
+        drivetrain.getModules()[1].setOffsetAngle(SmartDashboard.getNumber("Swerve Module [2] Offset", drivetrain.getModules()[1].getOffsetAngle()));
+        drivetrain.getModules()[2].setOffsetAngle(SmartDashboard.getNumber("Swerve Module [3] Offset", drivetrain.getModules()[2].getOffsetAngle()));
+        drivetrain.getModules()[3].setOffsetAngle(SmartDashboard.getNumber("Swerve Module [4] Offset", drivetrain.getModules()[3].getOffsetAngle()));
+
+        drivetrain.getModules()[0].setInverted(SmartDashboard.getBoolean("Swerve Module [1] Offset", drivetrain.getModules()[0].getInverted()));
+        drivetrain.getModules()[1].setInverted(SmartDashboard.getBoolean("Swerve Module [2] Offset", drivetrain.getModules()[1].getInverted()));
+        drivetrain.getModules()[2].setInverted(SmartDashboard.getBoolean("Swerve Module [3] Offset", drivetrain.getModules()[2].getInverted()));
+        drivetrain.getModules()[3].setInverted(SmartDashboard.getBoolean("Swerve Module [4] Offset", drivetrain.getModules()[3].getInverted()));
 
         // pivot
         SmartDashboard.putNumber("Pivot Setpoint", pivot.getSetpoint());
         SmartDashboard.putNumber("Pivot Position", pivot.getAngle());
+
+        pivot.setOffsetAngle(SmartDashboard.getNumber("Pivot Offset", pivot.getOffsetAngle()));
 
         // extend
         SmartDashboard.putNumber("Extend Setpoint", extend.getSetpoint());
