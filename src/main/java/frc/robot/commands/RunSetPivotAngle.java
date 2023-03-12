@@ -27,6 +27,6 @@ public class RunSetPivotAngle extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return pivot.atSetpoint();
+        return true;
     }
 }

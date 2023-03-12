@@ -127,5 +127,13 @@ public class Pivot extends SubsystemBase {
     public void periodic() {
         if(!isOpenLoop)
             master.set(MathUtils.clamp(pid.calculate(getAngle()), -0.5, 0.5));
+    } 
+
+    public double getOffsetAngle() {
+        return cancoder.configGetMagnetOffset();
+    }
+
+    public void setOffsetAngle(double offset) {
+        cancoder.configMagnetOffset(offset);
     }
 }

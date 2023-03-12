@@ -93,7 +93,7 @@ public class SwerveModule {
 
     public void setDesiredState(SwerveModuleState state) {
         // Ignore small states like when we let go of left stick so wheels don't default to 0 degrees
-        if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+        if(Math.abs(state.speedMetersPerSecond) < 0.001) {
             stop();
             return;
         }
@@ -107,7 +107,7 @@ public class SwerveModule {
             steer.getSelectedSensorPosition() + (-errorAng) * 4096.0 / 360);
         drivePID.setReference(
                 state.speedMetersPerSecond / DriveConstants.kPhysicalMaxSpeedMetersPerSecond * Constants.neoMaxRPM,
-                CANSparkMax.ControlType.kVelocity);
+                ControlType.kVelocity);
     }
 
     public void stop() {

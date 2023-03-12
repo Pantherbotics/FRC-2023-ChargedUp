@@ -2,74 +2,101 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.94,
-        "y": 0.45676672549926234
+        "x": 1.85,
+        "y": 5.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9400000000000004,
-        "y": 0.45676672549926234
+        "x": 2.8500000000000005,
+        "y": 5.0
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": true,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
           "High Goal Towards Short End",
           "Wait",
-          "Open Claw"
+          "Stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "deadline",
-        "waitTime": 3.0
+        "waitTime": 2.5
       }
     },
     {
       "anchorPoint": {
-        "x": 4.513350223281643,
-        "y": 0.75
+        "x": 2.4,
+        "y": 5.0
       },
       "prevControl": {
-        "x": 3.7355045185190443,
-        "y": 0.75
+        "x": 1.8017940709260842,
+        "y": 5.0
       },
       "nextControl": {
-        "x": 5.5133502232816385,
-        "y": 0.75
+        "x": 2.998205929073917,
+        "y": 5.0
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "Stow"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "after",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.4216223639294636,
+        "y": 4.61
+      },
+      "prevControl": {
+        "x": 3.050886141007793,
+        "y": 4.61
+      },
+      "nextControl": {
+        "x": 3.792358586851134,
+        "y": 4.61
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": 1.0,
+      "isLocked": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [
           "Pickup Off Ground"
         ],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.5,
-        "y": 0.9249526191360088
+        "x": 6.189003191130491,
+        "y": 4.597054101383524
       },
       "prevControl": {
-        "x": 5.535670110752303,
-        "y": 0.9249526191360088
+        "x": 5.411157486367892,
+        "y": 4.597054101383524
       },
       "nextControl": {
-        "x": 7.464329889247699,
-        "y": 0.9249526191360088
+        "x": 7.189003191130486,
+        "y": 4.597054101383524
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 1.0,
       "isReversal": false,
       "velOverride": null,
-      "isLocked": true,
+      "isLocked": false,
       "isStopPoint": true,
       "stopEvent": {
         "names": [
@@ -79,46 +106,21 @@
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "deadline",
-        "waitTime": 3.0
+        "waitTime": 2.0
       }
     },
     {
       "anchorPoint": {
-        "x": 5.3569853457996714,
-        "y": 0.75
+        "x": 3.1586068307657293,
+        "y": 4.608489559347165
       },
       "prevControl": {
-        "x": 6.38419737796511,
-        "y": 0.7499999999999999
+        "x": 4.022606154226294,
+        "y": 4.608489559347165
       },
       "nextControl": {
-        "x": 4.329773313634233,
-        "y": 0.7500000000000001
-      },
-      "holonomicAngle": 0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 2.583510808047257,
-        "y": 0.75
-      },
-      "prevControl": {
-        "x": 3.447510131507822,
-        "y": 0.7499999999999999
-      },
-      "nextControl": {
-        "x": 1.7195114845866906,
-        "y": 0.7500000000000001
+        "x": 2.294607507305163,
+        "y": 4.608489559347165
       },
       "holonomicAngle": 0.0,
       "isReversal": false,
@@ -134,17 +136,17 @@
     },
     {
       "anchorPoint": {
-        "x": 1.94,
-        "y": 1.64
+        "x": 1.85,
+        "y": 3.8308784178196023
       },
       "prevControl": {
-        "x": 2.44951835066584,
-        "y": 1.64
+        "x": 2.3595183506658413,
+        "y": 3.8308784178196023
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -154,17 +156,10 @@
           "Open Claw"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "after",
+        "waitTime": 0.5
       }
     }
   ],
-  "markers": [
-    {
-      "position": 0.9309090909090706,
-      "names": [
-        "Pickup Off Ground"
-      ]
-    }
-  ]
+  "markers": []
 }

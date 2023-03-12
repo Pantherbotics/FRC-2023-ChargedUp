@@ -48,23 +48,23 @@ public class Constants {
         public static final int kBackLeftModuleID = 4;
 
         //Positive is counterclockwise, Negative is clockwise
-        public static final double kFrontLeftCANCoderOffsetDeg = 70.75; 
-        public static final double kFrontRightCANCoderOffsetDeg = -80.44; 
+        public static final double kFrontLeftCANCoderOffsetDeg = -13.18; 
+        public static final double kFrontRightCANCoderOffsetDeg = -50.44; 
         public static final double kBackRightCANCoderOffsetDeg = 45.61; 
         public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
 
         //Whether to invert the drive motor 
         public static final boolean kFrontLeftDriveMotorInverted = false; 
-        public static final boolean kFrontRightDriveMotorInverted = false; 
+        public static final boolean kFrontRightDriveMotorInverted = true; 
         public static final boolean kBackRightDriveMotorInverted = true; 
         public static final boolean kBackLeftDriveMotorInverted = true; 
     }
     
     public static final class ArmConstants {
         //pivot
-        public static final double kPivotCANCoderOffsetDeg = -97.703;
+        public static final double kPivotCANCoderOffsetDeg = -262.936;
         
-        public static final double kPivotZeroAngle = 100;
+        public static final double kPivotZeroAngle = 83.496;
 
         public static final double kPivotUpperBound = 360;
         public static final double kPivotLowerBound = 0;
@@ -90,7 +90,6 @@ public class Constants {
         
         public static final int kExtendMotorPort = 5;
 
-        //wrist
         //flex
         public static final double kFlexLowerBound = -300;
         public static final double kFlexUpperBound = 300;

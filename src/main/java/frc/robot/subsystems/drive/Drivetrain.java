@@ -148,7 +148,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setModuleStates(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kPhysicalMaxSpeedMetersPerSecond);
-        for (int i = 0; i < 4; i++) {
+        for(int i = 0; i < 4; i++) {
             // Optimize States (Both Teleop and Auto gives unoptimized)
             modules[i].setDesiredState(SwerveModuleState.optimize(
                 desiredStates[i], 
