@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.94,
+        "x": 1.86,
         "y": 0.45676672549926234
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9400000000000004,
+        "x": 2.8600000000000003,
         "y": 0.45676672549926234
       },
       "holonomicAngle": 0.0,
@@ -17,9 +17,9 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Goal Towards Short End",
+          "Score High Goal Long End",
           "Wait",
-          "Open Claw"
+          "Stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "deadline",
@@ -63,11 +63,11 @@
         "y": 0.9249526191360088
       },
       "nextControl": {
-        "x": 7.464329889247699,
+        "x": 5.535670110752303,
         "y": 0.9249526191360088
       },
       "holonomicAngle": 0.0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": true,
       "isStopPoint": true,
@@ -122,7 +122,7 @@
       },
       "holonomicAngle": 0.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 0.5,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
@@ -134,14 +134,17 @@
     },
     {
       "anchorPoint": {
-        "x": 1.94,
+        "x": 1.86,
         "y": 1.64
       },
       "prevControl": {
-        "x": 2.44951835066584,
+        "x": 2.3695183506658397,
         "y": 1.64
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 1.3504816493341605,
+        "y": 1.64
+      },
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
@@ -149,11 +152,33 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Goal Towards Long End",
+          "Score High Goal Long End",
           "Wait",
-          "Open Claw"
+          "Stow"
         ],
         "executionBehavior": "sequential",
+        "waitBehavior": "deadline",
+        "waitTime": 3.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 1.4775945101105603,
+        "y": 1.4408677034187154
+      },
+      "prevControl": {
+        "x": 1.4140380797223604,
+        "y": 1.5404338517093576
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
@@ -163,7 +188,7 @@
     {
       "position": 0.9309090909090706,
       "names": [
-        "Pickup Off Ground"
+        "Ground Pickup"
       ]
     }
   ]

@@ -13,9 +13,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -60,9 +62,7 @@ public class RobotContainer {
 
     // Auto stuff
     private final String[] autos = {
-        "Taxi", "High Goal", "High Goal and Taxi", "Two High Goal", 
-        "Auto Balance", "High Goal and Auto Balance", "Two High Goal and Auto Balance", 
-        "Two High Goal Top Side"
+        "High Goal and Taxi", "High Goal", "Taxi", "Two High Goal Top Side", "Two High Goal", "Cone and Cube High Goal"
     };
     private final AutoManager autoManager = new AutoManager();
     private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -163,14 +163,6 @@ public class RobotContainer {
             "Wait", 
             new WaitCommand(1));
 
-        eventMap.put(
-            "Balance Front", // coming onto the charge station from the side further away from the driver stations
-            new RunAutoBalance(drivetrain, true) 
-        );
-        eventMap.put(
-            "Balance Behind",
-            new RunAutoBalance(drivetrain, false));
-
         //claw
         eventMap.put(
             "Open Claw", 
@@ -240,10 +232,12 @@ public class RobotContainer {
         eventMap.put(
             "Score High Goal Long End",
             new ParallelCommandGroup(
-                new RunSetPivotAngle(pivot, 6),
-                new RunSetExtendPosition(extend, 0),
-                new RunSetFlexAngle(wrist, -18)
-        ));
+                new RunSetPivotAngle(pivot, 47.18),
+                new RunSetExtendPosition(extend, 52000),
+                new RunSetFlexAngle(wrist, -22.7)
+        )
+        .andThen(new WaitCommand(1))
+        .andThen(new RunSetClaw(claw, true)));
     }
 
     private void configAutos() {
@@ -293,7 +287,7 @@ public class RobotContainer {
     private void configButtonBindings() {
         // primary controller 
         primaryJoystickXButton.onTrue(eventMap.get("Stow"));
-        primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroHeading()));
+        primaryJoystickYButton.onTrue(new InstantCommand(() -> drivetrain.zeroYaw()));
         primaryJoystickAButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.ROBOT_ORIENTED_SWERVE)));
         primaryJoystickBButton.onTrue(new InstantCommand(() -> drivetrain.setDriveMode(DriveMode.FIELD_ORIENTED_SWERVE)));
 
@@ -307,12 +301,12 @@ public class RobotContainer {
 
         // presets
         secondaryJoystickBButton.onTrue(eventMap.get("Stow"));
-        secondaryJoystickPOVNorth.onTrue(eventMap.get("High Goal Towards Long End"));
-        secondaryJoystickYButton.onTrue(eventMap.get("High Goal Towards Short End"));
-        secondaryJoystickPOVEast.onTrue(eventMap.get("Medium Goal Towards Long End"));
-        secondaryJoystickXButton.onTrue(eventMap.get("Medium Goal Towards Short End")); 
-        secondaryJoystickPOVWest.onTrue(eventMap.get("Pickup From Shelf"));                                                                
-        secondaryJoystickPOVSouth.onTrue(eventMap.get("Pickup Off Ground"));
+        secondaryJoystickPOVNorth.onTrue(eventMap.get("High Goal Long End"));
+        secondaryJoystickYButton.onTrue(eventMap.get("High Goal Short End"));
+        secondaryJoystickPOVEast.onTrue(eventMap.get("Medium Goal Long End"));
+        secondaryJoystickXButton.onTrue(eventMap.get("Medium Goal Short End")); 
+        secondaryJoystickPOVWest.onTrue(eventMap.get("Shelf Pickup"));                                                                
+        secondaryJoystickPOVSouth.onTrue(eventMap.get("Ground Pickup"));
     }
 
     public void updateSmartDashboard() {

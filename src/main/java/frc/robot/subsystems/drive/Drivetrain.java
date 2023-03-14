@@ -56,7 +56,7 @@ public class Drivetrain extends SubsystemBase {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                zeroHeading();
+                zeroYaw();
             } catch(Exception ignored) {}
         }).start();
     }
@@ -64,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
     /**
      *  Zero the yaw (heading) of the gyro (Sets to 0)
      */ 
-    public void zeroHeading() {
+    public void zeroYaw() {
         gyro.reset();
     }
 

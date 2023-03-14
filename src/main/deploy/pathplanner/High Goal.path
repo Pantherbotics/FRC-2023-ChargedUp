@@ -17,9 +17,9 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Goal Towards Long End",
+          "Score High Goal Long End",
           "Wait",
-          "Open Claw"
+          "Stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
