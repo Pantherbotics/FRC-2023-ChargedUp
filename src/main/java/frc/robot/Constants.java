@@ -48,15 +48,15 @@ public class Constants {
         public static final int kBackLeftModuleID = 4;
 
         //Positive is counterclockwise, Negative is clockwise
-        public static final double kFrontLeftCANCoderOffsetDeg = -13.18; 
-        public static final double kFrontRightCANCoderOffsetDeg = -50.44; 
-        public static final double kBackRightCANCoderOffsetDeg = 45.61; 
-        public static final double kBackLeftCANCoderOffsetDeg = -86.92; 
+        public static final double kFrontLeftCANCoderOffsetDeg = 0.5; 
+        public static final double kFrontRightCANCoderOffsetDeg = -17.00; 
+        public static final double kBackRightCANCoderOffsetDeg = 80.56; 
+        public static final double kBackLeftCANCoderOffsetDeg = -201; 
 
         //Whether to invert the drive motor 
-        public static final boolean kFrontLeftDriveMotorInverted = false; 
-        public static final boolean kFrontRightDriveMotorInverted = true; 
-        public static final boolean kBackRightDriveMotorInverted = true; 
+        public static final boolean kFrontLeftDriveMotorInverted = true; 
+        public static final boolean kFrontRightDriveMotorInverted = false; 
+        public static final boolean kBackRightDriveMotorInverted = false; 
         public static final boolean kBackLeftDriveMotorInverted = true; 
     }
     
