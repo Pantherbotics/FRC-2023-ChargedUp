@@ -48,7 +48,7 @@ public class Constants {
         public static final int kBackLeftModuleID = 4;
 
         //Positive is counterclockwise, Negative is clockwise
-        public static final double kFrontLeftCANCoderOffsetDeg = 24.5; 
+        public static final double kFrontLeftCANCoderOffsetDeg = -35.5; 
         public static final double kFrontRightCANCoderOffsetDeg = -17.00; 
         public static final double kBackRightCANCoderOffsetDeg = 80.56; 
         public static final double kBackLeftCANCoderOffsetDeg = -201; 
@@ -93,6 +93,9 @@ public class Constants {
         //flex
         public static final double kFlexLowerBound = -300;
         public static final double kFlexUpperBound = 300;
+
+        public static final double kFlexForwardLimit = -2;
+        public static final double kFlexReverseLimit = -47;
 
         public static final double kPFlex = 0.05;
         public static final double kIFlex = 0.0;
