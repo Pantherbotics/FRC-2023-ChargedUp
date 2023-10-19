@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 
 public class Wrist extends SubsystemBase {
@@ -24,12 +25,6 @@ public class Wrist extends SubsystemBase {
         flexMotor = new CANSparkMax(ArmConstants.kFlexMotorPort, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
-
-        flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-        flexMotor.enableSoftLimit(SoftLimitDirection.kForward,true);
-        flexMotor.setSoftLimit(SoftLimitDirection.kForward, -5);
-        flexMotor.setSoftLimit(SoftLimitDirection.kReverse, -47);
-
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
@@ -58,7 +53,14 @@ public class Wrist extends SubsystemBase {
      * @param speed The speed in rpm
      */
     public void flexClosedLoop(double speed) {
-        setFlexAngle(flexSetpoint + speed);
+        double newPos = flexSetpoint + speed;
+        if(newPos < Constants.ArmConstants.kFlexReverseLimit){
+            newPos = Constants.ArmConstants.kFlexReverseLimit;
+        }
+        if(newPos > Constants.ArmConstants.kFlexForwardLimit){
+            newPos = Constants.ArmConstants.kFlexForwardLimit;
+        }
+        setFlexAngle(newPos);
     }
 
     /**
