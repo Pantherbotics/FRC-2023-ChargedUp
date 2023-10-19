@@ -6,12 +6,11 @@ import frc.robot.subsystems.intake.Wrist;
 public class RunSetWristPosition extends CommandBase {
     private Wrist wrist;
 
-    private double flexAngle, rotateAngle;
+    private double flexAngle;
 
-    public RunSetWristPosition(Wrist wrist, double flexAngle, double rotateAngle) {
+    public RunSetWristPosition(Wrist wrist, double flexAngle) {
         this.wrist = wrist;
         this.flexAngle = flexAngle;
-        this.rotateAngle = rotateAngle;
 
         addRequirements(wrist);
     }
@@ -22,7 +21,6 @@ public class RunSetWristPosition extends CommandBase {
     @Override
     public void execute() {
         wrist.setFlexAngle(flexAngle);
-        wrist.setRotateAngle(rotateAngle);
     }
 
     @Override

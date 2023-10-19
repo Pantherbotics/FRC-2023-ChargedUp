@@ -31,7 +31,6 @@ import frc.robot.commands.RunSetClaw;
 import frc.robot.commands.RunSetExtendPosition;
 import frc.robot.commands.RunSetFlexAngle;
 import frc.robot.commands.RunSetPivotAngle;
-import frc.robot.commands.RunSetRotateAngle;
 import frc.robot.commands.RunAutoBalance;
 import frc.robot.commands.RunDrivetrainJoystick;
 import frc.robot.commands.RunToggleClaw;
@@ -356,10 +355,6 @@ public class RobotContainer {
         SmartDashboard.putNumber("Flex Setpoint", wrist.getFlexSetpoint());
         SmartDashboard.putNumber("Flex Position", wrist.getFlexAngle());
 
-        // rotate
-        SmartDashboard.putNumber("Rotate Setpoint", wrist.getRotateSetpoint());
-        SmartDashboard.putNumber("Rotate Position", wrist.getRotateAngle());
-         
         // claw
         SmartDashboard.putString("Claw State", claw.isOpen() ? "Open" : "Close");
     }

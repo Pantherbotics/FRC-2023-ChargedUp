@@ -29,11 +29,6 @@ public class RunWristJoystick extends CommandBase {
             wrist.flexOpenLoop(rightYAxis);
         else
             wrist.flexClosedLoop(rightYAxis);
-
-        if(wrist.getIsRotateOpenLoop())
-            wrist.rotateOpenLoop(rightXAxis);
-        else
-            wrist.rotateClosedLoop(rightXAxis);
     }
   
     //Called once the command ends or is interrupted.
@@ -41,9 +36,6 @@ public class RunWristJoystick extends CommandBase {
     public void end(boolean interrupted) {
         if(wrist.getIsFlexOpenLoop())
             wrist.stopFlex();
-        
-        if(wrist.getIsRotateOpenLoop())
-            wrist.stopRotate();
     }
   
     // Returns true when the command should end.

@@ -112,8 +112,6 @@ public class Constants {
         public static final double kIZoneRotate = 0.0;
         public static final double kFFRotate = 0.0;
 
-        public static final int kRotateMotorPort = 7;
-
         //claw 
         public static final int kClawSolenoidPort = 0;
     }

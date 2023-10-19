@@ -5,16 +5,17 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
 public class Wrist extends SubsystemBase {
-    private final CANSparkMax flexMotor, rotateMotor;
-    private final RelativeEncoder flexEncoder, rotateEncoder;
-    private final SparkMaxPIDController flexPID, rotatePID;
-    private double flexSetpoint, rotateSetpoint; //these should be zero at start
+    private final CANSparkMax flexMotor;
+    private final RelativeEncoder flexEncoder;
+    private final SparkMaxPIDController flexPID;
+    private double flexSetpoint; //these should be zero at start
 
     private boolean isFlexOpenLoop = false, isRotateOpenLoop = false;
 
@@ -23,6 +24,12 @@ public class Wrist extends SubsystemBase {
         flexMotor = new CANSparkMax(ArmConstants.kFlexMotorPort, MotorType.kBrushless);
         flexMotor.restoreFactoryDefaults();
         flexMotor.setIdleMode(IdleMode.kCoast);
+
+        flexMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        flexMotor.enableSoftLimit(SoftLimitDirection.kForward,true);
+        flexMotor.setSoftLimit(SoftLimitDirection.kForward, -5);
+        flexMotor.setSoftLimit(SoftLimitDirection.kReverse, -47);
+
 
         // flex encoder
         flexEncoder = flexMotor.getEncoder();
@@ -36,28 +43,6 @@ public class Wrist extends SubsystemBase {
         flexPID.setIZone(ArmConstants.kIZoneFlex);
         flexPID.setFF(ArmConstants.kFFFlex);
         flexPID.setOutputRange(-1, 1);
-
-        flexSetpoint = 0;
-
-        // rotate motor
-        rotateMotor = new CANSparkMax(ArmConstants.kRotateMotorPort, MotorType.kBrushless);
-        rotateMotor.restoreFactoryDefaults();
-        rotateMotor.setIdleMode(IdleMode.kCoast);
-
-        // rotate encoder
-        rotateEncoder = rotateMotor.getEncoder();
-        rotateEncoder.setPosition(0);
-
-        // rotate pid
-        rotatePID = rotateMotor.getPIDController();
-        rotatePID.setP(ArmConstants.kPRotate);
-        rotatePID.setI(ArmConstants.kIRotate);
-        rotatePID.setD(ArmConstants.kDRotate);
-        rotatePID.setIZone(ArmConstants.kIZoneRotate);
-        rotatePID.setFF(ArmConstants.kFFRotate);
-        rotatePID.setOutputRange(-1, 1);
-
-        rotateSetpoint = 0;
     }
 
     /**
@@ -131,61 +116,14 @@ public class Wrist extends SubsystemBase {
         isFlexOpenLoop = openLoop;
     }
 
-    public void rotateOpenLoop(double speed) {
-        rotateMotor.set(speed);
-    }
-
-    public void rotateClosedLoop(double speed) {
-        setRotateAngle(rotateSetpoint + speed);
-    }
-
-    public void setRotateAngle(double angle) {
-        if(!withinRotateBounds(angle))
-            return;
-        rotateSetpoint = angle;
-    }
-
-    public double getRotateAngle() {
-        return rotateEncoder.getPosition();
-    }
-
-    public double getRotateSetpoint() {
-        return rotateSetpoint;
-    }
-
-    public boolean atRotateSetpoint() {
-        return Math.abs(rotateSetpoint - getRotateAngle()) < 3;
-    }
-
     private boolean withinRotateBounds(double angle) {
         return angle >= ArmConstants.kRotateLowerBound && 
                angle <= ArmConstants.kRotateUpperBound;
-    }
-
-    public void stopRotate() {
-        rotateMotor.stopMotor();
-    }
-
-    /**
-     * @return Whether the rotate is in open loop control or not
-     */
-    public boolean getIsRotateOpenLoop() {
-        return isRotateOpenLoop;
-    }
-
-    /**
-     * @param openLoop True if is open loop, false if closed loop
-     */
-    public void setIsRotateOpenLoop(boolean openLoop) {
-        isRotateOpenLoop = openLoop;
     }
 
     @Override
     public void periodic() {
         if(!isFlexOpenLoop)
             flexPID.setReference(flexSetpoint, ControlType.kPosition);
-            
-        if(!isRotateOpenLoop)
-            rotatePID.setReference(rotateSetpoint, ControlType.kPosition);
     }
 }
