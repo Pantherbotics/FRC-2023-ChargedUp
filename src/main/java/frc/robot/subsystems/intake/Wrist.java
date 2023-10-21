@@ -54,12 +54,12 @@ public class Wrist extends SubsystemBase {
      */
     public void flexClosedLoop(double speed) {
         double newPos = flexSetpoint + speed;
-        if(newPos < Constants.ArmConstants.kFlexReverseLimit){
-            newPos = Constants.ArmConstants.kFlexReverseLimit;
-        }
-        if(newPos > Constants.ArmConstants.kFlexForwardLimit){
-            newPos = Constants.ArmConstants.kFlexForwardLimit;
-        }
+        // if(newPos < Constants.ArmConstants.kFlexReverseLimit){
+        //     newPos = Constants.ArmConstants.kFlexReverseLimit;
+        // }
+        // if(newPos > Constants.ArmConstants.kFlexForwardLimit){
+        //     newPos = Constants.ArmConstants.kFlexForwardLimit;
+        // }
         setFlexAngle(newPos);
     }
 
