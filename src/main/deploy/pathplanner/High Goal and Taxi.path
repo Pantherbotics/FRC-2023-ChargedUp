@@ -2,70 +2,43 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.86,
-        "y": 5.031601504001866
+        "x": 1.94,
+        "y": 5.08
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.323917287472309,
-        "y": 5.031601504001866
+        "x": 3.116949091041039,
+        "y": 5.0674189919808414
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 179.86060073226093,
       "isReversal": false,
-      "velOverride": 0.5,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "High Goal Towards Long End",
+          "Score High Goal Long End",
           "Wait",
-          "Open Claw"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "deadline",
-        "waitTime": 2.5
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 4.0,
-        "y": 5.03
-      },
-      "prevControl": {
-        "x": 3.6994542274980606,
-        "y": 5.03
-      },
-      "nextControl": {
-        "x": 4.300545772501943,
-        "y": 5.03
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
-      "velOverride": 0.5,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
           "Stow"
         ],
-        "executionBehavior": "parallel",
-        "waitBehavior": "after",
-        "waitTime": 1.0
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.189003191130491,
-        "y": 4.574183185456242
+        "x": 5.59339961537066,
+        "y": 5.0674189919808414
       },
       "prevControl": {
-        "x": 5.582492545855546,
-        "y": 4.574183185456242
+        "x": 5.149642584999457,
+        "y": 5.053104249065641
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": 1.0,
+      "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {

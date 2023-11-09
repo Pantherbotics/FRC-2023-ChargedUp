@@ -59,7 +59,7 @@ public class Pivot extends SubsystemBase {
      * @param speed The speed in deg/s
      */
     public void runClosedLoop(double speed) {
-        setAngle(pid.getSetpoint() + speed);
+        setAngle(pid.getSetpoint() + (0.75 * speed));
     }
 
     /**

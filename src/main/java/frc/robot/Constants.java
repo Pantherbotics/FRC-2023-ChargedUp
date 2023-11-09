@@ -50,7 +50,7 @@ public class Constants {
         //Positive is counterclockwise, Negative is clockwise
         public static final double kFrontLeftCANCoderOffsetDeg = -35.5; 
         public static final double kFrontRightCANCoderOffsetDeg = -17.00; 
-        public static final double kBackRightCANCoderOffsetDeg = 80.56; 
+        public static final double kBackRightCANCoderOffsetDeg = 46.56; 
         public static final double kBackLeftCANCoderOffsetDeg = -201; 
 
         //Whether to invert the drive motor 

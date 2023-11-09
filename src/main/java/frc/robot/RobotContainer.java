@@ -232,7 +232,7 @@ public class RobotContainer {
                         new RunSetExtendPosition(extend, 52000),
                         new RunSetFlexAngle(wrist, -22.7))
                         .andThen(new WaitCommand(1))
-                        .andThen(new RunSetClaw(claw, true)));
+                        .andThen(new RunToggleClaw(claw)));
     }
 
     private void configAutos() {

@@ -53,7 +53,7 @@ public class Wrist extends SubsystemBase {
      * @param speed The speed in rpm
      */
     public void flexClosedLoop(double speed) {
-        double newPos = flexSetpoint + speed;
+        double newPos = flexSetpoint + (0.75 * speed);
         // if(newPos < Constants.ArmConstants.kFlexReverseLimit){
         //     newPos = Constants.ArmConstants.kFlexReverseLimit;
         // }
@@ -127,5 +127,6 @@ public class Wrist extends SubsystemBase {
     public void periodic() {
         if(!isFlexOpenLoop)
             flexPID.setReference(flexSetpoint, ControlType.kPosition);
+
     }
 }
